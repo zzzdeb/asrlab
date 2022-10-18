@@ -1,0 +1,6 @@
+*.mm2
+*-compressed.wav
+*.ascii
+*.cep
+*.spec
+*.seg

@@ -11,13 +11,21 @@ git clone https://git.rwth-aachen.de/asrlabws2223/group-1.git --recurse-submodul
 ```
 sudo apt-get install libblas-dev libgsl-dev
 ```
-or equivalent
-4. Compile code using the makefile:
-```
-cd src/
-make
-cd ..
-```
+or equivalent  
+4. Compile code:
+  - Using the makefile:
+  ```bash
+  cd src/
+  make
+  cd ..
+  ```
+  - Using cmake
+  ```bash
+  mkdir build && cd build
+  cmake ..
+  make install
+  cd ..
+  ```
 5. Run program using the asrlab executable and a config file:
 ```
 ./asrlab config/extract_wsj.config

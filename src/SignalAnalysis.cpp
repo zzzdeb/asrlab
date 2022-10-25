@@ -83,10 +83,19 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
   feature_seq_.resize(num_frames * n_features_total);
 
   pre_emphasis(samples);
+  size_t currentTime = 0;
   for (size_t start = 0u; start < samples.size(); start += window_shift) {
+    currentTime++;
     apply_window(samples, start);
+    // windowed_signal_ contains sample*windowed and zero filled.
+    // windowed_signal has dft_length. only window_length = number
     fft(windowed_signal_, NULL, fft_real_, fft_imag_);
+    // calculated fft_real_ and fft_image_
     abs_spectrum();
+    image.add_row(spectrum_);
+    if (currentTime == 25 || currentTime == 105 || currentTime == 405)
+      for (size_t i = 0; i < 10; i++)
+        image_25105405.add_row(spectrum_);
     calc_mel_filterbanks();
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
                    log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));
@@ -95,6 +104,8 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     write_floats_to_file(features_out, cepstrum_);
     num_obs_++;
   }
+  image.to_file("spectrum.pgm");
+  image_25105405.to_file("spectrum_25105405.pgm");
   
   add_deltas();
 

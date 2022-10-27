@@ -45,9 +45,11 @@ public:
   const size_t n_features_total;
   const size_t deriv_step;
 
+  //目前的一大难点是这些参数与slides中的联系不起来
+
   SignalAnalysis(Configuration const& config) : energy_max_norm   (paramEnergyMaxNorm(config)),
                                                 sample_rate       (paramSampleRate(config)),
-                                                window_shift      (paramWindowShift(config) * sample_rate / 1000ul),
+                                                window_shift      (paramWindowShift(config) * sample_rate / 1000ul),//ul: unsigned long
                                                 window_size       (paramWindowSize(config)  * sample_rate / 1000ul),
                                                 dft_length        (paramDftLength(config)),
                                                 n_mel_filters     (paramNMelFilters(config)),
@@ -97,9 +99,9 @@ public:
 private:
   bool apply_mean_var_normalization_;
 
-  std::vector<double> window_func_;
+  std::vector<double> window_func_;//window中离散化的权值
 
-  std::vector<double> windowed_signal_;
+  std::vector<double> windowed_signal_;//windowed_signal_: 经过window处理过后的signal
   std::vector<double> fft_real_;
   std::vector<double> fft_imag_;
   std::vector<double> spectrum_;

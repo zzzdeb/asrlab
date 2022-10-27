@@ -60,8 +60,9 @@ static const std::string ARTIFACTSDIR = "artifacts";
 void SignalAnalysis::init_window(WindowType type) {
   switch (type) {
     case HAMMING:
-      double denom = static_cast<double>(window_func_.size() - 1);
-      for (size_t i = 0u; i < window_func_.size(); i++) {
+      double denom = static_cast<double>(window_func_.size() - 1);//static_cast：强制类型转换，但不如dynamic_cast安全
+      //window_func_.size()对应slides中的N,即每个windows分成离散的N个点
+      for (size_t i = 0u; i < window_func_.size(); i++) {//0u: unsigned
         window_func_[i] = 0.54 - 0.46 * std::cos(2.0 * M_PI * static_cast<double>(i) / denom);
       }
       break;
@@ -76,12 +77,13 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
   /* open feature file */
   create_dir(output_path);
   std::ofstream features_out(output_path.c_str(), std::ios_base::out | std::ios_base::trunc);
+    // https://blog.csdn.net/qq_27274871/article/details/81484162
   if (not features_out.good()) {
     std::cerr << "Error: cannot open '" << output_path << "'" << std::endl;
   }
 
-  const size_t num_frames = (samples.size() + window_shift - 1ul) / window_shift;
-  feature_seq_.resize(num_frames * n_features_total);
+  const size_t num_frames = (samples.size() + window_shift - 1ul) / window_shift;//T in slides?分成了T个frames
+  feature_seq_.resize(num_frames * n_features_total);//每个时间片段t都有n_features_total个feartures
 
   pre_emphasis(samples);
   size_t currentTime = 0;
@@ -105,6 +107,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     // why multiply with log?
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
                    log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));
+    //transform用法: https://blog.csdn.net/fengbingchun/article/details/63252470
     calc_cepstrum();
     std::copy(cepstrum_.begin(), cepstrum_.end(), feature_seq_.begin() + (start / window_shift) * n_features_total);
     write_floats_to_file(features_out, cepstrum_);
@@ -151,15 +154,18 @@ void SignalAnalysis::pre_emphasis(std::vector<short>& samples) {
 
 void SignalAnalysis::apply_window(std::vector<short> const& samples, size_t start) {
   size_t size = std::min(samples.size() - start, window_func_.size());
+  //if start到samples的末尾不到一个window_func_.size()(N)的话,就对最后这些点apply_window
   std::transform(window_func_.begin(), window_func_.begin() + size, samples.begin() + start,
                  windowed_signal_.begin(), std::multiplies<double>());
-
   /* zero padding */
   std::fill(windowed_signal_.begin() + size, windowed_signal_.end(), 0.0);
+  //size长度是该window的结果的长度，之后的值都置为0
 }
 
 /*****************************************************************************/
-
+/**
+ * fft: fast Fourier transform
+ */
 void SignalAnalysis::fft(std::vector<double> const& signal_real, std::vector<double> const* signal_imag,
                          std::vector<double>&       fft_real,    std::vector<double>&       fft_imag,
                          bool inverse) {
@@ -246,13 +252,15 @@ void SignalAnalysis::abs_spectrum() {
                  fft_real_.begin() + size,
                  fft_imag_.begin(),
                  spectrum_.begin(),
-                 hypot);
+                 hypot);//hypot：sqrt(x*x + y*y)
 }
 
 /*****************************************************************************/
 
 void SignalAnalysis::calc_mel_filterbanks() {
   // TODO: implement
+
+
 }
 
 /*****************************************************************************/
@@ -262,7 +270,9 @@ void SignalAnalysis::calc_cepstrum() {
 }
 
 /*****************************************************************************/
-
+/**
+ * add_deltas: first derivatives & second derivatives
+ */
 void SignalAnalysis::add_deltas() {
   const size_t num_frames = feature_seq_.size() / n_features_total;
   for (size_t t = 0ul; t < num_frames; t++) {

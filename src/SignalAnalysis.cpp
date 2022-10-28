@@ -92,11 +92,16 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     fft(windowed_signal_, NULL, fft_real_, fft_imag_);
     // calculated fft_real_ and fft_image_
     abs_spectrum();
+
+    // full spectrum image
     image.add_row(spectrum_);
+    // spectrum in time 25, 105, 405
     if (currentTime == 25 || currentTime == 105 || currentTime == 405)
       for (size_t i = 0; i < 10; i++)
         image_25105405.add_row(spectrum_);
+
     calc_mel_filterbanks();
+    // why multiply with log?
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
                    log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));
     calc_cepstrum();

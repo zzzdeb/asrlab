@@ -106,7 +106,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     calc_mel_filterbanks();
     // why multiply with log?
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
-                   log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));
+                   log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));//double(*)(double)是什么意思
     //transform用法: https://blog.csdn.net/fengbingchun/article/details/63252470
     calc_cepstrum();
     std::copy(cepstrum_.begin(), cepstrum_.end(), feature_seq_.begin() + (start / window_shift) * n_features_total);
@@ -279,13 +279,19 @@ void SignalAnalysis::calc_mel_filterbanks() {
         }
         mel_filterbanks_.at(cur+interval)=sum;
     }
-
 }
 
 /*****************************************************************************/
 
 void SignalAnalysis::calc_cepstrum() {
   // TODO: implement
+    for(size_t m=0,m<cepstrum_.size(),m++){
+        double sum=0;
+        for(size_t i=0;i<log_mel_filterbanks_.size();i++){
+            sum+=std::cos(M_PI*m*(i+0.5)/log_mel_filterbanks_.size())* log_mel_filterbanks_.at(i);
+        }
+        cepstrum_.at(m)=sum;
+    }
 }
 
 /*****************************************************************************/

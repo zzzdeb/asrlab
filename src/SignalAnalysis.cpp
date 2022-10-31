@@ -53,6 +53,7 @@ const ParameterUInt64 SignalAnalysis::paramNFeaturesInFile("n-features-file",  1
 const ParameterUInt64 SignalAnalysis::paramNFeaturesFirst ("n-features-first", 12ul);
 const ParameterUInt64 SignalAnalysis::paramNFeaturesSecond("n-features-second", 1ul);
 const ParameterUInt64 SignalAnalysis::paramDerivStep      ("deriv-step",        3ul);
+static const std::string ARTIFACTSDIR = "artifacts";
 
 /*****************************************************************************/
 
@@ -109,8 +110,10 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     write_floats_to_file(features_out, cepstrum_);
     num_obs_++;
   }
-  image.to_file("spectrum.pgm");
-  image_25105405.to_file("spectrum_25105405.pgm");
+  image.transpose();
+  image_25105405.transpose();
+  image.to_file(ARTIFACTSDIR + "/spectrum.pgm", PGM::P2, true, true);
+  image_25105405.to_file(ARTIFACTSDIR + "/spectrum_25105405.pgm", PGM::P2, true, true);
   
   add_deltas();
 

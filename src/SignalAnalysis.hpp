@@ -10,6 +10,9 @@
 #include <string>
 
 #include "Config.hpp"
+#include "pgm/PGM.hpp"
+
+using namespace pgm;
 
 class SignalAnalysis {
 public:
@@ -109,6 +112,9 @@ private:
   std::vector<double> mean_;
   std::vector<double> stddev_;
   std::vector<double> sqrsum_;
+
+  PGM image;
+  PGM image_25105405;
 };
 
 #endif /* __SIGNAL_ANALYSIS_H__ */

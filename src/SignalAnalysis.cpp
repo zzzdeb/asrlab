@@ -270,11 +270,11 @@ void SignalAnalysis::calc_mel_filterbanks() {
     size_t interval=size/(n_mel_filters+1);
     for(size_t cur=0;cur<=size-2*interval;cur+=interval){
         double sum=0;
-        for(size_t trian_cur=0,trian_cur<=interval;trian_cur++){
+        for(size_t trian_cur=0;trian_cur<=interval;trian_cur++){
             sum+=trian_cur*(1/interval)*spectrum_.at(cur+trian_cur);
         }
-        for(size_t trian_cur=interval,trian_cur<=2*interval;trian_cur++){
-            sum+=(2-trian_cur*(1/interval))*spectrum_.at(cur+trian_cur)
+        for(size_t trian_cur=interval;trian_cur<=2*interval;trian_cur++){
+            sum+=(2-trian_cur*(1/interval))*spectrum_.at(cur+trian_cur);
         }
         mel_filterbanks_.at(cur+interval)=sum;
     }
@@ -284,7 +284,7 @@ void SignalAnalysis::calc_mel_filterbanks() {
 
 void SignalAnalysis::calc_cepstrum() {
   // TODO: implement
-    for(size_t m=0,m<cepstrum_.size(),m++){
+    for(size_t m=0;m<cepstrum_.size();m++){
         double sum=0;
         for(size_t i=0;i<log_mel_filterbanks_.size();i++){
             sum+=std::cos(M_PI*m*(i+0.5)/log_mel_filterbanks_.size())* log_mel_filterbanks_.at(i);

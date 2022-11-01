@@ -22,7 +22,7 @@ namespace pgm
     void from_file(const std::string &path);
     void to_file(const std::string &path, PgmType type = P2, bool scale = true, bool invert = false) const;
 
-    void add_row(const std::vector<double> &row);
+    void add_row(const std::vector<double> &row, size_t times = 1);
 
     void transpose();
 

@@ -115,8 +115,10 @@ private:
   std::vector<double> stddev_;
   std::vector<double> sqrsum_;
 
+  std::vector<double> energies_;
   PGM image;
   PGM image_25105405;
+  PGM image_energies;
 };
 
 #endif /* __SIGNAL_ANALYSIS_H__ */

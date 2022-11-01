@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <numeric>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -95,6 +96,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     fft(windowed_signal_, NULL, fft_real_, fft_imag_);
     // calculated fft_real_ and fft_image_
     abs_spectrum();
+    energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));
 
     // full spectrum image
     image.add_row(spectrum_);
@@ -113,6 +115,8 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     write_floats_to_file(features_out, cepstrum_);
     num_obs_++;
   }
+  image_energies.add_row(energies_, 100);
+  image_energies.to_file(ARTIFACTSDIR + "/energies.pgm", PGM::P2, true, true);
   image.transpose();
   image_25105405.transpose();
   image.to_file(ARTIFACTSDIR + "/spectrum.pgm", PGM::P2, true, true);

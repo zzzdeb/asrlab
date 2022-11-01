@@ -259,25 +259,25 @@ void SignalAnalysis::abs_spectrum() {
 
 void SignalAnalysis::calc_mel_filterbanks() {
   // TODO: implement
-    size_t size = std::min(std::min(fft_real_.size(), fft_imag_.size()), spectrum_.size());
-    // Mel frequency warping
-    for(size_t k=0;k<size;k++){
-        spectrum_.at(k)= 2595*log10(k/window_size*spectrum_.at(k) /700+1);
-    }
+    // size_t size = std::min(std::min(fft_real_.size(), fft_imag_.size()), spectrum_.size());
+    // // Mel frequency warping
+    // for(size_t k=0;k<size;k++){
+    //     spectrum_.at(k)= 2595*log10(k/window_size*spectrum_.at(k) /700+1);
+    // }
 
-    std::transform(spectrum_.begin(),spectrum_.begin()+size,spectrum_.begin(),abs);
-    //trianggular window
-    size_t interval=size/(n_mel_filters+1);
-    for(size_t cur=0;cur<=size-2*interval;cur+=interval){
-        double sum=0;
-        for(size_t trian_cur=0;trian_cur<=interval;trian_cur++){
-            sum+=trian_cur*(1/interval)*spectrum_.at(cur+trian_cur);
-        }
-        for(size_t trian_cur=interval;trian_cur<=2*interval;trian_cur++){
-            sum+=(2-trian_cur*(1/interval))*spectrum_.at(cur+trian_cur);
-        }
-        mel_filterbanks_.at(cur+interval)=sum;
-    }
+    // std::transform(spectrum_.begin(),spectrum_.begin()+size,spectrum_.begin(),abs);
+    // //trianggular window
+    // size_t interval=size/(n_mel_filters+1);
+    // for(size_t cur=0;cur<=size-2*interval;cur+=interval){
+    //     double sum=0;
+    //     for(size_t trian_cur=0;trian_cur<=interval;trian_cur++){
+    //         sum+=trian_cur*(1/interval)*spectrum_.at(cur+trian_cur);
+    //     }
+    //     for(size_t trian_cur=interval;trian_cur<=2*interval;trian_cur++){
+    //         sum+=(2-trian_cur*(1/interval))*spectrum_.at(cur+trian_cur);
+    //     }
+    //     mel_filterbanks_.at(cur+interval)=sum;
+    // }
 }
 
 /*****************************************************************************/

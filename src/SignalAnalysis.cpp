@@ -39,6 +39,14 @@ namespace {
       return std::sqrt(inv_num_obs_ * sqrsum - mean * mean);
     }
   };
+
+  template <typename T>
+  void cprint(const std::vector<T> &container)
+  {
+    for (const auto &v : container)
+      std::cout << v << ",";
+    std::cout << std::endl;
+  }
 }
 
 /*****************************************************************************/
@@ -105,10 +113,8 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     // spectrum_matrix_.add_row(spectrum_);
 
     calc_mel_filterbanks();
-    // why multiply with log?
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
                    log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));//double(*)(double)是什么意思
-    //transform用法: https://blog.csdn.net/fengbingchun/article/details/63252470
     calc_cepstrum();
     std::copy(cepstrum_.begin(), cepstrum_.end(), feature_seq_.begin() + (start / window_shift) * n_features_total);
     write_floats_to_file(features_out, cepstrum_);
@@ -282,25 +288,54 @@ void SignalAnalysis::abs_spectrum() {
 
 void SignalAnalysis::calc_mel_filterbanks() {
   // TODO: implement
-    // size_t size = std::min(std::min(fft_real_.size(), fft_imag_.size()), spectrum_.size());
-    // // Mel frequency warping
-    // for(size_t k=0;k<size;k++){
-    //     spectrum_.at(k)= 2595*log10(k/window_size*spectrum_.at(k) /700+1);
-    // }
+  double low_freq_mel = 0;
+  double high_freq_mel = (2595 * std::log10(1 + sample_rate / 2 / 700)); // Convert Hz to Mel
 
-    // std::transform(spectrum_.begin(),spectrum_.begin()+size,spectrum_.begin(),abs);
-    // //trianggular window
-    // size_t interval=size/(n_mel_filters+1);
-    // for(size_t cur=0;cur<=size-2*interval;cur+=interval){
-    //     double sum=0;
-    //     for(size_t trian_cur=0;trian_cur<=interval;trian_cur++){
-    //         sum+=trian_cur*(1/interval)*spectrum_.at(cur+trian_cur);
-    //     }
-    //     for(size_t trian_cur=interval;trian_cur<=2*interval;trian_cur++){
-    //         sum+=(2-trian_cur*(1/interval))*spectrum_.at(cur+trian_cur);
-    //     }
-    //     mel_filterbanks_.at(cur+interval)=sum;
-    // }
+  std::vector<double> points_mel(n_mel_filters + 2);
+  points_mel.at(0) = low_freq_mel;
+  double half_mel = (high_freq_mel - low_freq_mel) / (n_mel_filters + 1);
+  for (size_t i = 1; i < points_mel.size(); i++)
+    points_mel.at(i) = points_mel.at(i - 1) + half_mel;
+
+  std::vector<double> points_hz(n_mel_filters + 2);
+  std::transform(points_mel.cbegin(), points_mel.cend(), points_hz.begin(),
+                 [&](const double &mel_freq)
+                 {
+                   return 700 * (std::pow(10, mel_freq / 2595) - 1);
+                 });
+
+  std::vector<size_t> locations_in_spectrum(n_mel_filters + 2);
+  std::transform(points_hz.cbegin(), points_hz.cend(), locations_in_spectrum.begin(),
+                 [&](const double &freq)
+                 {
+                   return (freq / sample_rate) * (dft_length + 1);
+                 });
+
+  double aria2 = locations_in_spectrum.at(1) - locations_in_spectrum.at(0);
+  for (size_t i = 0; i < n_mel_filters; i++)
+  {
+    size_t left = locations_in_spectrum.at(i);
+    size_t mid = locations_in_spectrum.at(i + 1);
+    size_t right = locations_in_spectrum.at(i + 2);
+    size_t width = right - left;
+    double height = aria2 / width;
+
+    double sum = 0;
+    size_t current = left;
+    size_t lwidth = mid - left;
+    for (; current < mid; current++)
+    {
+      double factor = height * (mid - current) / lwidth;
+      sum += factor * spectrum_.at(current);
+    }
+    size_t rwidth = right - mid;
+    for (; current <= right; current++)
+    {
+      double factor = height * (right - current) / rwidth;
+      sum += factor * spectrum_.at(current);
+    }
+    mel_filterbanks_.at(i) = sum;
+  }
 }
 
 /*****************************************************************************/

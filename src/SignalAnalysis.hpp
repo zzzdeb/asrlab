@@ -100,9 +100,9 @@ public:
 private:
   bool apply_mean_var_normalization_;
 
-  std::vector<double> window_func_;//window中离散化的权值
+  std::vector<double> window_func_;
 
-  std::vector<double> windowed_signal_;//windowed_signal_: 经过window处理过后的signal
+  std::vector<double> windowed_signal_;
   std::vector<double> fft_real_;
   std::vector<double> fft_imag_;
   std::vector<double> spectrum_;

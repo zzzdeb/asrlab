@@ -95,8 +95,14 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     // calculated fft_real_ and fft_image_
     abs_spectrum();
 
-    // log_spectrum();
-    spectrum_matrix_.add_row(spectrum_);
+    std::vector<double> log_spectrum(spectrum_.size());
+    std::transform(spectrum_.cbegin(), spectrum_.cend(), log_spectrum.begin(),
+                   [](const auto& v)
+                   {
+                     return 20 * std::log10(v); // log-spectrum
+                   });
+    spectrum_matrix_.add_row(log_spectrum);
+    // spectrum_matrix_.add_row(spectrum_);
 
     calc_mel_filterbanks();
     // why multiply with log?

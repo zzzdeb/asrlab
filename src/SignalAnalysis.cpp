@@ -87,23 +87,16 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
   feature_seq_.resize(num_frames * n_features_total);//每个时间片段t都有n_features_total个feartures
 
   pre_emphasis(samples);
-  size_t currentTime = 0;
   for (size_t start = 0u; start < samples.size(); start += window_shift) {
-    currentTime++;
     apply_window(samples, start);
     // windowed_signal_ contains sample*windowed and zero filled.
     // windowed_signal has dft_length. only window_length = number
     fft(windowed_signal_, NULL, fft_real_, fft_imag_);
     // calculated fft_real_ and fft_image_
     abs_spectrum();
-    energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));
 
-    // full spectrum image
-    image.add_row(spectrum_);
-    // spectrum in time 25, 105, 405
-    if (currentTime == 25 || currentTime == 105 || currentTime == 405)
-      for (size_t i = 0; i < 10; i++)
-        image_25105405.add_row(spectrum_);
+    // log_spectrum();
+    spectrum_matrix_.add_row(spectrum_);
 
     calc_mel_filterbanks();
     // why multiply with log?
@@ -115,12 +108,32 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     write_floats_to_file(features_out, cepstrum_);
     num_obs_++;
   }
-  image_energies.add_row(energies_, 100);
-  image_energies.to_file(ARTIFACTSDIR + "/energies.pgm", PGM::P2, true, true);
-  image.transpose();
-  image_25105405.transpose();
-  image.to_file(ARTIFACTSDIR + "/spectrum.pgm", PGM::P2, true, true);
-  image_25105405.to_file(ARTIFACTSDIR + "/spectrum_25105405.pgm", PGM::P2, true, true);
+
+  {
+    /* Excercise 1.1 */
+    spectrum_matrix_.to_file(ARTIFACTSDIR + "/spectrum_values.txt");
+    spectrum_matrix_.from_file(ARTIFACTSDIR + "/spectrum_values.txt");
+    size_t currentTime = 0;
+    // Working on the matrix read from file.
+    for (size_t i = 0; i < spectrum_matrix_.get_height(); i++) {
+      currentTime++;
+      spectrum_ = spectrum_matrix_(i);
+      energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));
+      // full spectrum image
+      image_.add_row(spectrum_);
+      // spectrum in time 25, 105, 405
+      if (currentTime == 25 || currentTime == 105 || currentTime == 405)
+        image_25105405_.add_row(spectrum_, 10);
+    }
+
+    image_energies_.add_row(energies_, 100);
+    image_energies_.to_file(ARTIFACTSDIR + "/energies.pgm", PGM::P2, true, true);
+    image_.transpose();
+    image_25105405_.transpose();
+    image_.to_file(ARTIFACTSDIR + "/spectrum.pgm", PGM::P2, true, true);
+    image_25105405_.to_file(ARTIFACTSDIR + "/spectrum_25105405.pgm", PGM::P2, true, true);
+  }
+
   
   add_deltas();
 

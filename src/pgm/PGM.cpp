@@ -93,29 +93,4 @@ namespace pgm
     }
     outfile.close();
   }
-
-  void PGM::transpose()
-  {
-    std::vector<double> ndata(data.size());
-    for (size_t i = 0; i < height; i++)
-      for (size_t j = 0; j < width; j++)
-        ndata.at(j * height + i) = data.at(i * width + j);
-    data = std::move(ndata);
-    std::swap(height, width);
-  }
-
-  void PGM::add_row(const std::vector<double> &row, size_t times)
-  {
-    if (width == 0)
-      width = row.size();
-    if (width != row.size())
-      throw std::invalid_argument("row size does not match.");
-
-    data.resize(data.size() + times * row.size());
-    for (size_t i = 0; i < times; i++)
-    {
-      std::copy(row.cbegin(), row.cend(), data.begin() + width * height);
-      height++;
-    }
-  }
 }

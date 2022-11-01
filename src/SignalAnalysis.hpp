@@ -11,6 +11,7 @@
 
 #include "Config.hpp"
 #include "pgm/PGM.hpp"
+#include "pgm/Matrix.hpp"
 
 using namespace pgm;
 
@@ -116,9 +117,10 @@ private:
   std::vector<double> sqrsum_;
 
   std::vector<double> energies_;
-  PGM image;
-  PGM image_25105405;
-  PGM image_energies;
+  PGM image_;
+  PGM image_25105405_;
+  PGM image_energies_;
+  Matrix spectrum_matrix_;
 };
 
 #endif /* __SIGNAL_ANALYSIS_H__ */

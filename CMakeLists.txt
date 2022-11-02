@@ -22,3 +22,4 @@ target_link_libraries(asrlab pgm)
 
 install(TARGETS asrlab RUNTIME DESTINATION ${CMAKE_CURRENT_LIST_DIR})
  
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")

@@ -67,7 +67,9 @@ namespace pgm
     double offSet = 0.;
     if (scale)
     {
-      auto [minData, maxData] = std::minmax_element(data.cbegin(), data.cend());
+      auto minMaxData = std::minmax_element(data.cbegin(), data.cend());
+      auto minData = minMaxData.first;
+      auto maxData = minMaxData.second;
       offSet = *minData;
       // special case minData==maxData
       if (!almost_equal(*minData, *maxData))

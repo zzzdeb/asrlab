@@ -11,6 +11,7 @@
 #include <limits>
 #include <numeric>
 #include <vector>
+#include <algorithm>
 
 #include "Types.hpp"
 
@@ -53,7 +54,11 @@ struct MarkovAutomaton {
 
   static MarkovAutomaton concat(std::vector<MarkovAutomaton const*> automata) {
     MarkovAutomaton result;
-    //TODO: implement
+    result.states.resize(std::accumulate(automata.cbegin(), automata.cend(), 0, [](int &sum, const auto *a)
+                                         { return sum + a->states.size(); }));
+    auto current_pos = result.states.begin();
+    for (const auto automat : automata)
+      current_pos = std::copy(automat->states.cbegin(), automat->states.cend(), current_pos);
     return result;
   }
 };

@@ -223,8 +223,10 @@ void Trainer::train(Corpus const& corpus) {
 /*****************************************************************************/
 
 MarkovAutomaton Trainer::build_segment_automaton(WordIter segment_begin, WordIter segment_end) const {
-  //TODO: implement
-  return MarkovAutomaton();
+  std::vector<MarkovAutomaton const *> automata;
+  std::transform(segment_begin, segment_end, std::back_inserter(automata), [this](const WordIdx& widx)
+            { return &lexicon_->get_automaton_for_word(widx); });
+  return MarkovAutomaton::concat(automata);
 }
 
 /*****************************************************************************/

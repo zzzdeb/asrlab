@@ -15,10 +15,10 @@ namespace pgm
     public:
         Matrix() = default;
 
-        Matrix(size_t rows, size_t columns) : 
+        Matrix(size_t rows, size_t columns, double init = 0) : 
             rows_(rows),
             columns_(columns),
-            data(rows_ * columns_) {}
+            data(rows_ * columns_, init) {}
     
 
         void from_file(const std::string &path);

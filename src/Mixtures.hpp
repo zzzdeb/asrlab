@@ -14,6 +14,7 @@
 #include "Corpus.hpp"
 #include "FeatureScorer.hpp"
 #include "Types.hpp"
+#include "pgm/Matrix.hpp"
 
 class MixtureModel : public FeatureScorer {
 public:
@@ -57,17 +58,18 @@ private:
 
   bool max_approx_;
 
-  std::vector<double> means_;                    // current mean
-  std::vector<double> mean_accumulators_;        // temp. accumulator (first order stat.) used in reestimation
+  Matrix means_;                                 // current mean
+  Matrix mean_accumulators_;                     // temp. accumulator (first order stat.) used in reestimation
   std::vector<double> mean_weights_;             // weight of the density
   std::vector<double> mean_weight_accumulators_; // temp. accumulator used in reestimation
   std::vector<size_t> mean_refs_;                // reference counter
 
-  std::vector<double> vars_;                     // current variance
-  std::vector<double> var_accumulators_;         // temp. accumulator (second order stat.) used in reestimation
+  Matrix vars_;                                  // current variance
+  Matrix var_accumulators_;                      // temp. accumulator (second order stat.) used in reestimation
   std::vector<double> var_weight_accumulators_;  // temp. accumulator used in reestimation
   std::vector<size_t> var_refs_;                 // reference counter
 
+  const double norm_fixed_;                          //
   std::vector<double> norm_;                     // normalization factor for gaussian distribution
 
   std::vector<Mixture> mixtures_;

@@ -54,14 +54,14 @@ namespace {
 
   void read_accumulator(std::istream& in, size_t expected_dimension,
                         std::vector<size_t>& refs,
-                        std::vector<double>& features,
+                        Matrix& features,
                         std::vector<double>& weight) {
     uint32_t size;
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
     test(in.gcount() == sizeof(size), "Error reading size");
 
     refs.resize(size);
-    features.resize(size * expected_dimension);
+    features.resize({size, expected_dimension});
     weight.resize(size);
 
     for (size_t i = 0ul; i < size; i++) {
@@ -71,7 +71,7 @@ namespace {
       test(in.gcount() == sizeof(dimension), "Error reading dimension");
       test(dimension == expected_dimension, "Invalid dimension");
 
-      in.read(reinterpret_cast<char*>(&features[i * dimension]), sizeof(double) * dimension);
+      in.read(reinterpret_cast<char*>(&features(i, 0)), sizeof(double) * dimension);
       test(static_cast<size_t>(in.gcount()) == sizeof(double) * dimension, "Error reading features");
 
       in.read(reinterpret_cast<char*>(&weight[i]), sizeof(double));
@@ -81,7 +81,7 @@ namespace {
 
   void write_accumulator(std::ostream& out, uint32_t size, uint32_t dimension,
                          std::vector<size_t> const& refs,
-                         std::vector<double> const& features,
+                         Matrix const& features,
                          std::vector<double> const& weight) {
     out.write(reinterpret_cast<const char*>(&size), sizeof(size));
     for (size_t i = 0ul; i < refs.size(); i++) {
@@ -89,7 +89,7 @@ namespace {
         continue;
       }
       out.write(reinterpret_cast<const char*>(&dimension),               sizeof(dimension));
-      out.write(reinterpret_cast<const char*>(&features[i * dimension]), sizeof(double) * dimension);
+      out.write(reinterpret_cast<const char*>(&features(i, 0)), sizeof(double) * dimension);
       out.write(reinterpret_cast<const char*>(&weight[i]),               sizeof(double));
     }
   }
@@ -108,9 +108,29 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t
                            VarianceModel var_model, bool max_approx)
             : dimension(dimension),
               var_model(var_model),
-              max_approx_    (max_approx),
-              mixtures_(num_mixtures) {
-  // TODO: implement
+              max_approx_(max_approx),
+
+              means_(num_mixtures, dimension),
+              mean_accumulators_(num_mixtures, dimension),
+              mean_weights_(num_mixtures),
+              mean_weight_accumulators_(num_mixtures),
+              mean_refs_(num_mixtures, 1),
+
+              vars_(num_mixtures, dimension, 1),
+              var_accumulators_(num_mixtures, dimension),
+              var_weight_accumulators_(num_mixtures),
+              var_refs_(num_mixtures, 1),
+
+              norm_fixed_(dimension * std::log(2 * M_PI) / 2),
+              norm_(num_mixtures),
+
+              mixtures_(num_mixtures)
+{
+  for (size_t i = 0; i < num_mixtures; i++)
+  {
+    norm_.at(i) = norm_fixed_ - vars_.row(i).log().sum() / 2;
+    mixtures_.at(i).emplace_back(i, i);
+  }
 }
 
 /*****************************************************************************/

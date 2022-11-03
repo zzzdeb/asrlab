@@ -13,29 +13,32 @@ namespace pgm
     public:
         Matrix() = default;
 
+        Matrix(size_t rows, size_t columns) : 
+            rows_(rows),
+            columns_(columns),
+            data(rows_ * columns_) {}
+    
+
         void from_file(const std::string &path);
         void to_file(const std::string &path) const;
-
         void add_row(const std::vector<double> &row, size_t times = 1);
-
         void transpose();
 
-        size_t get_height() const { return height; }
-
         // Returns row i
-        std::vector<double> operator()(size_t i)
-        {
-            if (i >= height)
-                throw std::invalid_argument("Index is too big.");
-            auto first = data.cbegin() + width * i;
-            auto last = data.cbegin() + width * (i + 1);
+        std::vector<double> operator()(size_t i);
 
-            return std::vector<double>(first, last);
-        };
+        const double& operator()(size_t y, size_t x) const {
+            return data.at(y * columns_ + x);
+        }
+        auto row_begin(size_t i) { return data.begin() + columns_ * i; }
+        auto row_end(size_t i) { return data.begin() + columns_ * (i + 1); }
+        void resize(const std::pair<size_t, size_t>& size) { rows_ = size.first; columns_ = size.second; data.resize(rows_ * columns_);}
+        std::pair<size_t, size_t> size() const { return {rows_, columns_};}
+        auto& operator()(size_t i, size_t j) { return data[i * columns_ + j]; }
 
-    protected:
-        size_t width{0};
-        size_t height{0};
+
+        size_t rows_{0};
+        size_t columns_{0};
         std::vector<double> data{};
     };
 

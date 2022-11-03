@@ -127,7 +127,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     spectrum_matrix_.from_file(ARTIFACTSDIR + "/spectrum_values.txt");
     size_t currentTime = 0;
     // Working on the matrix read from file.
-    for (size_t i = 0; i < spectrum_matrix_.get_height(); i++) {
+    for (size_t i = 0; i < spectrum_matrix_.rows_; i++) {
       currentTime++;
       spectrum_ = spectrum_matrix_(i);
       energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));

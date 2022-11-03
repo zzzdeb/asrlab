@@ -179,8 +179,16 @@ size_t MixtureModel::num_densities() const {
 // computes the score (probability in negative log space) for a feature vector
 // given a mixture density
 double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx, DensityIdx density_idx) const {
-  // TODO: implement
-  return 0.0;
+  const Mixture& mixture = mixtures_.at(mixture_idx);
+  const MixtureDensity& density = mixture.at(density_idx);
+  if (mean_refs_.at(density.mean_idx) == 0)
+    return std::numeric_limits<double>::max();
+  const double& minus_log_c = mean_weights_.at(density.mean_idx);
+
+  double p = minus_log_c + norm_.at(density.var_idx);
+  for (size_t i = 0; i < iter.size; i++)
+    p += std::pow(*(*iter + i) - means_(density.mean_idx, i), 2) / vars_(density.var_idx, i) / 2;
+  return p;
 }
 
 /*****************************************************************************/
@@ -188,8 +196,19 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
 // this function returns the density with the lowest score (=highest probability)
 // for the given feature vector
 std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, StateIdx mixture_idx) const {
-  // TODO: implement
-  return std::make_pair(0.0, 0u);
+  const Mixture& mixture = mixtures_.at(mixture_idx);
+  double min_score = std::numeric_limits<double>::max();
+  DensityIdx min_index = -1;
+  for (size_t i = 0; i < mixture.size(); i++)
+  {
+    double score = density_score(iter, mixture_idx, i);
+    if (score < min_score) {
+      min_score = score;
+      min_index = i;
+    }
+  }
+  
+  return std::make_pair(min_score, min_index);
 }
 
 /*****************************************************************************/

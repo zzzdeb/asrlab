@@ -16,6 +16,7 @@ target_include_directories(asrlab PUBLIC
 add_library(pgm
   src/pgm/PGM.cpp
   src/pgm/Matrix.cpp
+  src/pgm/Section.cpp
 )
 
 target_link_libraries(asrlab pgm)

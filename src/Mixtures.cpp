@@ -153,7 +153,18 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
 /*****************************************************************************/
 
 void MixtureModel::finalize() {
-  // TODO: implement
+  // Implements means_, vars_ and norm_
+  for (size_t i = 0; i < mean_weights_.size(); i++) {
+    if (mean_refs_.at(i) == 0)
+      continue;
+    if (mean_weight_accumulators_.at(i) != 0)
+      means_.row(i) = mean_accumulators_.row(i) / mean_weight_accumulators_.at(i);
+    if (var_weight_accumulators_.at(i) != 0) {
+      vars_.row(i) = 1 / (var_accumulators_.row(i) / var_weight_accumulators_.at(i) - means_.row(i).square()).square().nonzero();
+    norm_.at(i) = norm_fixed_ - (vars_.row(i).log().sum() / 2);
+    } else 
+      norm_.at(i) = norm_fixed_;
+  }
 }
 
 /*****************************************************************************/

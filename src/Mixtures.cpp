@@ -136,7 +136,10 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t
 /*****************************************************************************/
 
 void MixtureModel::reset_accumulators() {
-  // TODO: implement
+  std::fill(mean_accumulators_.data.begin(), mean_accumulators_.data.end(), 0);
+  std::fill(mean_weight_accumulators_.begin(), mean_weight_accumulators_.end(), 0);
+  std::fill(var_accumulators_.data.begin(), var_accumulators_.data.end(), 0);
+  std::fill(var_weight_accumulators_.begin(), var_weight_accumulators_.end(), 0);
 }
 
 /*****************************************************************************/

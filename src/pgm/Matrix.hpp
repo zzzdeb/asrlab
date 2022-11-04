@@ -23,7 +23,9 @@ namespace pgm
 
         void from_file(const std::string &path);
         void to_file(const std::string &path) const;
-        void add_row(const std::vector<double> &row, size_t times = 1);
+        void add_row();
+        void add_row(std::vector<double> &row, size_t times = 1);
+        void add_row(const Section& row, size_t times = 1);
         void transpose();
 
         // Returns row i

@@ -26,7 +26,9 @@ public:
     }
     Vector log();
     Vector square();
+    Vector sqrt();
     double sum() { return std::accumulate(begin, end, 0.);}
+
     ItType begin;
     ItType end;
 };

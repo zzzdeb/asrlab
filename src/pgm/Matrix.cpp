@@ -57,17 +57,26 @@ namespace pgm
         std::swap(rows_, columns_);
     }
 
-    void Matrix::add_row(const std::vector<double> &row, size_t times)
+    void Matrix::add_row(std::vector<double> &row, size_t times)
     {
+        add_row(Section(row.begin(), row.end()), times);
+    }
+    void Matrix::add_row() {
+        data.resize(data.size() + columns_);
+        std::fill(data.end() - columns_, data.end(), 0);
+        rows_++;
+    }
+    void Matrix::add_row(const Section& row, size_t times){
         if (columns_ == 0)
             columns_ = row.size();
         if (columns_ != row.size())
             throw std::invalid_argument("row size does not match.");
 
-        data.resize(data.size() + times * row.size());
+        size_t row_size = row.end - row.begin;
+        data.resize(data.size() + times * row_size);
         for (size_t i = 0; i < times; i++)
         {
-            std::copy(row.cbegin(), row.cend(), data.begin() + columns_ * rows_);
+            std::copy(row.begin, row.end, data.begin() + columns_ * rows_);
             rows_++;
         }
     }

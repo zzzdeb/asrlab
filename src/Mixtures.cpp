@@ -195,13 +195,57 @@ void MixtureModel::finalize() {
 /*****************************************************************************/
 
 void MixtureModel::split(size_t min_obs) {
-  // TODO: implement
+  for (auto& mixture : mixtures_)
+  {
+    for (size_t i = 0; i < mixture.size(); i++)
+    {
+      DensityIdx cur_mean_idx= mixture.at(i).mean_idx;
+      DensityIdx cur_var_idx= mixture.at(i).var_idx;
+      if (mean_refs_.at(cur_mean_idx) == 0)
+        continue;
+      if (mean_weight_accumulators_.at(cur_mean_idx) >= min_obs) {
+        auto cur_mean = means_.row(cur_mean_idx);
+        auto diff = (1 / vars_.row(cur_var_idx)).sqrt();
+        auto p_mean = cur_mean + diff;
+        auto n_mean = cur_mean - diff;
+        means_.row(cur_mean_idx) = p_mean;
+        mean_weights_.at(cur_mean_idx) += log(2);
+        {
+          // add mean
+          means_.add_row(n_mean);
+          mean_accumulators_.add_row();
+          mean_weights_.emplace_back(mean_weights_.at(cur_mean_idx));
+          mean_weight_accumulators_.emplace_back();
+          mean_refs_.emplace_back(1);
+        }
+        {
+          // add var
+          vars_.add_row(vars_.row(cur_var_idx));
+          var_accumulators_.add_row();
+          var_weight_accumulators_.emplace_back();
+          var_refs_.emplace_back(1);
+          norm_.emplace_back();
+        }
+        mixture.emplace_back(mean_weights_.size() - 1, var_weight_accumulators_.size() - 1);
+      }
+    }
+  }
+  
 }
 
 /*****************************************************************************/
 
 void MixtureModel::eliminate(double min_obs) {
-  // TODO: implement
+  for (auto& mixture : mixtures_)
+  {
+    for (size_t i = 0; i < mixture.size(); i++)
+    {
+      if (mean_weight_accumulators_.at(mixture.at(i).mean_idx) < min_obs)
+        mean_refs_.at(i) = 0;
+      if (var_weight_accumulators_.at(mixture.at(i).var_idx) < min_obs)
+        var_refs_.at(i) = 0;
+    }
+  }
 }
 
 /*****************************************************************************/

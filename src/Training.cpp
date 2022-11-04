@@ -328,9 +328,15 @@ void Trainer::write_linear_segmentation(std::string const& feature_path,
 
 /*****************************************************************************/
 
-double Trainer::calc_am_score(Corpus const& corpus, Alignment const& alignment) const {
-  // TODO: implement
-  return 0.0;
+double Trainer::calc_am_score(Corpus const &corpus, Alignment const &alignment) const
+{
+  double score = 0.;
+  std::pair<FeatureIter, FeatureIter> features = corpus.get_all_features();
+  for (auto i = 0; i < features.second - features.first; i++)
+    for (size_t j = 0; j < num_max_aligns_; j++)
+      score += mixtures_.score(features.first + i, alignment.at(i * num_max_aligns_ + j).state);
+  score /= features.second - features.first;
+  return score;
 }
 
 /*****************************************************************************/

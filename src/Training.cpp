@@ -231,11 +231,63 @@ MarkovAutomaton Trainer::build_segment_automaton(WordIter segment_begin, WordIte
 
 /*****************************************************************************/
 
-std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const& automaton,
-                                                       FeatureIter   feature_begin, FeatureIter   feature_end,
-                                                       AlignmentIter align_begin,   AlignmentIter align_end) const {
-  std::pair<size_t, size_t> boundaries;
-  //TODO: implement
+std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &automaton,
+                                                       FeatureIter feature_begin, FeatureIter feature_end,
+                                                       AlignmentIter align_begin, AlignmentIter align_end) const
+{
+  std::pair<size_t, size_t> boundaries(0, 0);
+  std::vector<float> X(feature_end - feature_begin);
+  std::transform(feature_begin, feature_end, X.begin(), [](const float *f)
+                 { return *f; });
+  double currentMin = std::numeric_limits<double>::max();
+  auto n0 = X.cbegin();
+  auto n3 = X.cend();
+  for (auto n1 = n0 + 1; n1 < n3 - 2; n1++)
+  {
+    for (auto n2 = n1 + 1; n2 < n3 - 1; n2++)
+    {
+      // for silence
+      double a_silence = std::accumulate(n0, n1, 0.);
+      a_silence = std::accumulate(n2, n3, a_silence);
+      a_silence /= (n1 - n0) + (n3 - n2);
+
+      double a_speech = std::accumulate(n1, n2, 0.) / (n2 - n1);
+
+      double sum = 0;
+      for (auto x = n0; x < n1; x++)
+        sum += std::pow(*x - a_silence, 2);
+
+      for (auto x = n1; x < n2; x++)
+        sum += std::pow(*x - a_speech, 2);
+
+      for (auto x = n2; x < n3; x++)
+        sum += std::pow(*x - a_silence, 2);
+
+      if (sum < currentMin)
+      {
+        currentMin = sum;
+        boundaries.first = n1 - n0;
+        boundaries.second = n2 - n0;
+      }
+    }
+  }
+  // align from n0 to n1 into automaton.states.front()
+  for (auto iter = align_begin; iter < align_begin + boundaries.first; iter++)
+    (*iter)->state = automaton.states.front();
+
+  // align from n2 to n3 into automaton.states.back()
+  for (auto iter = align_begin+boundaries.second; iter < align_end; iter++)
+    (*iter)->state = automaton.states.back();
+  
+  // align from n1 to n2 into automaton.states.begin() +1 -> automaton.states.end() - 1;
+  size_t speech_size = boundaries.second - boundaries.first;
+  size_t speech_align_size = automaton.states.size() - 2;
+  double factor = static_cast<double>(speech_align_size) / speech_size;
+  for (auto iter = align_begin+boundaries.first; iter < align_begin + boundaries.second; iter++) {
+    size_t align_dist = iter - (align_begin + boundaries.first);
+    (*iter)->state = automaton.states.at(align_dist * factor + 1);
+  }
+
   return boundaries;
 }
 

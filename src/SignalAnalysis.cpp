@@ -338,14 +338,14 @@ void SignalAnalysis::calc_mel_filterbanks() {
     size_t lwidth = mid - left;
     for (; current < mid; current++)
     {
-      double factor = height * (mid - current) / lwidth;//should be height * (current - left) / lwidth?
-      sum += factor * spectrum_.at(current);
+      double factor = height * (current - left) / lwidth;
+      sum += factor * std::abs(spectrum_.at(current));
     }
     size_t rwidth = right - mid;
     for (; current <= right; current++)
     {
       double factor = height * (right - current) / rwidth;
-      sum += factor * spectrum_.at(current);
+      sum += factor * std::abs(spectrum_.at(current));
     }
     mel_filterbanks_.at(i) = sum;//the triangle is from i to i+1, so it's for the point i+1?
   }

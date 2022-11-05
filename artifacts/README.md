@@ -16,3 +16,6 @@
 2.2.a
   - Complexity: O(n^3)
   - Linear alignment took 49.7405 seconds
+2.2.c
+  - Complexity: O(n^2)
+  - Linear alignment took 7.70498 seconds

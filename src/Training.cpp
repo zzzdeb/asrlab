@@ -236,12 +236,13 @@ std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &au
                                                        AlignmentIter align_begin, AlignmentIter align_end) const
 {
   std::pair<size_t, size_t> boundaries(0, 0);
-  std::vector<float> X(feature_end - feature_begin);
+  std::vector<double> X(feature_end - feature_begin);
   std::transform(feature_begin, feature_end, X.begin(), [](const float *f)
                  { return *f; });
   double currentMin = std::numeric_limits<double>::max();
   auto n0 = X.cbegin();
   auto n3 = X.cend();
+  double fsum = Section(X.begin(), X.end()).square().sum();
   for (auto n1 = n0 + 1; n1 < n3 - 2; n1++)
   {
     for (auto n2 = n1 + 1; n2 < n3 - 1; n2++)
@@ -254,14 +255,24 @@ std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &au
       double a_speech = std::accumulate(n1, n2, 0.) / (n2 - n1);
 
       double sum = 0;
-      for (auto x = n0; x < n1; x++)
-        sum += std::pow(*x - a_silence, 2);
+      { // 2.2.a
+        // for (auto x = n0; x < n1; x++)
+        //   sum += std::pow(*x - a_silence, 2);
 
-      for (auto x = n1; x < n2; x++)
-        sum += std::pow(*x - a_speech, 2);
+        // for (auto x = n1; x < n2; x++)
+        //   sum += std::pow(*x - a_speech, 2);
 
-      for (auto x = n2; x < n3; x++)
-        sum += std::pow(*x - a_silence, 2);
+        // for (auto x = n2; x < n3; x++)
+        //   sum += std::pow(*x - a_silence, 2);
+      }
+
+      { // 2.2.c
+        size_t N1 = (n3 - n2) + (n1 - n0);
+        size_t N2 = n2 - n1;
+        sum = fsum;
+        sum -= N1 * std::pow(a_silence, 2);
+        sum -= N2 * std::pow(a_speech, 2);
+      }
 
       if (sum < currentMin)
       {

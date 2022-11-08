@@ -23,17 +23,17 @@
 
 /*****************************************************************************/
 
-namespace {
-  template<typename T>
-  T add_sqr(T const& val, T const& acc) {
+namespace {//for define functions in this file to distinguish from other files
+  template<typename T>//undefined type, for flexible use
+  T add_sqr(T const& val, T const& acc) {//add the square of value on the basis of acc
     return acc + val * val;
   }
 
   template<typename T>
-  struct compute_stddev {
+  struct compute_stddev {//standard deviation?
     T inv_num_obs_;
 
-    compute_stddev(T const& inv_num_obs) : inv_num_obs_(inv_num_obs) {}
+    compute_stddev(T const& inv_num_obs) : inv_num_obs_(inv_num_obs) {}//what's the : here? never seen this grammar.
 
     T operator()(T const& mean, T const& sqrsum) {
       return std::sqrt(inv_num_obs_ * sqrsum - mean * mean);
@@ -56,21 +56,21 @@ const ParameterBool   SignalAnalysis::paramEnergyMaxNorm  ("energy-max-norm", tr
 const ParameterUInt64 SignalAnalysis::paramSampleRate     ("sample-rate",    8000ul);
 const ParameterUInt64 SignalAnalysis::paramWindowShift    ("window-shift",     10ul);
 const ParameterUInt64 SignalAnalysis::paramWindowSize     ("window-size",      25ul);
-const ParameterUInt64 SignalAnalysis::paramDftLength      ("dft-length",     1024ul);
+const ParameterUInt64 SignalAnalysis::paramDftLength      ("dft-length",     1024ul);//what's this? Dif Fourier Transformation length?
 const ParameterUInt64 SignalAnalysis::paramNMelFilters    ("n-mel-filters",    15ul);
 const ParameterUInt64 SignalAnalysis::paramNFeaturesInFile("n-features-file",  12ul);
-const ParameterUInt64 SignalAnalysis::paramNFeaturesFirst ("n-features-first", 12ul);
+const ParameterUInt64 SignalAnalysis::paramNFeaturesFirst ("n-features-first", 12ul);//what's first feature,what's second?
 const ParameterUInt64 SignalAnalysis::paramNFeaturesSecond("n-features-second", 1ul);
 const ParameterUInt64 SignalAnalysis::paramDerivStep      ("deriv-step",        3ul);
-static const std::string ARTIFACTSDIR = "artifacts";
+static const std::string ARTIFACTSDIR = "artifacts";//to store the formed documents(pgm pics)
 
 /*****************************************************************************/
 
 void SignalAnalysis::init_window(WindowType type) {
   switch (type) {
     case HAMMING:
-      double denom = static_cast<double>(window_func_.size() - 1);//static_cast：强制类型转换，但不如dynamic_cast安全
-      //window_func_.size()对应slides中的N,即每个windows分成离散的N个点
+      double denom = static_cast<double>(window_func_.size() - 1);//static_cast：forced type conversion, but not as safe as dynamic_cast
+      //window_func_.size() corresponds to N in slides, i.e. each window is divided into discrete N points
       for (size_t i = 0u; i < window_func_.size(); i++) {//0u: unsigned
         window_func_[i] = 0.54 - 0.46 * std::cos(2.0 * M_PI * static_cast<double>(i) / denom);
       }
@@ -86,21 +86,21 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
   /* open feature file */
   create_dir(output_path);
   std::ofstream features_out(output_path.c_str(), std::ios_base::out | std::ios_base::trunc);
-    // https://blog.csdn.net/qq_27274871/article/details/81484162
+    // ios_base: https://blog.csdn.net/qq_27274871/article/details/81484162
   if (not features_out.good()) {
     std::cerr << "Error: cannot open '" << output_path << "'" << std::endl;
   }
 
-  const size_t num_frames = (samples.size() + window_shift - 1ul) / window_shift;//T in slides?分成了T个frames
-  feature_seq_.resize(num_frames * n_features_total);//每个时间片段t都有n_features_total个feartures
+  const size_t num_frames = (samples.size() + window_shift - 1ul) / window_shift;//T in slides? divided into T frames
+  feature_seq_.resize(num_frames * n_features_total);//Each time slice t has n_features_total feartures
 
   pre_emphasis(samples);
-  for (size_t start = 0u; start < samples.size(); start += window_shift) {
+  for (size_t start = 0u; start < samples.size(); start += window_shift) {//process by every window
     apply_window(samples, start);
     // windowed_signal_ contains sample*windowed and zero filled.
     // windowed_signal has dft_length. only window_length = number
     fft(windowed_signal_, NULL, fft_real_, fft_imag_);
-    // calculated fft_real_ and fft_image_
+    // according windowed_signal_(X_nt in slides) calculate fft_real_ and fft_image_
     abs_spectrum();
 
     std::vector<double> log_spectrum(spectrum_.size());
@@ -114,7 +114,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
 
     calc_mel_filterbanks();
     std::transform(mel_filterbanks_.begin(), mel_filterbanks_.end(),
-                   log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));//double(*)(double)是什么意思
+                   log_mel_filterbanks_.begin(), static_cast<double(*)(double)>(std::log));//what's double(*)(double)? pointer then cast to double type?
     calc_cepstrum();
     std::copy(cepstrum_.begin(), cepstrum_.end(), feature_seq_.begin() + (start / window_shift) * n_features_total);
     write_floats_to_file(features_out, cepstrum_);
@@ -183,12 +183,12 @@ void SignalAnalysis::pre_emphasis(std::vector<short>& samples) {
 
 void SignalAnalysis::apply_window(std::vector<short> const& samples, size_t start) {
   size_t size = std::min(samples.size() - start, window_func_.size());
-  //if start到samples的末尾不到一个window_func_.size()(N)的话,就对最后这些点apply_window
+  //if start to the end of samples is less than a window_func_.size()(N in slides), then apply_window to these last points
   std::transform(window_func_.begin(), window_func_.begin() + size, samples.begin() + start,
                  windowed_signal_.begin(), std::multiplies<double>());
   /* zero padding */
   std::fill(windowed_signal_.begin() + size, windowed_signal_.end(), 0.0);
-  //size长度是该window的结果的长度，之后的值都置为0
+  //size length is the length of the result of the window, after that the value is set to 0
 }
 
 /*****************************************************************************/
@@ -290,42 +290,46 @@ void SignalAnalysis::calc_mel_filterbanks() {
   // TODO: implement
   double low_freq_mel = 0;
   double high_freq_mel = (2595 * std::log10(1 + sample_rate / 2 / 700)); // Convert Hz to Mel
+  //f_k=k/N*F_S, k=N? but if k=N, f_k=F_S why here direct f_k=sample_rate/2?
 
-  std::vector<double> points_mel(n_mel_filters + 2);
+  std::vector<double> points_mel(n_mel_filters + 2);//n_mel_filters:I in slides; I+2 results (start and end additionally)
   points_mel.at(0) = low_freq_mel;
-  double half_mel = (high_freq_mel - low_freq_mel) / (n_mel_filters + 1);
+  double half_mel = (high_freq_mel - low_freq_mel) / (n_mel_filters + 1);//b/2 in the slides
+  //assume the value in points_mel are linear? start from low_freq_mel to high_freq_mel
+  //here the half_mel represent the difference of value for b/2 interval
   for (size_t i = 1; i < points_mel.size(); i++)
     points_mel.at(i) = points_mel.at(i - 1) + half_mel;
 
   std::vector<double> points_hz(n_mel_filters + 2);
   std::transform(points_mel.cbegin(), points_mel.cend(), points_hz.begin(),
-                 [&](const double &mel_freq)
+                 [&](const double &mel_freq)//https://blog.csdn.net/huluwaaaa/article/details/103225311
                  {
-                   return 700 * (std::pow(10, mel_freq / 2595) - 1);
+                   return 700 * (std::pow(10, mel_freq / 2595) - 1);//transfrom the mel back to hz
                  });
 
   std::vector<size_t> locations_in_spectrum(n_mel_filters + 2);
   std::transform(points_hz.cbegin(), points_hz.cend(), locations_in_spectrum.begin(),
                  [&](const double &freq)
                  {
-                   return (freq / sample_rate) * (dft_length + 1);
+                   return (freq / sample_rate) * (dft_length + 1);//what's this?
                  });
 
   double aria2 = locations_in_spectrum.at(1) - locations_in_spectrum.at(0);
+  //area of triangle filter in original frequency, but why is this formular?
   for (size_t i = 0; i < n_mel_filters; i++)
   {
     size_t left = locations_in_spectrum.at(i);
     size_t mid = locations_in_spectrum.at(i + 1);
     size_t right = locations_in_spectrum.at(i + 2);
-    size_t width = right - left;
-    double height = aria2 / width;
+    size_t width = right - left;//
+    double height = aria2 / width;//height is 2*aria2/width?
 
     double sum = 0;
     size_t current = left;
     size_t lwidth = mid - left;
     for (; current < mid; current++)
     {
-      double factor = height * (mid - current) / lwidth;
+      double factor = height * (mid - current) / lwidth;//should be height * (current - left) / lwidth?
       sum += factor * spectrum_.at(current);
     }
     size_t rwidth = right - mid;
@@ -334,7 +338,7 @@ void SignalAnalysis::calc_mel_filterbanks() {
       double factor = height * (right - current) / rwidth;
       sum += factor * spectrum_.at(current);
     }
-    mel_filterbanks_.at(i) = sum;
+    mel_filterbanks_.at(i) = sum;//the triangle is from i to i+1, so it's for the point i+1?
   }
 }
 

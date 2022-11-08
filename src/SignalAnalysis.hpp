@@ -116,6 +116,7 @@ private:
   std::vector<double> stddev_;
   std::vector<double> sqrsum_;
 
+  //exercise1 added
   std::vector<double> energies_;
   PGM image_;
   PGM image_25105405_;

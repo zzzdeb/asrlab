@@ -32,6 +32,7 @@ public:
   static const ParameterUInt64 paramNFeaturesFirst;
   static const ParameterUInt64 paramNFeaturesSecond;
   static const ParameterUInt64 paramDerivStep;
+  static const ParameterBool paramWriteSpectrum;
 
   const bool energy_max_norm;
 
@@ -71,7 +72,8 @@ public:
                                                 num_obs_            (0u),
                                                 mean_               (n_features_total),
                                                 stddev_             (n_features_total),
-                                                sqrsum_             (n_features_total) {
+                                                sqrsum_             (n_features_total),
+                                                write_spectrum_     (paramWriteSpectrum(config)) {
     init_window(HAMMING);
     std::fill(  mean_.begin(),   mean_.end(), 0.0);
     std::fill(sqrsum_.begin(), sqrsum_.end(), 0.0);
@@ -122,6 +124,7 @@ private:
   PGM image_25105405_;
   PGM image_energies_;
   Matrix spectrum_matrix_;
+  bool write_spectrum_;
 };
 
 #endif /* __SIGNAL_ANALYSIS_H__ */

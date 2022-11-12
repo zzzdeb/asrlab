@@ -43,9 +43,15 @@ namespace {//for define functions in this file to distinguish from other files
   template <typename T>
   void cprint(const std::vector<T> &container)
   {
-    for (const auto &v : container)
-      std::cout << v << ",";
-    std::cout << std::endl;
+    cprint(container.cbegin(), container.cend());
+  }
+  template <typename IterT>
+  void cprint(const IterT& begin, const IterT& end)
+  {
+    std::cout << "[";
+    for (const auto iter = begin; iter < end; iter++)
+      std::cout << *iter << ",";
+    std::cout << "]" << std::endl;
   }
 }
 
@@ -62,7 +68,8 @@ const ParameterUInt64 SignalAnalysis::paramNFeaturesInFile("n-features-file",  1
 const ParameterUInt64 SignalAnalysis::paramNFeaturesFirst ("n-features-first", 12ul);//what's first feature,what's second?
 const ParameterUInt64 SignalAnalysis::paramNFeaturesSecond("n-features-second", 1ul);
 const ParameterUInt64 SignalAnalysis::paramDerivStep      ("deriv-step",        3ul);
-static const std::string ARTIFACTSDIR = "artifacts";//to store the formed documents(pgm pics)
+const ParameterBool SignalAnalysis::paramWriteSpectrum      ("write-spectrum",  false);
+static const std::string ARTIFACTSDIR = "artifacts";
 
 /*****************************************************************************/
 
@@ -109,7 +116,8 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
                    {
                      return 20 * std::log10(v); // log-spectrum
                    });
-    spectrum_matrix_.add_row(log_spectrum);
+    if (write_spectrum_)
+      spectrum_matrix_.add_row(log_spectrum);
     // spectrum_matrix_.add_row(spectrum_);
 
     calc_mel_filterbanks();
@@ -121,6 +129,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     num_obs_++;
   }
 
+  if (write_spectrum_)
   {
     /* Excercise 1.1 */
     spectrum_matrix_.to_file(ARTIFACTSDIR + "/spectrum_values.txt");

@@ -10,6 +10,10 @@
 #include <string>
 
 #include "Config.hpp"
+#include "pgm/PGM.hpp"
+#include "pgm/Matrix.hpp"
+
+using namespace pgm;
 
 class SignalAnalysis {
 public:
@@ -42,9 +46,11 @@ public:
   const size_t n_features_total;
   const size_t deriv_step;
 
+  //目前的一大难点是这些参数与slides中的联系不起来
+
   SignalAnalysis(Configuration const& config) : energy_max_norm   (paramEnergyMaxNorm(config)),
                                                 sample_rate       (paramSampleRate(config)),
-                                                window_shift      (paramWindowShift(config) * sample_rate / 1000ul),
+                                                window_shift      (paramWindowShift(config) * sample_rate / 1000ul),//ul: unsigned long
                                                 window_size       (paramWindowSize(config)  * sample_rate / 1000ul),
                                                 dft_length        (paramDftLength(config)),
                                                 n_mel_filters     (paramNMelFilters(config)),
@@ -109,6 +115,13 @@ private:
   std::vector<double> mean_;
   std::vector<double> stddev_;
   std::vector<double> sqrsum_;
+
+  //exercise1 added
+  std::vector<double> energies_;
+  PGM image_;
+  PGM image_25105405_;
+  PGM image_energies_;
+  Matrix spectrum_matrix_;
 };
 
 #endif /* __SIGNAL_ANALYSIS_H__ */

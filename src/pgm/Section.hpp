@@ -21,6 +21,9 @@ public:
         std::copy(other.begin, other.end, begin);
         return *this;
     }
+    auto operator+=(const Section& other) {
+        return std::transform(begin, end, other.begin, begin, std::plus<double>{});
+    }
     Vector log();
     Vector square();
     double sum() { return std::accumulate(begin, end, 0.);}
@@ -32,6 +35,11 @@ class Vector : public Section {
 public:
     Vector(std::vector<double> v):
         Section(v.begin(), v.end()), v(std::move(v)) {} 
+    template<class T>
+    Vector(T* begin, T* end): Section(v.begin(), v.end()), v(begin, end) {
+        this->begin = v.begin();
+        this->end = v.end();
+    }
     std::vector<double> v;
 };
 
@@ -44,6 +52,8 @@ Vector operator_b(const Section& a, const double& b) {
 Vector operator/(const Section& a, const double& b);
 Vector operator+(const Section& a, const double& b);
 Vector operator*(const Section& a, const double& b);
+Vector operator*(const double& a, const Section& b);
+Vector operator/(const double& a, const Section& b);
 
 template<class BinaryF>
 Vector operator_b(const Section& a, const Section& b) {

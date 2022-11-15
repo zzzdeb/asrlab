@@ -93,6 +93,10 @@ namespace {
       out.write(reinterpret_cast<const char*>(&weight[i]),               sizeof(double));
     }
   }
+
+  Vector ToVector(FeatureIter& iter) {
+    return {*iter, *iter + iter.size};
+  }
 }
 
 /*****************************************************************************/
@@ -147,7 +151,28 @@ void MixtureModel::reset_accumulators() {
 void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignmentIter alignment_end,
                               FeatureIter        feature_begin,   FeatureIter        feature_end,
                               bool first_pass, bool max_approx) {
-  // TODO: implement
+  std::vector<std::pair<double, DensityIdx>> scores(feature_end - feature_begin);
+  reset_accumulators();
+  for (size_t i = 0; i < feature_end - feature_begin; i++)
+  {
+    auto feature = feature_begin + i;
+    auto alignment = alignment_begin + i;
+    const Mixture& mixture = mixtures_.at((*alignment)->state);
+    MixtureDensity density = mixture.at(0);
+    if (!first_pass) {
+      density.mean_idx = min_score(feature, (*alignment)->state).second;
+      density.var_idx = density.mean_idx;
+    }
+
+    // scores.at(it - feature_begin) = s;
+    auto fvector = ToVector(feature);
+    mean_accumulators_.row(density.mean_idx) += fvector;
+    mean_weight_accumulators_.at(density.mean_idx)++;
+
+    // Section features;
+    var_accumulators_.row(density.var_idx) += fvector.square();
+    var_weight_accumulators_.at(density.var_idx)++;;
+  }
 }
 
 /*****************************************************************************/

@@ -119,6 +119,7 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t
               mean_weights_(num_mixtures),
               mean_weight_accumulators_(num_mixtures),
               mean_refs_(num_mixtures, 1),
+              mixture_accumulators_(num_mixtures),
 
               vars_(num_mixtures, dimension, 1),
               var_accumulators_(num_mixtures, dimension),
@@ -144,6 +145,7 @@ void MixtureModel::reset_accumulators() {
   std::fill(mean_weight_accumulators_.begin(), mean_weight_accumulators_.end(), 0);
   std::fill(var_accumulators_.data.begin(), var_accumulators_.data.end(), 0);
   std::fill(var_weight_accumulators_.begin(), var_weight_accumulators_.end(), 0);
+  std::fill(mixture_accumulators_.begin(), mixture_accumulators_.end(), 0);
 }
 
 /*****************************************************************************/
@@ -158,6 +160,7 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
     auto feature = feature_begin + i;
     auto alignment = alignment_begin + i;
     const Mixture& mixture = mixtures_.at((*alignment)->state);
+    mixture_accumulators_.at((*alignment)->state)++;
     MixtureDensity density = mixture.at(0);
     if (!first_pass) {
       density.mean_idx = min_score(feature, (*alignment)->state).second;
@@ -181,16 +184,19 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
 void MixtureModel::finalize() {
   // Implements means_, vars_ and norm_
   for (size_t i = 0; i < mean_weights_.size(); i++) {
+    if (mean_weight_accumulators_.at(i) == 0)
+      mean_refs_.at(i) = 0;
+    if (var_weight_accumulators_.at(i) == 0)
+      var_refs_.at(i) = 0;
     if (mean_refs_.at(i) == 0)
       continue;
-    if (mean_weight_accumulators_.at(i) != 0)
       means_.row(i) = mean_accumulators_.row(i) / mean_weight_accumulators_.at(i);
-    if (var_weight_accumulators_.at(i) != 0) {
       vars_.row(i) = 1 / (var_accumulators_.row(i) / var_weight_accumulators_.at(i) - means_.row(i).square()).square().nonzero();
       norm_.at(i) = norm_fixed_ - (vars_.row(i).log().sum() / 2);
-    } else 
-      norm_.at(i) = norm_fixed_;
   }
+  for (size_t i = 0; i < mixtures_.size(); i++)
+    for (const auto& dens: mixtures_.at(i))
+      mean_weights_.at(dens.mean_idx) = -std::log(mean_weight_accumulators_.at(dens.mean_idx) / mixture_accumulators_.at(i));
   check_validity();
 }
 
@@ -205,6 +211,9 @@ void MixtureModel::check_validity() {
     if(!check(norm_.at(i)))
       throw std::logic_error("Naa");
   }
+  for (size_t i = 0; i < mixture_accumulators_.size(); i++)
+    if(mixture_accumulators_.at(i) == 0)
+      throw std::logic_error("Naa");
   auto check_vars = [](double v) { return v >0;};
   // for (size_t i = 0; i < vars_.size().first; i++)
   //   for (size_t j = 0; j < vars_.size().second; j++)
@@ -286,8 +295,10 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
   const double& minus_log_c = mean_weights_.at(density.mean_idx);
 
   double p = minus_log_c + norm_.at(density.var_idx);
-  for (size_t i = 0; i < iter.size; i++)
-    p += std::pow(*(*iter + i) - means_(density.mean_idx, i), 2) / vars_(density.var_idx, i) / 2;
+  size_t midx = density.mean_idx;
+  size_t vidx = density.var_idx;
+  const double add = ((Vector(*iter, *iter+dimension) - means_.row(midx)).square() * vars_.row(vidx)).sum()/2;
+  p += add;
   if (p == std::numeric_limits<double>::infinity())
     throw std::logic_error("Invalid prob");
   return p;

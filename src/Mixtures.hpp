@@ -39,6 +39,7 @@ public:
   void finalize();
   void split(size_t min_obs);
   void eliminate(double min_obs);
+  void check_validity();
 
   size_t num_densities() const;
 

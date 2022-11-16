@@ -173,6 +173,7 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
     var_accumulators_.row(density.var_idx) += fvector.square();
     var_weight_accumulators_.at(density.var_idx)++;;
   }
+  // cprint(mean_weight_accumulators_);
 }
 
 /*****************************************************************************/
@@ -186,10 +187,29 @@ void MixtureModel::finalize() {
       means_.row(i) = mean_accumulators_.row(i) / mean_weight_accumulators_.at(i);
     if (var_weight_accumulators_.at(i) != 0) {
       vars_.row(i) = 1 / (var_accumulators_.row(i) / var_weight_accumulators_.at(i) - means_.row(i).square()).square().nonzero();
-    norm_.at(i) = norm_fixed_ - (vars_.row(i).log().sum() / 2);
+      norm_.at(i) = norm_fixed_ - (vars_.row(i).log().sum() / 2);
     } else 
       norm_.at(i) = norm_fixed_;
   }
+  check_validity();
+}
+
+void MixtureModel::check_validity() {
+  for (size_t i = 0; i < mean_weights_.size(); i++) {
+    if (mean_refs_.at(i) == 0)
+      continue;
+    // for (vars_.row(i))
+  }
+  auto check = [](double v) { return v <10000000 && v > -10000000;};
+  for (size_t i = 0; i < norm_.size(); i++){
+    if(!check(norm_.at(i)))
+      throw std::logic_error("Naa");
+  }
+  auto check_vars = [](double v) { return v >0;};
+  // for (size_t i = 0; i < vars_.size().first; i++)
+  //   for (size_t j = 0; j < vars_.size().second; j++)
+  //     if(!check_vars(vars_(i, j)))
+  //       throw std::logic_error("Naa");
 }
 
 /*****************************************************************************/
@@ -268,6 +288,8 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
   double p = minus_log_c + norm_.at(density.var_idx);
   for (size_t i = 0; i < iter.size; i++)
     p += std::pow(*(*iter + i) - means_(density.mean_idx, i), 2) / vars_(density.var_idx, i) / 2;
+  if (p == std::numeric_limits<double>::infinity())
+    throw std::logic_error("Invalid prob");
   return p;
 }
 
@@ -287,6 +309,8 @@ std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, S
       min_index = mixture.at(i).mean_idx;
     }
   }
+  if (min_index == 65535)
+    throw std::logic_error("It should be smaller");
   
   return std::make_pair(min_score, min_index);
 }

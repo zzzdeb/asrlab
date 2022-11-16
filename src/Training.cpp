@@ -284,19 +284,19 @@ std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &au
   }
   // align from n0 to n1 into automaton.states.front()
   for (auto iter = align_begin; iter < align_begin + boundaries.first; iter++)
-    (*iter)->state = automaton.states.front();
+    (*iter)->state = 0;
 
   // align from n2 to n3 into automaton.states.back()
   for (auto iter = align_begin+boundaries.second; iter < align_end; iter++)
-    (*iter)->state = automaton.states.back();
+    (*iter)->state = 0;
   
   // align from n1 to n2 into automaton.states.begin() +1 -> automaton.states.end() - 1;
   size_t speech_size = boundaries.second - boundaries.first;
-  size_t speech_align_size = automaton.states.size() - 2;
+  size_t speech_align_size = automaton.states.size();
   double factor = static_cast<double>(speech_align_size) / speech_size;
   for (auto iter = align_begin+boundaries.first; iter < align_begin + boundaries.second; iter++) {
     size_t align_dist = iter - (align_begin + boundaries.first);
-    (*iter)->state = automaton.states.at(align_dist * factor + 1);
+    (*iter)->state = automaton.states.at(align_dist * factor);
   }
 
   return boundaries;

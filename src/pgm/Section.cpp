@@ -11,6 +11,12 @@ Vector Section::square() {
     return *this * *this;
 }
 
+Vector Section::nonzero() {
+    std::vector<double> ret(begin, end);
+    std::for_each(ret.begin(), ret.end(), [](auto& v) { if (std::abs(v -0) < 0.0001) v = 0.0001; }); 
+    return Vector(std::move(ret));
+}
+
 Vector Section::sqrt() {
     std::vector<double> ret(begin, end);
     std::for_each(ret.begin(), ret.end(), [](auto& v) { v = std::sqrt(v); }); 

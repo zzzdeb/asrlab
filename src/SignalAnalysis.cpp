@@ -40,19 +40,6 @@ namespace {//for define functions in this file to distinguish from other files
     }
   };
 
-  template <typename T>
-  void cprint(const std::vector<T> &container)
-  {
-    cprint(container.cbegin(), container.cend());
-  }
-  template <typename IterT>
-  void cprint(const IterT& begin, const IterT& end)
-  {
-    std::cout << "[";
-    for (const auto iter = begin; iter < end; iter++)
-      std::cout << *iter << ",";
-    std::cout << "]" << std::endl;
-  }
 }
 
 /*****************************************************************************/

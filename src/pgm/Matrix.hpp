@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <cassert>
 
 namespace pgm
 {
@@ -39,7 +40,7 @@ namespace pgm
         void resize(const std::pair<size_t, size_t>& size) { rows_ = size.first; columns_ = size.second; data.resize(rows_ * columns_);}
         std::pair<size_t, size_t> size() const { return {rows_, columns_};}
         auto& operator()(size_t i, size_t j) { return data[i * columns_ + j]; }
-        Section row(size_t i) { return {row_begin(i), row_end(i)};}
+        Section row(size_t i) { assert(i < rows_); return {row_begin(i), row_end(i)};}
 
         size_t rows_{0};
         size_t columns_{0};

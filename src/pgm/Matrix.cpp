@@ -71,12 +71,11 @@ namespace pgm
             columns_ = row.size();
         if (columns_ != row.size())
             throw std::invalid_argument("row size does not match.");
-
-        size_t row_size = row.end - row.begin;
-        data.resize(data.size() + times * row_size);
+        std::vector<double> v{row.begin, row.end};
+        data.resize(data.size() + times * row.size());
         for (size_t i = 0; i < times; i++)
         {
-            std::copy(row.begin, row.end, data.begin() + columns_ * rows_);
+            std::copy(v.begin(), v.end(), data.begin() + columns_ * rows_);
             rows_++;
         }
     }

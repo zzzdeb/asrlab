@@ -6,6 +6,22 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <iostream>
+
+template <typename IterT>
+void cprint(const IterT& begin, const IterT& end)
+{
+std::cout << "[";
+for (auto iter = begin; iter < end; iter++)
+    std::cout << *iter << ",";
+std::cout << "]" << std::endl;
+}
+template <typename T>
+void cprint(const std::vector<T> &container)
+{
+cprint(container.cbegin(), container.cend());
+}
+
 class Vector;
 
 /* Interface to work on between two iterators end and begin */
@@ -26,6 +42,7 @@ public:
     }
     Vector log();
     Vector square();
+    Vector nonzero();
     Vector sqrt();
     double sum() { return std::accumulate(begin, end, 0.);}
 

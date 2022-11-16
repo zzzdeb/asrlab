@@ -284,7 +284,7 @@ std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, S
     double score = density_score(iter, mixture_idx, i);
     if (score < min_score) {
       min_score = score;
-      min_index = i;
+      min_index = mixture.at(i).mean_idx;
     }
   }
   

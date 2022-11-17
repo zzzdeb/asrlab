@@ -22,6 +22,10 @@ Vector Section::sqrt() {
     std::for_each(ret.begin(), ret.end(), [](auto& v) { v = std::sqrt(v); }); 
     return Vector(std::move(ret));
 }
+Vector Section::sub(size_t s, size_t e) {
+    std::vector<double> ret(begin+s, begin+e);
+    return Vector(std::move(ret));
+}
 
 Vector operator/(const Section& a, const double& b) {
     if (b == 0)
@@ -52,4 +56,8 @@ Vector operator*(const Section& a, const Section& b) {
 }
 Vector operator-(const Section& a, const Section& b) {
     return operator_b<std::minus<double>>(a, b);
+}
+
+std::ostream& operator<<(std::ostream& os, const Section& s) {
+    cprint(s.begin, s.end, os);
 }

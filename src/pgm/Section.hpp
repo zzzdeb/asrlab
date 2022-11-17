@@ -9,17 +9,17 @@
 #include <iostream>
 
 template <typename IterT>
-void cprint(const IterT& begin, const IterT& end)
+void cprint(const IterT& begin, const IterT& end, std::ostream& out)
 {
-std::cout << "[";
-for (auto iter = begin; iter < end; iter++)
-    std::cout << *iter << ",";
-std::cout << "]" << std::endl;
+    out << "[";
+    for (auto iter = begin; iter < end; iter++)
+        out << *iter << ",";
+    out << "]";
 }
 template <typename T>
-void cprint(const std::vector<T> &container)
+void cprint(const std::vector<T> &container, std::ostream& out = std::cout)
 {
-cprint(container.cbegin(), container.cend());
+    cprint(container.cbegin(), container.cend(), out);
 }
 
 class Vector;
@@ -29,6 +29,7 @@ class Section {
 public:
     using ItType = std::vector<double>::iterator;
     Section(ItType begin, ItType end) : begin(begin), end(end) {}
+    Section(double* begin, double* end) : begin(begin), end(end) {}
     size_t size() const { return end - begin; }
     Section& operator=(const Section& other)
     {
@@ -45,11 +46,14 @@ public:
     Vector square();
     Vector nonzero();
     Vector sqrt();
+    Vector sub(size_t s, size_t e);
     double sum() { return std::accumulate(begin, end, 0.);}
 
     ItType begin;
     ItType end;
 };
+
+std::ostream& operator<<(std::ostream& os, const Section& s);
 
 class Vector : public Section {
 public:

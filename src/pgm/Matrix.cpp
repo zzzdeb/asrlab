@@ -79,14 +79,4 @@ namespace pgm
             rows_++;
         }
     }
-
-    std::vector<double> Matrix::operator()(size_t i)
-    {
-        if (i >= rows_)
-            throw std::invalid_argument("Index is too big.");
-        auto first = data.cbegin() + columns_ * i;
-        auto last = data.cbegin() + columns_ * (i + 1);
-
-        return std::vector<double>(first, last);
-    }
 }

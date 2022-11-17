@@ -40,6 +40,7 @@ public:
     auto operator+=(const Section& other) {
         return std::transform(begin, end, other.begin, begin, std::plus<double>{});
     }
+    operator std::vector<double>() const { return {begin, end};}
     Vector log();
     Vector square();
     Vector nonzero();

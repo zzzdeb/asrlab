@@ -133,7 +133,7 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t
 {
   for (size_t i = 0; i < num_mixtures; i++)
   {
-    norm_.at(i) = norm_fixed_ - vars_.row(i).log().sum() / 2;
+    norm_.at(i) = norm_fixed_ - vars_(i).log().sum() / 2;
     mixtures_.at(i).emplace_back(i, i);
   }
 }
@@ -169,11 +169,11 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
 
     // scores.at(it - feature_begin) = s;
     auto fvector = ToVector(feature);
-    mean_accumulators_.row(density.mean_idx) += fvector;
+    mean_accumulators_(density.mean_idx) += fvector;
     mean_weight_accumulators_.at(density.mean_idx)++;
 
     // Section features;
-    var_accumulators_.row(density.var_idx) += fvector.square();
+    var_accumulators_(density.var_idx) += fvector.square();
     var_weight_accumulators_.at(density.var_idx)++;;
   }
   // cprint(mean_weight_accumulators_);
@@ -190,9 +190,9 @@ void MixtureModel::finalize() {
       var_refs_.at(i) = 0;
     if (mean_refs_.at(i) == 0)
       continue;
-      means_.row(i) = mean_accumulators_.row(i) / mean_weight_accumulators_.at(i);
-      vars_.row(i) = 1 / (var_accumulators_.row(i) / var_weight_accumulators_.at(i) - means_.row(i).square()).square().nonzero();
-      norm_.at(i) = norm_fixed_ - (vars_.row(i).log().sum() / 2);
+      means_(i) = mean_accumulators_(i) / mean_weight_accumulators_.at(i);
+      vars_(i) = 1 / (var_accumulators_(i) / var_weight_accumulators_.at(i) - means_(i).square()).square().nonzero();
+      norm_.at(i) = norm_fixed_ - (vars_(i).log().sum() / 2);
   }
   for (size_t i = 0; i < mixtures_.size(); i++)
     for (const auto& dens: mixtures_.at(i))
@@ -204,7 +204,7 @@ void MixtureModel::check_validity() {
   for (size_t i = 0; i < mean_weights_.size(); i++) {
     if (mean_refs_.at(i) == 0)
       continue;
-    // for (vars_.row(i))
+    // for (vars_(i))
   }
   auto check = [](double v) { return v <10000000 && v > -10000000;};
   for (size_t i = 0; i < norm_.size(); i++){
@@ -233,11 +233,11 @@ void MixtureModel::split(size_t min_obs) {
       if (mean_refs_.at(cur_mean_idx) == 0)
         continue;
       if (mean_weight_accumulators_.at(cur_mean_idx) >= min_obs) {
-        auto cur_mean = means_.row(cur_mean_idx);
-        auto diff = (1 / vars_.row(cur_var_idx)).sqrt();
+        auto cur_mean = means_(cur_mean_idx);
+        auto diff = (1 / vars_(cur_var_idx)).sqrt();
         auto p_mean = cur_mean + diff;
         auto n_mean = cur_mean - diff;
-        means_.row(cur_mean_idx) = p_mean;
+        means_(cur_mean_idx) = p_mean;
         mean_weights_.at(cur_mean_idx) += log(2);
         {
           // add mean
@@ -249,7 +249,7 @@ void MixtureModel::split(size_t min_obs) {
         }
         {
           // add var
-          vars_.add_row(vars_.row(cur_var_idx));
+          vars_.add_row(vars_(cur_var_idx));
           var_accumulators_.add_row();
           var_weight_accumulators_.emplace_back();
           var_refs_.emplace_back(1);
@@ -297,7 +297,7 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
   double p = minus_log_c + norm_.at(density.var_idx);
   size_t midx = density.mean_idx;
   size_t vidx = density.var_idx;
-  const double add = ((Vector(*iter, *iter+dimension) - means_.row(midx)).square() * vars_.row(vidx)).sum()/2;
+  const double add = ((Vector(*iter, *iter+dimension) - means_(midx)).square() * vars_(vidx)).sum()/2;
   p += add;
   if (p == std::numeric_limits<double>::infinity())
     throw std::logic_error("Invalid prob");

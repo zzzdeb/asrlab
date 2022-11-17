@@ -29,9 +29,6 @@ namespace pgm
         void add_row(const Section& row, size_t times = 1);
         void transpose();
 
-        // Returns row i
-        std::vector<double> operator()(size_t i);
-
         const double& operator()(size_t y, size_t x) const {
             return data.at(y * columns_ + x);
         }
@@ -40,7 +37,7 @@ namespace pgm
         void resize(const std::pair<size_t, size_t>& size) { rows_ = size.first; columns_ = size.second; data.resize(rows_ * columns_);}
         std::pair<size_t, size_t> size() const { return {rows_, columns_};}
         auto& operator()(size_t i, size_t j) { return data[i * columns_ + j]; }
-        Section row(size_t i) { assert(i < rows_); return {row_begin(i), row_end(i)};}
+        Section operator()(size_t i) { assert(i < rows_); return {row_begin(i), row_end(i)};}
 
         size_t rows_{0};
         size_t columns_{0};

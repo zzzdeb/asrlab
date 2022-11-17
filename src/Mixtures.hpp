@@ -16,6 +16,8 @@
 #include "Types.hpp"
 #include "pgm/Matrix.hpp"
 
+#include <fstream>
+
 class MixtureModel : public FeatureScorer {
 public:
   enum VarianceModel {
@@ -25,6 +27,7 @@ public:
   };
 
   static const ParameterString paramLoadMixturesFrom;
+  static const ParameterBool paramWriteMixtures;
 
   const size_t dimension;
   const VarianceModel var_model;
@@ -40,6 +43,10 @@ public:
   void split(size_t min_obs);
   void eliminate(double min_obs);
   void check_validity();
+  void visualize(std::string header);
+  void open(std::string path) {
+    stats_out.open(path, std::ios_base::out | std::ios_base::trunc);
+  }
 
   size_t num_densities() const;
 
@@ -75,6 +82,10 @@ private:
   std::vector<double> norm_;                     // normalization factor for gaussian distribution
 
   std::vector<Mixture> mixtures_;
+  std::ofstream stats_out;
+  ConstAlignmentIter alignment_begin_;
+  ConstAlignmentIter alignment_end_;
+  bool write_mixtures_;
 };
 
 #endif /* __MIXTURES_HPP__ */

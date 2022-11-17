@@ -102,15 +102,16 @@ namespace {
 /*****************************************************************************/
 
 const ParameterString MixtureModel::paramLoadMixturesFrom("load-mixtures-from", "");
+const ParameterBool MixtureModel::paramWriteMixtures("write-mixtures", false);
 
 const char     MixtureModel::magic[8] = {'M', 'I', 'X', 'S', 'E', 'T', 0, 0};
 const uint32_t MixtureModel::version = 2u;
 
 /*****************************************************************************/
 
-MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t num_mixtures,
+MixtureModel::MixtureModel(Configuration const& config, size_t dimension_p, size_t num_mixtures,
                            VarianceModel var_model, bool max_approx)
-            : dimension(dimension),
+            : dimension(dimension_p),
               var_model(var_model),
               max_approx_(max_approx),
 
@@ -129,7 +130,10 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension, size_t
               norm_fixed_(dimension * std::log(2 * M_PI) / 2),
               norm_(num_mixtures),
 
-              mixtures_(num_mixtures)
+              mixtures_(num_mixtures),
+              alignment_begin_(nullptr, 1),
+              alignment_end_(nullptr, 1),
+              write_mixtures_(paramWriteMixtures(config))
 {
   for (size_t i = 0; i < num_mixtures; i++)
   {
@@ -153,6 +157,8 @@ void MixtureModel::reset_accumulators() {
 void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignmentIter alignment_end,
                               FeatureIter        feature_begin,   FeatureIter        feature_end,
                               bool first_pass, bool max_approx) {
+  alignment_begin_ = alignment_begin;
+  alignment_end_ = alignment_end;
   std::vector<std::pair<double, DensityIdx>> scores(feature_end - feature_begin);
   reset_accumulators();
   for (size_t i = 0; i < feature_end - feature_begin; i++)
@@ -168,15 +174,47 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
     }
 
     // scores.at(it - feature_begin) = s;
+    // std::cout << mean_accumulators_(density.mean_idx) << std::endl;
     auto fvector = ToVector(feature);
+    // if (density.mean_idx == 446)
+      // std::cout << fvector << std::endl;
     mean_accumulators_(density.mean_idx) += fvector;
+    // std::cout << fvector << std::endl;
+    // std::cout << mean_accumulators_(density.mean_idx) << std::endl;
     mean_weight_accumulators_.at(density.mean_idx)++;
 
     // Section features;
     var_accumulators_(density.var_idx) += fvector.square();
     var_weight_accumulators_.at(density.var_idx)++;;
   }
-  // cprint(mean_weight_accumulators_);
+  // std::vector<size_t> tmp;
+  // std::transform(mixtures_.begin(), mixtures_.end(), std::back_inserter(tmp), [](auto& v) {return v.size();});
+  // cprint(tmp);
+}
+
+void MixtureModel::visualize(std::string header) {
+  if (!write_mixtures_)
+    return;
+  stats_out << "==" << header << std::endl;
+  size_t index = 44;
+  auto& mixture = mixtures_.at(index);
+  for (auto& m: mixture) {
+    stats_out << "n ";
+    stats_out << m.mean_idx << " ";
+    stats_out << mean_refs_.at(m.mean_idx) << " ";
+    stats_out << mean_weights_.at(m.mean_idx) << " ";
+    stats_out << means_(m.mean_idx) << " ";
+    stats_out << var_refs_.at(m.var_idx) << " ";
+    stats_out << m.var_idx << " ";
+    stats_out << vars_(m.var_idx);
+
+    stats_out << std::endl;
+  }
+  for(auto iter = alignment_begin_; iter < alignment_end_; iter++) {
+    if ((*iter)->state == index)
+      stats_out << iter - alignment_begin_ << " ";
+  }
+  stats_out << std::endl;
 }
 
 /*****************************************************************************/
@@ -190,14 +228,15 @@ void MixtureModel::finalize() {
       var_refs_.at(i) = 0;
     if (mean_refs_.at(i) == 0)
       continue;
-      means_(i) = mean_accumulators_(i) / mean_weight_accumulators_.at(i);
-      vars_(i) = 1 / (var_accumulators_(i) / var_weight_accumulators_.at(i) - means_(i).square()).square().nonzero();
-      norm_.at(i) = norm_fixed_ - (vars_(i).log().sum() / 2);
+    means_(i) = mean_accumulators_(i) / mean_weight_accumulators_.at(i);
+    vars_(i) = 1 / (var_accumulators_(i) / var_weight_accumulators_.at(i) - means_(i).square()).square().nonzero();
+    norm_.at(i) = norm_fixed_ - (vars_(i).log().sum() / 2);
   }
   for (size_t i = 0; i < mixtures_.size(); i++)
     for (const auto& dens: mixtures_.at(i))
       mean_weights_.at(dens.mean_idx) = -std::log(mean_weight_accumulators_.at(dens.mean_idx) / mixture_accumulators_.at(i));
   check_validity();
+  visualize("f");
 }
 
 void MixtureModel::check_validity() {
@@ -259,7 +298,7 @@ void MixtureModel::split(size_t min_obs) {
       }
     }
   }
-  
+  visualize("s");
 }
 
 /*****************************************************************************/
@@ -275,6 +314,7 @@ void MixtureModel::eliminate(double min_obs) {
         var_refs_.at(i) = 0;
     }
   }
+  visualize("e");
 }
 
 /*****************************************************************************/

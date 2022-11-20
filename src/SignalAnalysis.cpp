@@ -125,7 +125,7 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     // Working on the matrix read from file.
     for (size_t i = 0; i < spectrum_matrix_.rows_; i++) {
       currentTime++;
-      spectrum_ = spectrum_matrix_(i);
+      spectrum_ = spectrum_matrix_[i];
       energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));
       // full spectrum image
       image_.add_row(spectrum_);

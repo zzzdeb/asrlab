@@ -137,7 +137,7 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension_p, size
 {
   for (size_t i = 0; i < num_mixtures; i++)
   {
-    norm_.at(i) = norm_fixed_ - vars_(i).log().sum() / 2;
+    norm_.at(i) = norm_fixed_ - vars_[i].log().sum() / 2;
     mixtures_.at(i).emplace_back(i, i);
   }
 }
@@ -203,10 +203,10 @@ void MixtureModel::visualize(std::string header) {
     stats_out << m.mean_idx << " ";
     stats_out << mean_refs_.at(m.mean_idx) << " ";
     stats_out << mean_weights_.at(m.mean_idx) << " ";
-    stats_out << means_(m.mean_idx) << " ";
+    stats_out << means_[m.mean_idx] << " ";
     stats_out << var_refs_.at(m.var_idx) << " ";
     stats_out << m.var_idx << " ";
-    stats_out << vars_(m.var_idx);
+    stats_out << vars_[m.var_idx];
 
     stats_out << std::endl;
   }
@@ -337,7 +337,7 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
   double p = minus_log_c + norm_.at(density.var_idx);
   size_t midx = density.mean_idx;
   size_t vidx = density.var_idx;
-  const double add = ((Vector(*iter, *iter+dimension) - means_(midx)).square() * vars_(vidx)).sum()/2;
+  const double add = ((Vector(*iter, *iter+dimension) - means_[midx]).square() * vars_[vidx]).sum()/2;
   p += add;
   if (p == std::numeric_limits<double>::infinity())
     throw std::logic_error("Invalid prob");

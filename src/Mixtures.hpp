@@ -69,14 +69,14 @@ private:
 
   bool max_approx_;
 
-  mutable Matrix means_;                                 // current mean
+  Matrix means_;                                 // current mean
   Matrix mean_accumulators_;                     // temp. accumulator (first order stat.) used in reestimation
   std::vector<double> mean_weights_;             // weight of the density
   std::vector<double> mean_weight_accumulators_; // temp. accumulator used in reestimation
   std::vector<size_t> mean_refs_;                // reference counter
   std::vector<size_t> mixture_accumulators_;
 
-  mutable Matrix vars_;                                  // current variance
+  Matrix vars_;                                  // current variance
   Matrix var_accumulators_;                      // temp. accumulator (second order stat.) used in reestimation
   std::vector<double> var_weight_accumulators_;  // temp. accumulator used in reestimation
   std::vector<size_t> var_refs_;                 // reference counter

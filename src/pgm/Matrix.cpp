@@ -79,4 +79,14 @@ namespace pgm
             rows_++;
         }
     }
+
+    std::ostream& operator<<(std::ostream& os, const Matrix& m) {
+        os << "[" << std::endl;
+        for (size_t i = 0; i < m.size().first; i++)
+        {
+            os << '\t' << m[i] << "," << std::endl;
+        }
+        os << "]";
+        return os;
+    }
 }

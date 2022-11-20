@@ -61,3 +61,21 @@ Vector operator-(const Section& a, const Section& b) {
 std::ostream& operator<<(std::ostream& os, const Section& s) {
     cprint(s.begin, s.end, os);
 }
+bool operator==(const Section& a, const Section& b) {
+    if (a.size() != b.size())
+        return false;
+    auto bit = b.begin;
+    for (auto it = a.begin; it != a.end; it++, bit++)
+        if (*it != *bit)
+            return false;
+    return true;
+}
+bool operator==(const std::vector<double>& a, const Section& b) {
+    if (a.size() != b.size())
+        return false;
+    auto bit = b.begin;
+    for (auto it = a.cbegin(); it != a.cend(); it++, bit++)
+        if (*it != *bit)
+            return false;
+    return true;
+}

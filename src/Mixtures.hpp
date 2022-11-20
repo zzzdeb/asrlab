@@ -60,6 +60,9 @@ public:
   void read(std::istream& in);
   void write(std::ostream& out) const;
 
+  const Matrix& get_means() const { return means_;}
+  const Matrix& get_vars() const { return vars_;}
+
 private:
   static const char     magic[8];
   static const uint32_t version;

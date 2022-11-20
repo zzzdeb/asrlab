@@ -43,6 +43,8 @@ namespace pgm
         size_t columns_{0};
         std::vector<double> data{};
     };
+
+    std::ostream& operator<<(std::ostream& os, const Matrix& m);
 }
 
 #endif /* __MATRIX_HPP__ */

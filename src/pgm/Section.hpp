@@ -89,4 +89,7 @@ Vector operator+(const Section& a, const Section& b);
 Vector operator*(const Section& a, const Section& b);
 Vector operator-(const Section& a, const Section& b);
 
+bool operator==(const Section& a, const Section& b);
+bool operator==(const std::vector<double>& a, const Section& b);
+
 #endif /* __SECTION_HPP__ */

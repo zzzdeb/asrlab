@@ -15,7 +15,8 @@
         "environment": [{ "name": "config", "value": "Debug" }],
         "cwd": "${workspaceFolder}",
         "MIMode": "gdb",
-        "miDebuggerPath": "/usr/bin/gdb"
+        "miDebuggerPath": "/usr/bin/gdb",
+        "preLaunchTask": "build"
         },
         {
         "name": "train_demo_train",
@@ -27,6 +28,17 @@
         "cwd": "${workspaceFolder}",
         "MIMode": "gdb",
         "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+        "name": "test",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/asrlabtest",
+        "environment": [{ "name": "config", "value": "Debug" }],
+        "cwd": "${workspaceFolder}",
+        "MIMode": "gdb",
+        "miDebuggerPath": "/usr/bin/gdb",
+        "preLaunchTask": "CMake: build"
         }
     ]
 }

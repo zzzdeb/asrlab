@@ -105,15 +105,16 @@ BOOST_AUTO_TEST_CASE(test_case2)
 	BOOST_TEST(same(4.337877, mmodel.density_scores(feature_begin+2, 0)[0]));
 	BOOST_TEST(same(4.337877, mmodel.density_scores(feature_begin+3, 0)[0]));
 
+	std::cout << "0" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, true, true);
   	mmodel.finalize();
-	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
+	std::cout << "1" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	using V = std::vector<double>;
 	BOOST_TEST((V{0, 0} == mmodel.get_means()[0]));
 	BOOST_TEST((V{0.0625, 1} == mmodel.get_vars()[0]));
 
 	mmodel.split(3);
-	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
+	std::cout << "2" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	BOOST_TEST((V{4, 1} == mmodel.get_means()[0]));
 	BOOST_TEST((V{-4, -1} == mmodel.get_means()[1]));
 	BOOST_TEST((V{0.0625, 1} == mmodel.get_vars()[0]));
@@ -130,12 +131,38 @@ BOOST_AUTO_TEST_CASE(test_case2)
 	std::cout << mmodel.density_scores(feature_begin+3, 0) << std::endl;
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
 	mmodel.finalize();
-	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
+	std::cout << "3" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	BOOST_TEST((V{0, 1} == mmodel.get_means()[0]));
 	BOOST_TEST((V{0, -1} == mmodel.get_means()[1]));
-	// std::cout << mmodel.get_vars();
-	BOOST_TEST((V{0.0625, 10000} == mmodel.get_vars()[0]));
-	BOOST_TEST((V{0.0625, 10000} == mmodel.get_vars()[1]));
+	std::cout << mmodel.get_vars();
+	BOOST_TEST((V{0.0625, 400} == mmodel.get_vars()[0]));
+	BOOST_TEST((V{0.0625, 400} == mmodel.get_vars()[1]));
+}
+
+BOOST_AUTO_TEST_CASE(test_case3)
+{
+	const char json[] = "{}";
+	rapidjson::StringStream s(json);
+	const Configuration config(s);
+	const size_t dim = 2;
+	MixtureModel mmodel(config, dim, 1, MixtureModel::NO_POOLING, true);
+	mmodel.mean_refs_ = std::vector<size_t>{0, 1, 0};
+	auto& mixture = mmodel.mixtures_.front();
+	mixture.emplace_back(0, 0);
+	mixture.emplace_back(1, 1);
+	mixture.emplace_back(2, 2);
+	mixture.at(0).mean_idx = 0;
+	mixture.at(1).mean_idx = 1;
+	mixture.at(2).mean_idx = 2;
+	BOOST_TEST(1 == mmodel.get_ith_active(0, 0));
+
+	mmodel.mean_refs_ = std::vector<size_t>{1, 1, 0};
+	BOOST_TEST(0 == mmodel.get_ith_active(0, 0));
+	BOOST_TEST(1 == mmodel.get_ith_active(0, 1));
+
+	mmodel.mean_refs_ = std::vector<size_t>{1, 0, 1};
+	BOOST_TEST(0 == mmodel.get_ith_active(0, 0));
+	BOOST_TEST(2 == mmodel.get_ith_active(0, 1));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

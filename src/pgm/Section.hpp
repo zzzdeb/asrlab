@@ -73,6 +73,12 @@ public:
         std::copy(other.begin, other.end, begin);
         return *this;
     }
+    bool operator==(const double v) {
+        for(auto it = begin; it != end; it++)
+            if (*it != v)
+                return false;
+        return true;
+    }
     auto operator+=(const Section& other) {
         return std::transform(begin, end, other.begin, begin, std::plus<double>{});
     }
@@ -175,7 +181,7 @@ Vector SectionBase<T>::square() const {
 template <class T>
 Vector SectionBase<T>::nonzero() const {
     std::vector<double> ret(begin, end);
-    std::for_each(ret.begin(), ret.end(), [](auto& v) { if (std::abs(v -0) < 0.000001) v = 0.0001; }); 
+    std::for_each(ret.begin(), ret.end(), [](auto& v) { if (std::abs(v -0) < 0.0025) v = 0.0025; }); 
     return Vector(std::move(ret));
 }
 

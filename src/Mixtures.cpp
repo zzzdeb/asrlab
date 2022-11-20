@@ -45,7 +45,7 @@ namespace {
     return count;
   }
 
-  void test(bool condition, char const* error_msg) {
+  inline void test(bool condition, char const* error_msg) {
     if (not condition) {
       std::cerr << error_msg << std::endl;
       abort();
@@ -165,28 +165,45 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
   {
     auto feature = feature_begin + i;
     auto alignment = alignment_begin + i;
-    const Mixture& mixture = mixtures_.at((*alignment)->state);
-    mixture_accumulators_.at((*alignment)->state)++;
-    MixtureDensity density = mixture.at(0);
-    if (!first_pass) {
-      density.mean_idx = min_score(feature, (*alignment)->state).second;
-      density.var_idx = density.mean_idx;
-    }
-
-    // scores.at(it - feature_begin) = s;
-    // std::cout << mean_accumulators_(density.mean_idx) << std::endl;
+    auto midx = (*alignment)->state;
+    const Mixture& mixture = mixtures_.at(midx);
+    mixture_accumulators_.at(midx)++;
     auto fvector = ToVector(feature);
-    // if (density.mean_idx == 446)
-      // std::cout << fvector << std::endl;
-    mean_accumulators_(density.mean_idx) += fvector;
-    // std::cout << fvector << std::endl;
-    // std::cout << mean_accumulators_(density.mean_idx) << std::endl;
-    mean_weight_accumulators_.at(density.mean_idx)++;
 
-    // Section features;
-    var_accumulators_(density.var_idx) += fvector.square();
-    var_weight_accumulators_.at(density.var_idx)++;;
+    if (max_approx_) {
+      auto dens = mixture.front();
+      if (!first_pass)
+        dens = mixture.at(min_score(feature, midx).second);
+      test(mean_refs_.at(dens.mean_idx)!=0, "Naa");
+
+      const double w = 1;
+      mean_accumulators_[dens.mean_idx] += w * fvector;
+      mean_weight_accumulators_.at(dens.mean_idx) += w;
+
+      // Section features;
+      var_accumulators_[dens.var_idx] += w * fvector.square();
+      var_weight_accumulators_.at(dens.var_idx) += w;
+    } else {
+      Vector weights(mixture.size(), 1);
+      if (!first_pass) {
+        Vector scores = density_scores_normalized(feature, midx);
+        weights = (-scores).exp();
+        test(weights.sum() > 0, "Naa");
+      }
+      for (size_t i = 0; i < weights.size(); i++)
+      {
+        const auto& dens = mixture.at(get_ith_active(midx, i));
+        const double& w = weights[i];
+        mean_accumulators_[dens.mean_idx] += w * fvector;
+        mean_weight_accumulators_.at(dens.mean_idx) += w;
+
+      // Section features;
+        var_accumulators_[dens.var_idx] += w * fvector.square();
+        var_weight_accumulators_.at(dens.var_idx) += w;
+      }
+    }
   }
+  // cprint(mean_refs_)
   // std::vector<size_t> tmp;
   // std::transform(mixtures_.begin(), mixtures_.end(), std::back_inserter(tmp), [](auto& v) {return v.size();});
   // cprint(tmp);
@@ -220,39 +237,55 @@ void MixtureModel::visualize(std::string header) {
 /*****************************************************************************/
 
 void MixtureModel::finalize() {
-  // Implements means_, vars_ and norm_
-  for (size_t i = 0; i < mean_weights_.size(); i++) {
-    if (mean_weight_accumulators_.at(i) == 0)
-      mean_refs_.at(i) = 0;
-    if (var_weight_accumulators_.at(i) == 0)
-      var_refs_.at(i) = 0;
-    if (mean_refs_.at(i) == 0)
-      continue;
-    means_(i) = mean_accumulators_(i) / mean_weight_accumulators_.at(i);
-    vars_(i) = 1 / (var_accumulators_(i) / var_weight_accumulators_.at(i) - means_(i).square()).square().nonzero();
-    norm_.at(i) = norm_fixed_ - (vars_(i).log().sum() / 2);
+  // Implements means_, vars_, norm_ and weights_
+  for (size_t midx = 0; midx < mixtures_.size(); midx++) {
+    const auto& mixture = mixtures_.at(midx);
+    for (const auto& dens : mixture)
+    {
+      size_t i = dens.mean_idx;
+      if (mean_refs_.at(i) == 0)
+        continue;
+      if (mean_weight_accumulators_.at(i) == 0) {
+        test(num_active(mixture) != 1, "It will be empty.");
+        mean_refs_.at(i) = 0;
+        continue;
+      }
+
+      means_[i] = mean_accumulators_[i] / mean_weight_accumulators_.at(i);
+      vars_[i] = 1 / (var_accumulators_[i] / var_weight_accumulators_.at(i) - means_[i].square()).square().nonzero();
+      norm_.at(i) = norm_fixed_ - (vars_[i].log().sum() / 2);
+      mean_weights_.at(i) = -std::log(mean_weight_accumulators_.at(i) / mixture_accumulators_.at(midx));
+    }
   }
-  for (size_t i = 0; i < mixtures_.size(); i++)
-    for (const auto& dens: mixtures_.at(i))
-      mean_weights_.at(dens.mean_idx) = -std::log(mean_weight_accumulators_.at(dens.mean_idx) / mixture_accumulators_.at(i));
   check_validity();
   visualize("f");
 }
 
 void MixtureModel::check_validity() {
+  for (const auto& w : mean_weights_)
+    test(w>=0, "Na");
+  
+  for (size_t i = 0; i < mixtures_.size(); i++) {
+    size_t active_mxts = 0;
+    for (const auto& mixture: mixtures_.at(i))
+    {
+      if (mean_refs_.at(mixture.mean_idx) != 0)
+        active_mxts++;
+    }
+    test(active_mxts > 0, "All densities disabled");
+  }
+  
   for (size_t i = 0; i < mean_weights_.size(); i++) {
     if (mean_refs_.at(i) == 0)
       continue;
     // for (vars_(i))
   }
-  auto check = [](double v) { return v <10000000 && v > -10000000;};
-  for (size_t i = 0; i < norm_.size(); i++){
-    if(!check(norm_.at(i)))
-      throw std::logic_error("Naa");
-  }
+  // auto check_norm = [](double v) { return v <10000000 && v > -10000000;};
+  // for (size_t i = 0; i < norm_.size(); i++){
+  //   test(check_norm(norm_.at(i)), "Naa");
+  // }
   for (size_t i = 0; i < mixture_accumulators_.size(); i++)
-    if(mixture_accumulators_.at(i) == 0)
-      throw std::logic_error("Naa");
+    test(mixture_accumulators_.at(i) > 0, "Naa");
   auto check_vars = [](double v) { return v >0;};
   // for (size_t i = 0; i < vars_.size().first; i++)
   //   for (size_t j = 0; j < vars_.size().second; j++)
@@ -263,36 +296,35 @@ void MixtureModel::check_validity() {
 /*****************************************************************************/
 
 void MixtureModel::split(size_t min_obs) {
-  for (auto& mixture : mixtures_)
-  {
+  for (auto& mixture : mixtures_) {
     for (size_t i = 0; i < mixture.size(); i++)
     {
-      DensityIdx cur_mean_idx= mixture.at(i).mean_idx;
-      DensityIdx cur_var_idx= mixture.at(i).var_idx;
-      if (mean_refs_.at(cur_mean_idx) == 0)
+      DensityIdx midx = mixture.at(i).mean_idx;
+      DensityIdx vidx = mixture.at(i).var_idx;
+      if (mean_refs_.at(midx) == 0)
         continue;
-      if (mean_weight_accumulators_.at(cur_mean_idx) >= min_obs) {
-        auto cur_mean = means_(cur_mean_idx);
-        auto diff = (1 / vars_(cur_var_idx)).sqrt();
+      if (mean_weight_accumulators_.at(midx) >= min_obs) {
+        auto cur_mean = means_[midx];
+        auto diff = (1 / vars_[vidx]).sqrt();
         auto p_mean = cur_mean + diff;
         auto n_mean = cur_mean - diff;
-        means_(cur_mean_idx) = p_mean;
-        mean_weights_.at(cur_mean_idx) += log(2);
+        means_[midx] = p_mean;
+        mean_weights_.at(midx) += log(2);
         {
           // add mean
           means_.add_row(n_mean);
           mean_accumulators_.add_row();
-          mean_weights_.emplace_back(mean_weights_.at(cur_mean_idx));
+          mean_weights_.emplace_back(mean_weights_.at(midx));
           mean_weight_accumulators_.emplace_back();
           mean_refs_.emplace_back(1);
         }
         {
           // add var
-          vars_.add_row(vars_(cur_var_idx));
+          vars_.add_row(vars_[vidx]);
           var_accumulators_.add_row();
           var_weight_accumulators_.emplace_back();
           var_refs_.emplace_back(1);
-          norm_.emplace_back();
+          norm_.emplace_back(norm_.at(vidx));
         }
         mixture.emplace_back(mean_weights_.size() - 1, var_weight_accumulators_.size() - 1);
       }
@@ -304,16 +336,15 @@ void MixtureModel::split(size_t min_obs) {
 /*****************************************************************************/
 
 void MixtureModel::eliminate(double min_obs) {
-  for (auto& mixture : mixtures_)
-  {
-    for (size_t i = 0; i < mixture.size(); i++)
-    {
-      if (mean_weight_accumulators_.at(mixture.at(i).mean_idx) < min_obs)
-        mean_refs_.at(i) = 0;
-      if (var_weight_accumulators_.at(mixture.at(i).var_idx) < min_obs)
-        var_refs_.at(i) = 0;
+  for (const auto& mixture : mixtures_)
+    for (const auto& dens : mixture) {
+      if (mean_refs_.at(dens.mean_idx) == 0)
+        continue;
+      if (mean_weight_accumulators_.at(dens.mean_idx) < min_obs) {
+        test(num_active(mixture) != 1, "It will be empty.");
+        mean_refs_.at(dens.mean_idx) = 0;
+      }
     }
-  }
   visualize("e");
 }
 
@@ -327,11 +358,9 @@ size_t MixtureModel::num_densities() const {
 
 // computes the score (probability in negative log space) for a feature vector
 // given a mixture density
-double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx, DensityIdx density_idx) const {
-  const Mixture& mixture = mixtures_.at(mixture_idx);
-  const MixtureDensity& density = mixture.at(density_idx);
+double MixtureModel::density_score(FeatureIter const& iter, const MixtureDensity& density) const {
   if (mean_refs_.at(density.mean_idx) == 0)
-    return std::numeric_limits<double>::max();
+    return std::numeric_limits<double>::infinity();
   const double& minus_log_c = mean_weights_.at(density.mean_idx);
 
   double p = minus_log_c + norm_.at(density.var_idx);
@@ -339,31 +368,43 @@ double MixtureModel::density_score(FeatureIter const& iter, StateIdx mixture_idx
   size_t vidx = density.var_idx;
   const double add = ((Vector(*iter, *iter+dimension) - means_[midx]).square() * vars_[vidx]).sum()/2;
   p += add;
-  if (p == std::numeric_limits<double>::infinity())
-    throw std::logic_error("Invalid prob");
+  if (p < 0) // single point mixtures
+    p = 0;
+  test(p>=0 && p < std::numeric_limits<double>::infinity(), "Invalid prob");
   return p;
 }
 
 /*****************************************************************************/
 
+Vector MixtureModel::density_scores(FeatureIter const& iter, StateIdx mixture_idx) const {
+  const Mixture& mixture = mixtures_.at(mixture_idx);
+  std::vector<double> scores;
+  for (const auto& dens: mixture)
+  {
+    if (mean_refs_.at(dens.mean_idx) == 0)
+      continue;
+    scores.emplace_back(density_score(iter, dens));
+  }
+  test(scores.size() == num_active(mixture), "Naa");
+  return {std::move(scores)};
+}
+
+Vector MixtureModel::density_scores_normalized(FeatureIter const& iter, StateIdx mixture_idx) const {
+  Vector scores = density_scores(iter, mixture_idx);
+  scores = (-scores).exp();
+  scores /= scores.sum();
+  return -scores.log();
+}
+  
 // this function returns the density with the lowest score (=highest probability)
 // for the given feature vector
 std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, StateIdx mixture_idx) const {
   const Mixture& mixture = mixtures_.at(mixture_idx);
-  double min_score = std::numeric_limits<double>::max();
-  DensityIdx min_index = -1;
-  for (size_t i = 0; i < mixture.size(); i++)
-  {
-    double score = density_score(iter, mixture_idx, i);
-    if (score < min_score) {
-      min_score = score;
-      min_index = mixture.at(i).mean_idx;
-    }
-  }
-  if (min_index == 65535)
-    throw std::logic_error("It should be smaller");
-  
-  return std::make_pair(min_score, min_index);
+  Vector scores = density_scores(iter, mixture_idx);
+  auto min_score = scores.min();
+  test(*min_score != 65535 && *min_score != std::numeric_limits<double>::infinity(), "It should be smaller");
+  test(min_score - scores.begin < num_active(mixture), "Naa");
+  return std::make_pair(*min_score, get_ith_active(mixture_idx, min_score - scores.begin));
 }
 
 /*****************************************************************************/
@@ -371,8 +412,10 @@ std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, S
 // compute the 'full' score of a feature vector for a given mixture. The weights
 // of each density are stored in weights and should sum up to 1.0
 double MixtureModel::sum_score(FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const {
-  // TODO: implement
-  return 0.0;
+  const Mixture& mixture = mixtures_.at(mixture_idx);
+  double score = density_scores_normalized(iter, mixture_idx).sum();
+  test(score != 65535 && score != std::numeric_limits<double>::infinity(), "It should be smaller");
+  return score;
 }
 
 /*****************************************************************************/
@@ -522,6 +565,30 @@ void MixtureModel::write(std::ostream& out) const {
       current_density++;
     }
   }
+}
+
+size_t MixtureModel::get_ith_active(StateIdx mixture_idx, size_t i) const {
+  const auto& mixture = mixtures_.at(mixture_idx);
+  int ret = -1;
+  int ret_idx = -1;
+  for (size_t j = 0; j < mixture.size(); j++)
+  {
+    if (mean_refs_.at(mixture.at(j).mean_idx) != 0)
+      ret++;
+    if (ret == i) {
+      ret_idx = j;
+      break;
+    }
+  }
+  test(ret_idx < mixture.size() && ret_idx >= i, "Naa");
+  return ret_idx;
+}
+size_t MixtureModel::num_active(const Mixture& m) const {
+  size_t ret = 0;
+  for (const auto& dens: m)
+    if (mean_refs_.at(dens.mean_idx) != 0)
+      ret++;
+  return ret;
 }
 
 /*****************************************************************************/

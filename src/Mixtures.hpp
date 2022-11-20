@@ -50,9 +50,13 @@ public:
 
   size_t num_densities() const;
 
-  double                        density_score  (FeatureIter const& iter, StateIdx mixture_idx, DensityIdx density_idx) const;
+  double                        density_score  (FeatureIter const& iter, const MixtureDensity& density) const;
   std::pair<double, DensityIdx> min_score      (FeatureIter const& iter, StateIdx mixture_idx) const;
   double                        sum_score      (FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const;
+  Vector density_scores_normalized(FeatureIter const& iter, StateIdx mixture_idx) const;
+  Vector density_scores(FeatureIter const& iter, StateIdx mixture_idx) const;
+  size_t get_ith_active(StateIdx mixture_idx, size_t i) const;
+  size_t num_active(const Mixture& m) const;
 
   virtual void prepare_sequence(FeatureIter const& start, FeatureIter const& end);
   virtual double score(FeatureIter const& iter, StateIdx mixture_idx) const;
@@ -63,7 +67,7 @@ public:
   const Matrix& get_means() const { return means_;}
   const Matrix& get_vars() const { return vars_;}
 
-private:
+// private:
   static const char     magic[8];
   static const uint32_t version;
 

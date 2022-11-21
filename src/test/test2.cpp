@@ -20,7 +20,7 @@ double calc_am_score(std::pair<FeatureIter, FeatureIter> features, Alignment con
   return score;
 }
 
-bool same(const double &a, const double &b, const double eps = 0.000001) { return std::abs(a - b) < eps; }
+bool same(const double &a, const double &b, const double eps = 0.00001) { return std::abs(a - b) < eps; }
 
 BOOST_AUTO_TEST_SUITE(test_mixture);
 
@@ -62,18 +62,18 @@ BOOST_AUTO_TEST_CASE(test_case1)
 	// BOOST_TEST(same(0.9189385, mmodel.density_scores(feature_begin, 0)[0]));
 
 	mmodel.split(3);
-	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	BOOST_TEST(2+6.5 == mmodel.get_means()(0, 0));
 	BOOST_TEST(2-6.5 == mmodel.get_means()(1, 0));
 	BOOST_TEST(var == mmodel.get_vars()(0, 0));
 	BOOST_TEST(var == mmodel.get_vars()(1, 0));
 
 	auto scores = mmodel.density_scores(feature_begin, 0);
-	BOOST_TEST(same(4.551935227944315, scores[0]));
-	BOOST_TEST(same(3.628858304867393, scores[1]));
+	BOOST_TEST(same(4.551935, scores[0]));
+	BOOST_TEST(same(3.628858, scores[1]));
 	scores = mmodel.density_scores(feature_begin+2, 0);
-	BOOST_TEST(same(3.7235328610804106, scores[0]));
-	BOOST_TEST(same(4.338917476465026, scores[1]));
+	BOOST_TEST(same(3.723532, scores[0]));
+	BOOST_TEST(same(4.338917, scores[1]));
+	BOOST_TEST(same((3.6288583+ 3.723532)/2, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
 
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
 	mmodel.finalize();
@@ -163,6 +163,58 @@ BOOST_AUTO_TEST_CASE(test_case3)
 	mmodel.mean_refs_ = std::vector<size_t>{1, 0, 1};
 	BOOST_TEST(0 == mmodel.get_ith_active(0, 0));
 	BOOST_TEST(2 == mmodel.get_ith_active(0, 1));
+}
+
+BOOST_AUTO_TEST_CASE(test_sum_scores)
+{
+	const char json[] = "{}";
+	rapidjson::StringStream s(json);
+	const Configuration config(s);
+	MixtureModel mmodel(config, 1, 1, MixtureModel::NO_POOLING, false);
+	const size_t dim = 1;
+	const size_t num_features = 4;
+	float features[dim * num_features] = {-1, 0, 4, 5};
+	FeatureIter feature_begin(features, dim);
+	FeatureIter feature_end(features + dim * num_features, dim);
+
+  	const Alignment aligns{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	
+  	ConstAlignmentIter alignment_begin(&*aligns.begin(), 1);
+    ConstAlignmentIter alignment_end(&*aligns.begin() + num_features, 1);
+
+	BOOST_TEST(same(1.4189385, mmodel.density_scores(feature_begin, 0)[0]));
+	// std::cout << mmodel.density_scores(feature_begin, 0) << std::endl;
+	BOOST_TEST(same(0.9189385, mmodel.density_scores(feature_begin+1, 0)[0]));
+	BOOST_TEST(same(8.91893853, mmodel.density_scores(feature_begin+2, 0)[0]));
+	BOOST_TEST(same(13.4189385, mmodel.density_scores(feature_begin+3, 0)[0]));
+
+  	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, true, true);
+  	mmodel.finalize();
+
+	BOOST_TEST(2 == mmodel.get_means()(0, 0));
+	double var = 1/std::pow(6.5, 2);
+	BOOST_TEST(var == mmodel.get_vars()(0, 0));
+	// std::cout << mmodel.get_means()(0) << std::endl;
+	// std::cout << mmodel.density_scores(feature_begin, 0) << std::endl;
+	// BOOST_TEST(same(0.9189385, mmodel.density_scores(feature_begin, 0)[0]));
+
+	mmodel.split(3);
+	BOOST_TEST(2+6.5 == mmodel.get_means()(0, 0));
+	BOOST_TEST(2-6.5 == mmodel.get_means()(1, 0));
+	BOOST_TEST(var == mmodel.get_vars()(0, 0));
+	BOOST_TEST(var == mmodel.get_vars()(1, 0));
+
+	auto scores = mmodel.density_scores_normalized(feature_begin, 0);
+	std::cout << scores << std::endl;
+	BOOST_TEST(same(1.257614, scores[0]));
+	BOOST_TEST(same(0.334537, scores[1]));
+	scores = mmodel.density_scores_normalized(feature_begin+2, 0);
+	BOOST_TEST(same(0.432063, scores[0]));
+	BOOST_TEST(same(1.047448, scores[1]));
+	BOOST_TEST(same((3.291468 + 3.294320)/2, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
+
+  	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
+	mmodel.finalize();
 }
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -184,7 +184,7 @@ void MixtureModel::accumulate(ConstAlignmentIter alignment_begin, ConstAlignment
       var_accumulators_[dens.var_idx] += w * fvector.square();
       var_weight_accumulators_.at(dens.var_idx) += w;
     } else {
-      Vector weights(mixture.size(), 1);
+      Vector weights(num_active(mixture), 1);
       if (!first_pass) {
         Vector scores = density_scores_normalized(feature, midx);
         weights = (-scores).exp();
@@ -390,10 +390,11 @@ Vector MixtureModel::density_scores(FeatureIter const& iter, StateIdx mixture_id
 }
 
 Vector MixtureModel::density_scores_normalized(FeatureIter const& iter, StateIdx mixture_idx) const {
+  if (num_active(mixtures_.at(mixture_idx)) == 1)
+    return {1};
   Vector scores = density_scores(iter, mixture_idx);
-  scores = (-scores).exp();
-  scores /= scores.sum();
-  return -scores.log();
+  double nsum = sum_score(iter, mixture_idx, nullptr);
+  return scores - nsum;
 }
   
 // this function returns the density with the lowest score (=highest probability)
@@ -412,10 +413,13 @@ std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, S
 // compute the 'full' score of a feature vector for a given mixture. The weights
 // of each density are stored in weights and should sum up to 1.0
 double MixtureModel::sum_score(FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const {
-  const Mixture& mixture = mixtures_.at(mixture_idx);
-  double score = density_scores_normalized(iter, mixture_idx).sum();
-  test(score != 65535 && score != std::numeric_limits<double>::infinity(), "It should be smaller");
-  return score;
+  Vector scores = density_scores(iter, mixture_idx);
+  if (scores.size() == 1)
+    return *scores.begin;
+  double nsum = *scores.begin;
+  for(auto it = scores.begin+1; it < scores.end; it++)
+    nsum = logsum(nsum, *it);
+  return nsum;
 }
 
 /*****************************************************************************/

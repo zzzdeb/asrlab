@@ -121,6 +121,7 @@ Vector operator_b(const SectionBase<T>& a, const double& b) {
 }
 Vector operator/(const Section& a, const double& b);
 Vector operator+(const Section& a, const double& b);
+Vector operator-(const Section& a, const double& b);
 Vector operator*(const Section& a, const double& b);
 Vector operator*(const double& a, const Section& b);
 Vector operator/(const double& a, const Section& b);

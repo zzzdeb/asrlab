@@ -17,6 +17,9 @@ Vector operator/(const Section& a, const double& b) {
 Vector operator+(const Section& a, const double& b) {
     return operator_b<std::plus<double>>(a, b);
 }
+Vector operator-(const Section& a, const double& b) {
+    return operator_b<std::minus<double>>(a, b);
+}
 Vector operator*(const Section& a, const double& b) {
     return operator_b<std::multiplies<double>>(a, b);
 }

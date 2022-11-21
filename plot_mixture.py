@@ -26,8 +26,17 @@ def _draw_norm(sects, axs):
     color = 'go'
     if mref == 0:
         color = 'ro'
-    axs.plot(means[0], means[1], color, alpha=0.5)
-    axs.text(means[0], means[1], f'{midx} {mweight}')
+    x = means[0];
+    y = means[1];
+    axs.plot(x, y, color, alpha=0.5)
+    axs.text(x, y, f'{midx} {mweight}')
+    normed1 = 1/vs[0]**0.5
+    normed2 = 1/vs[1]**0.5
+    a = [-normed1 + x, normed1 + x]
+    b = [-normed2 + y, normed2 + y]
+    vcolor = 'g'
+    axs.plot(a, [y, y], vcolor, markersize=0.3)
+    axs.plot([x, x], b, vcolor, markersize=0.3)
 
 def _draw_group(g, axs, fts):
     lines = g.split('\n')

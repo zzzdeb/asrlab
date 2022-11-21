@@ -182,7 +182,7 @@ Vector SectionBase<T>::square() const {
 template <class T>
 Vector SectionBase<T>::nonzero() const {
     std::vector<double> ret(begin, end);
-    std::for_each(ret.begin(), ret.end(), [](auto& v) { if (std::abs(v -0) < 0.0025) v = 0.0025; }); 
+    std::for_each(ret.begin(), ret.end(), [](auto& v) { if (std::abs(v -0) < 0.0001) v = 0.0001; }); 
     return Vector(std::move(ret));
 }
 

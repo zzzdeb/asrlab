@@ -55,33 +55,32 @@ BOOST_AUTO_TEST_CASE(test_case1)
 	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 
 	BOOST_TEST(2 == mmodel.get_means()(0, 0));
-	double var = 1/std::pow(6.5, 2);
+	double var = 1/6.5;
 	BOOST_TEST(var == mmodel.get_vars()(0, 0));
 	// std::cout << mmodel.get_means()(0) << std::endl;
 	// std::cout << mmodel.density_scores(feature_begin, 0) << std::endl;
 	// BOOST_TEST(same(0.9189385, mmodel.density_scores(feature_begin, 0)[0]));
 
 	mmodel.split(3);
-	BOOST_TEST(2+6.5 == mmodel.get_means()(0, 0));
-	BOOST_TEST(2-6.5 == mmodel.get_means()(1, 0));
+	BOOST_TEST(2+std::sqrt(6.5) == mmodel.get_means()(0, 0));
+	BOOST_TEST(2-std::sqrt(6.5) == mmodel.get_means()(1, 0));
 	BOOST_TEST(var == mmodel.get_vars()(0, 0));
 	BOOST_TEST(var == mmodel.get_vars()(1, 0));
 
 	auto scores = mmodel.density_scores(feature_begin, 0);
-	BOOST_TEST(same(4.551935, scores[0]));
-	BOOST_TEST(same(3.628858, scores[1]));
+	BOOST_TEST(same(4.91699, scores[0]));
+	BOOST_TEST(same(2.5636, scores[1]));
 	scores = mmodel.density_scores(feature_begin+2, 0);
-	BOOST_TEST(same(3.723532, scores[0]));
-	BOOST_TEST(same(4.338917, scores[1]));
-	BOOST_TEST(same((3.6288583+ 3.723532)/2, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
+	BOOST_TEST(same(2.57121, scores[0]));
+	BOOST_TEST(same(4.14014, scores[1]));
+	BOOST_TEST(same((2.5636+ 2.57121)/2, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
 
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
 	mmodel.finalize();
-	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	BOOST_TEST(4.5 == mmodel.get_means()(0, 0));
 	BOOST_TEST(-0.5 == mmodel.get_means()(1, 0));
-	BOOST_TEST(16 == mmodel.get_vars()(0, 0));
-	BOOST_TEST(16 == mmodel.get_vars()(1, 0));
+	BOOST_TEST(4 == mmodel.get_vars()(0, 0));
+	BOOST_TEST(4 == mmodel.get_vars()(1, 0));
 }
 BOOST_AUTO_TEST_CASE(test_case2)
 {
@@ -111,32 +110,32 @@ BOOST_AUTO_TEST_CASE(test_case2)
 	std::cout << "1" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
 	using V = std::vector<double>;
 	BOOST_TEST((V{0, 0} == mmodel.get_means()[0]));
-	BOOST_TEST((V{0.0625, 1} == mmodel.get_vars()[0]));
+	BOOST_TEST((V{0.25, 1} == mmodel.get_vars()[0]));
 
 	mmodel.split(3);
-	std::cout << "2" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
-	BOOST_TEST((V{4, 1} == mmodel.get_means()[0]));
-	BOOST_TEST((V{-4, -1} == mmodel.get_means()[1]));
-	BOOST_TEST((V{0.0625, 1} == mmodel.get_vars()[0]));
-	BOOST_TEST((V{0.0625, 1} == mmodel.get_vars()[1]));
+	BOOST_TEST((V{2, 1} == mmodel.get_means()[0]));
+	BOOST_TEST((V{-2, -1} == mmodel.get_means()[1]));
+	BOOST_TEST((V{0.25, 1} == mmodel.get_vars()[0]));
+	BOOST_TEST((V{0.25, 1} == mmodel.get_vars()[1]));
 
 	auto scores = mmodel.density_scores(feature_begin, 0);
 	// BOOST_TEST(scores.approx(V{4.551935, 4.551935}));
 	scores = mmodel.density_scores(feature_begin+2, 0);
 	// BOOST_TEST(scores.approx(V{4.551935, 4.551935}));
 
-	std::cout << mmodel.density_scores(feature_begin+0, 0) << std::endl;
-	std::cout << mmodel.density_scores(feature_begin+1, 0) << std::endl;
-	std::cout << mmodel.density_scores(feature_begin+2, 0) << std::endl;
-	std::cout << mmodel.density_scores(feature_begin+3, 0) << std::endl;
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
 	mmodel.finalize();
-	std::cout << "3" << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
-	BOOST_TEST((V{0, 1} == mmodel.get_means()[0]));
-	BOOST_TEST((V{0, -1} == mmodel.get_means()[1]));
-	std::cout << mmodel.get_vars();
-	BOOST_TEST((V{0.0625, 400} == mmodel.get_vars()[0]));
-	BOOST_TEST((V{0.0625, 400} == mmodel.get_vars()[1]));
+	BOOST_TEST(same(0.666667, mmodel.get_means()(0,0)));
+	BOOST_TEST(same(0.333333, mmodel.get_means()(0,1)));
+	BOOST_TEST((V{-2, -1} == mmodel.get_means()[1]));
+  	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
+	mmodel.finalize();
+	BOOST_TEST(same(0.666667, mmodel.get_means()(0,0)));
+	BOOST_TEST(same(0.333333, mmodel.get_means()(0,1)));
+	BOOST_TEST((V{-2, -1} == mmodel.get_means()[1]));
+
+	BOOST_TEST((V{0.28125,1.125} == mmodel.get_vars()[0]));
+	BOOST_TEST((V{10000, 10000} == mmodel.get_vars()[1]));
 }
 
 BOOST_AUTO_TEST_CASE(test_case3)
@@ -192,26 +191,27 @@ BOOST_AUTO_TEST_CASE(test_sum_scores)
   	mmodel.finalize();
 
 	BOOST_TEST(2 == mmodel.get_means()(0, 0));
-	double var = 1/std::pow(6.5, 2);
+	double var = 1/6.5;
 	BOOST_TEST(var == mmodel.get_vars()(0, 0));
 	// std::cout << mmodel.get_means()(0) << std::endl;
 	// std::cout << mmodel.density_scores(feature_begin, 0) << std::endl;
 	// BOOST_TEST(same(0.9189385, mmodel.density_scores(feature_begin, 0)[0]));
 
 	mmodel.split(3);
-	BOOST_TEST(2+6.5 == mmodel.get_means()(0, 0));
-	BOOST_TEST(2-6.5 == mmodel.get_means()(1, 0));
+	BOOST_TEST(2+std::sqrt(6.5) == mmodel.get_means()(0, 0));
+	BOOST_TEST(2-std::sqrt(6.5) == mmodel.get_means()(1, 0));
 	BOOST_TEST(var == mmodel.get_vars()(0, 0));
 	BOOST_TEST(var == mmodel.get_vars()(1, 0));
 
 	auto scores = mmodel.density_scores_normalized(feature_begin, 0);
-	std::cout << scores << std::endl;
-	BOOST_TEST(same(1.257614, scores[0]));
-	BOOST_TEST(same(0.334537, scores[1]));
+	BOOST_TEST(same(2.44419, scores[0]));
+	BOOST_TEST(same(0.0907964, scores[1]));
 	scores = mmodel.density_scores_normalized(feature_begin+2, 0);
-	BOOST_TEST(same(0.432063, scores[0]));
-	BOOST_TEST(same(1.047448, scores[1]));
-	BOOST_TEST(same((3.291468 + 3.294320)/2, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
+	// std::cout << scores << std::endl;
+	BOOST_TEST(same(0.189188, scores[0]));
+	BOOST_TEST(same(1.75812, scores[1]));
+	std::cout << calc_am_score({feature_begin, feature_end}, aligns, mmodel) << std::endl;
+	BOOST_TEST(same(2.42741, calc_am_score({feature_begin, feature_end}, aligns, mmodel)));
 
   	mmodel.accumulate(alignment_begin, alignment_end, feature_begin,  feature_end, false, true);
 	mmodel.finalize();

@@ -252,7 +252,7 @@ void MixtureModel::finalize() {
       }
 
       means_[i] = mean_accumulators_[i] / mean_weight_accumulators_.at(i);
-      vars_[i] = 1 / (var_accumulators_[i] / var_weight_accumulators_.at(i) - means_[i].square()).square().nonzero();
+      vars_[i] = 1 / (var_accumulators_[i] / var_weight_accumulators_.at(i) - means_[i].square()).nonzero();
       norm_.at(i) = norm_fixed_ - (vars_[i].log().sum() / 2);
       mean_weights_.at(i) = -std::log(mean_weight_accumulators_.at(i) / mixture_accumulators_.at(midx));
     }

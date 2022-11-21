@@ -27,6 +27,7 @@
         "environment": [{ "name": "config", "value": "Debug" }],
         "cwd": "${workspaceFolder}",
         "MIMode": "gdb",
+        "preLaunchTask": "CMake: build",
         "miDebuggerPath": "/usr/bin/gdb"
         },
         {

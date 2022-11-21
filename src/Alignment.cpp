@@ -46,6 +46,7 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
   std::fill(prev.begin() + 1, prev.end(), INF);
   std::vector<double> cur(S);
   std::vector<uint8_t> B(T*S);
+
   auto d = [&](size_t t, size_t s) { 
     auto feat = feature_begin + t;
     auto midx = reference[s];
@@ -99,8 +100,59 @@ double Aligner::align_sequence_pruned(FeatureIter feature_begin, FeatureIter fea
                                       MarkovAutomaton const& reference,
                                       AlignmentIter align_begin, AlignmentIter align_end,
                                       double pruning_threshold) {
-  // TODO: implement
-  return 0.0;
+  size_t T = feature_end - feature_begin;
+  size_t S = reference.num_states();
+  std::vector<double> prev(S);
+  std::fill(prev.begin() + 1, prev.end(), INF);
+  std::vector<double> cur(S);
+  std::vector<uint8_t> B(T*S);
+
+  auto d = [&](size_t t, size_t s) { 
+    auto feat = feature_begin + t;
+    auto midx = reference[s];
+    return mixtures_.score(feat, midx);
+  };
+
+  for (size_t t = 0; t < T; t++)
+  {
+    size_t s = 0;
+    {
+      // unreachable
+      if (S - 1 > (T - t - 1) * 2)
+        s = S - 1 - (T - t - 1) * 2;
+      std::fill(cur.begin(), cur.begin() + s, INF);
+    }
+
+    for (; s < S; s++)
+    {
+      std::vector<double> to_scores;
+      for (size_t i = 0; i <= std::min(2ul, s); i++)
+        to_scores.emplace_back(prev[s - i] + tdp_model_.score(s, i));
+      auto min = std::min_element(to_scores.begin(), to_scores.end());
+      auto argmin = min - to_scores.begin();
+      if (*min == INF) {
+        cur.at(s) = INF; 
+        continue;
+      }
+      cur.at(s) = d(t, s) + *min;
+      B[t*S + s] = argmin;
+    }
+    double threshold = *std::min_element(cur.begin(), cur.end()) + pruning_threshold;
+    for(auto& v : cur)
+      if (v > threshold)
+        v = INF;
+    std::swap(prev, cur);
+  }
+  size_t s = S - 1;
+  for(auto it = align_end-1; it != align_begin; it--) {
+    size_t t = it - align_begin;
+    (*it)->state = reference[s];
+    s -= B[t * S + s];
+    // std::cout << s << ",";
+  }
+  (*align_begin)->state = reference[s];
+  // std::cout << s << std::endl;
+  return prev.at(S-1);
 }
 
 /*****************************************************************************/

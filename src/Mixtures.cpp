@@ -122,13 +122,13 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension_p, size
               mean_refs_(num_mixtures, 1),
               mixture_accumulators_(num_mixtures),
 
-              vars_(num_mixtures, dimension, 1),
-              var_accumulators_(num_mixtures, dimension),
-              var_weight_accumulators_(num_mixtures),
-              var_refs_(num_mixtures, 1),
+              var_refs_(var_model == GLOBAL_POOLING ? 1 : num_mixtures, 1),
+              vars_(var_refs_.size(), dimension, 1),
+              var_accumulators_(var_refs_.size(), dimension),
+              var_weight_accumulators_(var_refs_.size()),
 
               norm_fixed_(dimension * std::log(2 * M_PI) / 2),
-              norm_(num_mixtures),
+              norm_(var_refs_.size()),
 
               mixtures_(num_mixtures),
               alignment_begin_(nullptr, 1),
@@ -136,10 +136,9 @@ MixtureModel::MixtureModel(Configuration const& config, size_t dimension_p, size
               write_mixtures_(paramWriteMixtures(config))
 {
   for (size_t i = 0; i < num_mixtures; i++)
-  {
+    mixtures_.at(i).emplace_back(i, var_model == GLOBAL_POOLING ? 0 : i);
+  for (size_t i = 0; i < norm_.size(); i++)
     norm_.at(i) = norm_fixed_ - vars_[i].log().sum() / 2;
-    mixtures_.at(i).emplace_back(i, i);
-  }
 }
 
 /*****************************************************************************/
@@ -237,6 +236,7 @@ void MixtureModel::visualize(std::string header) {
 /*****************************************************************************/
 
 void MixtureModel::finalize() {
+  vars_ = 0;
   // Implements means_, vars_, norm_ and weights_
   for (size_t midx = 0; midx < mixtures_.size(); midx++) {
     const auto& mixture = mixtures_.at(midx);
@@ -248,14 +248,31 @@ void MixtureModel::finalize() {
       if (mean_weight_accumulators_.at(i) == 0) {
         test(num_active(mixture) != 1, "It will be empty.");
         mean_refs_.at(i) = 0;
+        var_refs_.at(dens.var_idx)--;
         continue;
       }
 
       means_[i] = mean_accumulators_[i] / mean_weight_accumulators_.at(i);
-      vars_[i] = 1 / (var_accumulators_[i] / var_weight_accumulators_.at(i) - means_[i].square()).nonzero();
-      norm_.at(i) = norm_fixed_ - (vars_[i].log().sum() / 2);
       mean_weights_.at(i) = -std::log(mean_weight_accumulators_.at(i) / mixture_accumulators_.at(midx));
+
+      if (var_model == NO_POOLING) {
+        vars_[i] = 1 / (var_accumulators_[i] / var_weight_accumulators_.at(i) - means_[i].square()).nonzero();
+        norm_.at(i) = norm_fixed_ - (vars_[i].log().sum() / 2);
+      } else if (var_model == MIXTURE_POOLING)
+        vars_[midx] -= mean_weight_accumulators_.at(i) * means_[i].square();
+      else if (var_model == GLOBAL_POOLING)
+        vars_[0] -= mean_weight_accumulators_.at(i) * means_[i].square();
     }
+    if (var_model == MIXTURE_POOLING) {
+      vars_[midx] += var_accumulators_[midx];
+      vars_[midx] = 1 / (vars_[midx]/var_weight_accumulators_.at(midx)).nonzero();
+      norm_.at(midx) = norm_fixed_ - (vars_[midx].log().sum() / 2);
+    }
+  }
+  if (var_model == GLOBAL_POOLING) {
+      vars_[0] += var_accumulators_[0];
+      vars_[0] = 1 / (vars_[0]/var_weight_accumulators_.at(0)).nonzero();
+      norm_.at(0) = norm_fixed_ - (vars_[0].log().sum() / 2);
   }
   check_validity();
   visualize("f");
@@ -318,15 +335,26 @@ void MixtureModel::split(size_t min_obs) {
           mean_weight_accumulators_.emplace_back();
           mean_refs_.emplace_back(1);
         }
+        size_t add_vidx = 0;
+        switch(var_model)
         {
-          // add var
+          case GLOBAL_POOLING:
+            add_vidx = 0;
+          break;
+          case MIXTURE_POOLING:
+            add_vidx = vidx;
+          break;
+          case NO_POOLING:
+            add_vidx = mean_weights_.size() - 1;
           vars_.add_row(vars_[vidx]);
           var_accumulators_.add_row();
           var_weight_accumulators_.emplace_back();
-          var_refs_.emplace_back(1);
+            var_refs_.emplace_back();
           norm_.emplace_back(norm_.at(vidx));
+          break;
         }
-        mixture.emplace_back(mean_weights_.size() - 1, var_weight_accumulators_.size() - 1);
+        var_refs_.at(add_vidx)++;
+        mixture.emplace_back(mean_weights_.size() - 1, add_vidx);
       }
     }
   }
@@ -343,6 +371,7 @@ void MixtureModel::eliminate(double min_obs) {
       if (mean_weight_accumulators_.at(dens.mean_idx) < min_obs) {
         test(num_active(mixture) != 1, "It will be empty.");
         mean_refs_.at(dens.mean_idx) = 0;
+        var_refs_.at(dens.var_idx)--;
       }
     }
   visualize("e");

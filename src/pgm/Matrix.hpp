@@ -20,7 +20,12 @@ namespace pgm
             rows_(rows),
             columns_(columns),
             data(rows_ * columns_, init) {}
-    
+
+        Matrix& operator=(const double& v)
+        {
+            std::fill(data.begin(), data.end(), v);
+            return *this;
+        }
 
         void from_file(const std::string &path);
         void to_file(const std::string &path) const;

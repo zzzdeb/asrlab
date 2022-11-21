@@ -80,10 +80,10 @@ public:
   std::vector<size_t> mean_refs_;                // reference counter
   std::vector<size_t> mixture_accumulators_;
 
+  std::vector<size_t> var_refs_;                 // reference counter
   Matrix vars_;                                  // current variance
   Matrix var_accumulators_;                      // temp. accumulator (second order stat.) used in reestimation
   std::vector<double> var_weight_accumulators_;  // temp. accumulator used in reestimation
-  std::vector<size_t> var_refs_;                 // reference counter
 
   const double norm_fixed_;                          //
   std::vector<double> norm_;                     // normalization factor for gaussian distribution

@@ -73,14 +73,34 @@ public:
         std::copy(other.begin, other.end, begin);
         return *this;
     }
+    Section& operator=(const double& v)
+    {
+        std::fill(begin, end, v);
+        return *this;
+    }
     bool operator==(const double v) {
         for(auto it = begin; it != end; it++)
             if (*it != v)
                 return false;
         return true;
     }
+    bool operator>=(const double v) {
+        for(auto it = begin; it != end; it++)
+            if (*it < v)
+                return false;
+        return true;
+    }
+    bool operator>(const double v) {
+        for(auto it = begin; it != end; it++)
+            if (*it <= v)
+                return false;
+        return true;
+    }
     auto operator+=(const Section& other) {
         return std::transform(begin, end, other.begin, begin, std::plus<double>{});
+    }
+    auto operator-=(const Section& other) {
+        return std::transform(begin, end, other.begin, begin, std::minus<double>{});
     }
     auto operator/=(const double& d) {
         return std::for_each(begin, end, [&d](auto& v) { v /= d;});

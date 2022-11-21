@@ -212,7 +212,7 @@ void MixtureModel::visualize(std::string header) {
   if (!write_mixtures_)
     return;
   stats_out << "==" << header << std::endl;
-  size_t index = 44;
+  size_t index = 0;
   auto& mixture = mixtures_.at(index);
   for (auto& m: mixture) {
     stats_out << "n ";
@@ -246,9 +246,11 @@ void MixtureModel::finalize() {
       if (mean_refs_.at(i) == 0)
         continue;
       if (mean_weight_accumulators_.at(i) == 0) {
-        test(num_active(mixture) != 1, "It will be empty.");
-        mean_refs_.at(i) = 0;
-        var_refs_.at(dens.var_idx)--;
+        if (num_active(mixture) != 1) {
+        // test(num_active(mixture) != 1, "It will be empty.");
+          mean_refs_.at(i) = 0;
+          var_refs_.at(dens.var_idx)--;
+        }
         continue;
       }
 
@@ -263,7 +265,7 @@ void MixtureModel::finalize() {
       else if (var_model == GLOBAL_POOLING)
         vars_[0] -= mean_weight_accumulators_.at(i) * means_[i].square();
     }
-    if (var_model == MIXTURE_POOLING) {
+    if (var_model == MIXTURE_POOLING && var_weight_accumulators_.at(midx) != 0) {
       vars_[midx] += var_accumulators_[midx];
       vars_[midx] = 1 / (vars_[midx]/var_weight_accumulators_.at(midx)).nonzero();
       norm_.at(midx) = norm_fixed_ - (vars_[midx].log().sum() / 2);
@@ -301,8 +303,8 @@ void MixtureModel::check_validity() {
   // for (size_t i = 0; i < norm_.size(); i++){
   //   test(check_norm(norm_.at(i)), "Naa");
   // }
-  for (size_t i = 0; i < mixture_accumulators_.size(); i++)
-    test(mixture_accumulators_.at(i) > 0, "Naa");
+  // for (size_t i = 0; i < mixture_accumulators_.size(); i++)
+  //   test(mixture_accumulators_.at(i) > 0, "Naa");
   auto check_vars = [](double v) { return v >0;};
   // for (size_t i = 0; i < vars_.size().first; i++)
   //   for (size_t j = 0; j < vars_.size().second; j++)
@@ -368,7 +370,7 @@ void MixtureModel::eliminate(double min_obs) {
     for (const auto& dens : mixture) {
       if (mean_refs_.at(dens.mean_idx) == 0)
         continue;
-      if (mean_weight_accumulators_.at(dens.mean_idx) < min_obs) {
+      if (mean_weight_accumulators_.at(dens.mean_idx) < min_obs && num_active(mixture) != 1) {
         test(num_active(mixture) != 1, "It will be empty.");
         mean_refs_.at(dens.mean_idx) = 0;
         var_refs_.at(dens.var_idx)--;

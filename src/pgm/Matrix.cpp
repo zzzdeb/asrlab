@@ -9,13 +9,16 @@
 
 namespace pgm
 {
-    // Based on the implementation detail of to_file, counts '\n' and ' '
-    void get_shape(const std::stringstream &ss, size_t &height, size_t &width)
+    namespace
     {
-        std::string content = ss.str();
-        std::string line("");
-        height = std::count(content.cbegin(), content.cend(), '\n');
-        width = std::count(content.cbegin(), content.cend(), ' ') / height;
+        // Based on the implementation detail of to_file, counts '\n' and ' '
+        void get_shape(const std::stringstream &ss, size_t &rows, size_t &colums)
+        {
+            std::string content = ss.str();
+            std::string line("");
+            rows = std::count(content.cbegin(), content.cend(), '\n');
+            colums = std::count(content.cbegin(), content.cend(), ' ') / rows;
+        }
     }
 
     void Matrix::from_file(const std::string &path)
@@ -24,21 +27,21 @@ namespace pgm
         std::stringstream ss;
         ss << infile.rdbuf();
         // get shape
-        get_shape(ss, height, width);
+        get_shape(ss, rows_, columns_);
         // Following lines : data
-        for (size_t row = 0; row < height; ++row)
-            for (size_t col = 0; col < width; ++col)
-                ss >> data.at(row * width + col);
+        for (size_t row = 0; row < rows_; ++row)
+            for (size_t col = 0; col < columns_; ++col)
+                ss >> data.at(row * columns_ + col);
         infile.close();
     }
 
     void Matrix::to_file(const std::string &path) const
     {
         std::ofstream outfile(path);
-        for (size_t row = 0; row < height; ++row)
+        for (size_t row = 0; row < rows_; ++row)
         {
-            for (size_t col = 0; col < width; ++col)
-                outfile << data[row * width + col] << " ";
+            for (size_t col = 0; col < columns_; ++col)
+                outfile << data[row * columns_ + col] << " ";
             outfile << std::endl;
         }
         outfile.close();
@@ -47,25 +50,43 @@ namespace pgm
     void Matrix::transpose()
     {
         std::vector<double> ndata(data.size());
-        for (size_t i = 0; i < height; i++)
-            for (size_t j = 0; j < width; j++)
-                ndata.at(j * height + i) = data.at(i * width + j);
+        for (size_t i = 0; i < rows_; i++)
+            for (size_t j = 0; j < columns_; j++)
+                ndata.at(j * rows_ + i) = data.at(i * columns_ + j);
         data = std::move(ndata);
-        std::swap(height, width);
+        std::swap(rows_, columns_);
     }
 
-    void Matrix::add_row(const std::vector<double> &row, size_t times)
+    void Matrix::add_row(std::vector<double> &row, size_t times)
     {
-        if (width == 0)
-            width = row.size();
-        if (width != row.size())
+        add_row(Section(row.begin(), row.end()), times);
+    }
+    void Matrix::add_row() {
+        data.resize(data.size() + columns_);
+        std::fill(data.end() - columns_, data.end(), 0);
+        rows_++;
+    }
+    void Matrix::add_row(const Section& row, size_t times){
+        if (columns_ == 0)
+            columns_ = row.size();
+        if (columns_ != row.size())
             throw std::invalid_argument("row size does not match.");
-
+        std::vector<double> v{row.begin, row.end};
         data.resize(data.size() + times * row.size());
         for (size_t i = 0; i < times; i++)
         {
-            std::copy(row.cbegin(), row.cend(), data.begin() + width * height);
-            height++;
+            std::copy(v.begin(), v.end(), data.begin() + columns_ * rows_);
+            rows_++;
         }
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Matrix& m) {
+        os << "[" << std::endl;
+        for (size_t i = 0; i < m.size().first; i++)
+        {
+            os << '\t' << m[i] << "," << std::endl;
+        }
+        os << "]";
+        return os;
     }
 }

@@ -52,6 +52,21 @@ Configuration::Configuration(std::string const& path) {
 
   internal_.reset(new Internal{d, *d});
 }
+Configuration::Configuration(rapidjson::StringStream& json) {
+  std::shared_ptr<rapidjson::Document> d(new rapidjson::Document());
+  d->ParseStream(json);
+  if (d->HasParseError()) {
+    std::cerr << "Error parsing config at " << d->GetErrorOffset() << ":" << rapidjson::GetParseError_En(d->GetParseError()) << std::endl;
+    abort();
+  }
+
+  if (not d->IsObject()) {
+    std::cerr << "Top level configuration is not an object" << std::endl;
+    std::abort();
+  }
+
+  internal_.reset(new Internal{d, *d});
+}
 
 Configuration::~Configuration() {
 }

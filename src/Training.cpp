@@ -213,6 +213,8 @@ void Trainer::train(Corpus const& corpus) {
 
   training_timer.tock();
 
+  std::cerr << "PruningThreshold " << pruning_threshold_ << std::endl;
+  std::cerr << "AM Score         " << calc_am_score(corpus, alignment) << std::endl;
   std::cerr << "Estimation  took " << estimate_timer.secs() << " seconds" << std::endl;
   std::cerr << "Alignment   took " << align_timer.secs()    << " seconds" << std::endl;
   std::cerr << "IO          took " << io_timer.secs()       << " seconds" << std::endl;
@@ -223,17 +225,82 @@ void Trainer::train(Corpus const& corpus) {
 /*****************************************************************************/
 
 MarkovAutomaton Trainer::build_segment_automaton(WordIter segment_begin, WordIter segment_end) const {
-  //TODO: implement
-  return MarkovAutomaton();
+  std::vector<MarkovAutomaton const *> automata;
+  std::transform(segment_begin, segment_end, std::back_inserter(automata), [this](const WordIdx& widx)
+            { return &lexicon_->get_automaton_for_word(widx); });
+  return MarkovAutomaton::concat(automata);
 }
 
 /*****************************************************************************/
 
-std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const& automaton,
-                                                       FeatureIter   feature_begin, FeatureIter   feature_end,
-                                                       AlignmentIter align_begin,   AlignmentIter align_end) const {
-  std::pair<size_t, size_t> boundaries;
-  //TODO: implement
+std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &automaton,
+                                                       FeatureIter feature_begin, FeatureIter feature_end,
+                                                       AlignmentIter align_begin, AlignmentIter align_end) const
+{
+  std::pair<size_t, size_t> boundaries(0, 0);
+  std::vector<double> X(feature_end - feature_begin);
+  std::transform(feature_begin, feature_end, X.begin(), [](const float *f)
+                 { return *f; });
+  double currentMin = std::numeric_limits<double>::max();
+  auto n0 = X.cbegin();
+  auto n3 = X.cend();
+  double fsum = Section(X.begin(), X.end()).square().sum();
+  for (auto n1 = n0 + 1; n1 < n3 - 2; n1++)
+  {
+    for (auto n2 = n1 + 1; n2 < n3 - 1; n2++)
+    {
+      // for silence
+      double a_silence = std::accumulate(n0, n1, 0.);
+      a_silence = std::accumulate(n2, n3, a_silence);
+      a_silence /= (n1 - n0) + (n3 - n2);
+
+      double a_speech = std::accumulate(n1, n2, 0.) / (n2 - n1);
+
+      double sum = 0;
+      { // 2.2.a
+        // for (auto x = n0; x < n1; x++)
+        //   sum += std::pow(*x - a_silence, 2);
+
+        // for (auto x = n1; x < n2; x++)
+        //   sum += std::pow(*x - a_speech, 2);
+
+        // for (auto x = n2; x < n3; x++)
+        //   sum += std::pow(*x - a_silence, 2);
+      }
+
+      { // 2.2.c
+        size_t N1 = (n3 - n2) + (n1 - n0);
+        size_t N2 = n2 - n1;
+        sum = fsum;
+        sum -= N1 * std::pow(a_silence, 2);
+        sum -= N2 * std::pow(a_speech, 2);
+      }
+
+      if (sum < currentMin)
+      {
+        currentMin = sum;
+        boundaries.first = n1 - n0;
+        boundaries.second = n2 - n0;
+      }
+    }
+  }
+  // align from n0 to n1 into automaton.states.front()
+  for (auto iter = align_begin; iter < align_begin + boundaries.first; iter++)
+    (*iter)->state = 0;
+
+  // align from n2 to n3 into automaton.states.back()
+  for (auto iter = align_begin+boundaries.second; iter < align_end; iter++)
+    (*iter)->state = 0;
+  
+  // align from n1 to n2 into automaton.states.begin() +1 -> automaton.states.end() - 1;
+  size_t speech_size = boundaries.second - boundaries.first;
+  size_t speech_align_size = automaton.states.size();
+  double factor = static_cast<double>(speech_align_size) / speech_size;
+  for (auto iter = align_begin+boundaries.first; iter < align_begin + boundaries.second; iter++) {
+    size_t align_dist = iter - (align_begin + boundaries.first);
+    (*iter)->state = automaton.states.at(align_dist * factor);
+  }
+
   return boundaries;
 }
 
@@ -263,9 +330,15 @@ void Trainer::write_linear_segmentation(std::string const& feature_path,
 
 /*****************************************************************************/
 
-double Trainer::calc_am_score(Corpus const& corpus, Alignment const& alignment) const {
-  // TODO: implement
-  return 0.0;
+double Trainer::calc_am_score(Corpus const &corpus, Alignment const &alignment) const
+{
+  double score = 0.;
+  std::pair<FeatureIter, FeatureIter> features = corpus.get_all_features();
+  for (auto i = 0; i < features.second - features.first; i++)
+    for (size_t j = 0; j < num_max_aligns_; j++)
+      score += mixtures_.score(features.first + i, alignment.at(i * num_max_aligns_ + j).state);
+  score /= features.second - features.first;
+  return score;
 }
 
 /*****************************************************************************/

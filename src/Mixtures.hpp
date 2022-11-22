@@ -14,6 +14,9 @@
 #include "Corpus.hpp"
 #include "FeatureScorer.hpp"
 #include "Types.hpp"
+#include "pgm/Matrix.hpp"
+
+#include <fstream>
 
 class MixtureModel : public FeatureScorer {
 public:
@@ -24,6 +27,7 @@ public:
   };
 
   static const ParameterString paramLoadMixturesFrom;
+  static const ParameterBool paramWriteMixtures;
 
   const size_t dimension;
   const VarianceModel var_model;
@@ -38,12 +42,21 @@ public:
   void finalize();
   void split(size_t min_obs);
   void eliminate(double min_obs);
+  void check_validity();
+  void visualize(std::string header);
+  void open(std::string path) {
+    stats_out.open(path, std::ios_base::out | std::ios_base::trunc);
+  }
 
   size_t num_densities() const;
 
-  double                        density_score  (FeatureIter const& iter, StateIdx mixture_idx, DensityIdx density_idx) const;
+  double                        density_score  (FeatureIter const& iter, const MixtureDensity& density) const;
   std::pair<double, DensityIdx> min_score      (FeatureIter const& iter, StateIdx mixture_idx) const;
   double                        sum_score      (FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const;
+  Vector density_scores_normalized(FeatureIter const& iter, StateIdx mixture_idx) const;
+  Vector density_scores(FeatureIter const& iter, StateIdx mixture_idx) const;
+  size_t get_ith_active(StateIdx mixture_idx, size_t i) const;
+  size_t num_active(const Mixture& m) const;
 
   virtual void prepare_sequence(FeatureIter const& start, FeatureIter const& end);
   virtual double score(FeatureIter const& iter, StateIdx mixture_idx) const;
@@ -51,26 +64,35 @@ public:
   void read(std::istream& in);
   void write(std::ostream& out) const;
 
-private:
+  const Matrix& get_means() const { return means_;}
+  const Matrix& get_vars() const { return vars_;}
+
+// private:
   static const char     magic[8];
   static const uint32_t version;
 
   bool max_approx_;
 
-  std::vector<double> means_;                    // current mean
-  std::vector<double> mean_accumulators_;        // temp. accumulator (first order stat.) used in reestimation
+  Matrix means_;                                 // current mean
+  Matrix mean_accumulators_;                     // temp. accumulator (first order stat.) used in reestimation
   std::vector<double> mean_weights_;             // weight of the density
   std::vector<double> mean_weight_accumulators_; // temp. accumulator used in reestimation
   std::vector<size_t> mean_refs_;                // reference counter
+  std::vector<size_t> mixture_accumulators_;
 
-  std::vector<double> vars_;                     // current variance
-  std::vector<double> var_accumulators_;         // temp. accumulator (second order stat.) used in reestimation
-  std::vector<double> var_weight_accumulators_;  // temp. accumulator used in reestimation
   std::vector<size_t> var_refs_;                 // reference counter
+  Matrix vars_;                                  // current variance
+  Matrix var_accumulators_;                      // temp. accumulator (second order stat.) used in reestimation
+  std::vector<double> var_weight_accumulators_;  // temp. accumulator used in reestimation
 
+  const double norm_fixed_;                          //
   std::vector<double> norm_;                     // normalization factor for gaussian distribution
 
   std::vector<Mixture> mixtures_;
+  std::ofstream stats_out;
+  ConstAlignmentIter alignment_begin_;
+  ConstAlignmentIter alignment_end_;
+  bool write_mixtures_;
 };
 
 #endif /* __MIXTURES_HPP__ */

@@ -40,13 +40,6 @@ namespace {//for define functions in this file to distinguish from other files
     }
   };
 
-  template <typename T>
-  void cprint(const std::vector<T> &container)
-  {
-    for (const auto &v : container)
-      std::cout << v << ",";
-    std::cout << std::endl;
-  }
 }
 
 /*****************************************************************************/
@@ -62,7 +55,8 @@ const ParameterUInt64 SignalAnalysis::paramNFeaturesInFile("n-features-file",  1
 const ParameterUInt64 SignalAnalysis::paramNFeaturesFirst ("n-features-first", 12ul);//what's first feature,what's second?
 const ParameterUInt64 SignalAnalysis::paramNFeaturesSecond("n-features-second", 1ul);
 const ParameterUInt64 SignalAnalysis::paramDerivStep      ("deriv-step",        3ul);
-static const std::string ARTIFACTSDIR = "artifacts";//to store the formed documents(pgm pics)
+const ParameterBool SignalAnalysis::paramWriteSpectrum      ("write-spectrum",  false);
+static const std::string ARTIFACTSDIR = "artifacts";
 
 /*****************************************************************************/
 
@@ -109,7 +103,8 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
                    {
                      return 20 * std::log10(v); // log-spectrum
                    });
-    spectrum_matrix_.add_row(log_spectrum);
+    if (write_spectrum_)
+      spectrum_matrix_.add_row(log_spectrum);
     // spectrum_matrix_.add_row(spectrum_);
 
     calc_mel_filterbanks();
@@ -121,15 +116,16 @@ void SignalAnalysis::process(std::string const& input_path, std::string const& o
     num_obs_++;
   }
 
+  if (write_spectrum_)
   {
     /* Excercise 1.1 */
     spectrum_matrix_.to_file(ARTIFACTSDIR + "/spectrum_values.txt");
     spectrum_matrix_.from_file(ARTIFACTSDIR + "/spectrum_values.txt");
     size_t currentTime = 0;
     // Working on the matrix read from file.
-    for (size_t i = 0; i < spectrum_matrix_.get_height(); i++) {
+    for (size_t i = 0; i < spectrum_matrix_.rows_; i++) {
       currentTime++;
-      spectrum_ = spectrum_matrix_(i);
+      spectrum_ = spectrum_matrix_[i];
       energies_.push_back(std::accumulate(spectrum_.cbegin(), spectrum_.cend(), 0));
       // full spectrum image
       image_.add_row(spectrum_);
@@ -329,14 +325,14 @@ void SignalAnalysis::calc_mel_filterbanks() {
     size_t lwidth = mid - left;
     for (; current < mid; current++)
     {
-      double factor = height * (mid - current) / lwidth;//should be height * (current - left) / lwidth?
-      sum += factor * spectrum_.at(current);
+      double factor = height * (current - left) / lwidth;
+      sum += factor * std::abs(spectrum_.at(current));
     }
     size_t rwidth = right - mid;
     for (; current <= right; current++)
     {
       double factor = height * (right - current) / rwidth;
-      sum += factor * spectrum_.at(current);
+      sum += factor * std::abs(spectrum_.at(current));
     }
     mel_filterbanks_.at(i) = sum;//the triangle is from i to i+1, so it's for the point i+1?
   }

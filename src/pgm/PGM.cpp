@@ -51,13 +51,13 @@ namespace pgm
     // Continue with a stringstream
     ss << infile.rdbuf();
     // Third line : size
-    ss >> width >> height;
-    data.resize(width * height);
+    ss >> columns_ >> rows_;
+    data.resize(columns_ * rows_);
 
     // Following lines : data
-    for (size_t row = 0; row < height; ++row)
-      for (size_t col = 0; col < width; ++col)
-        ss >> data[row * width + col];
+    for (size_t row = 0; row < rows_; ++row)
+      for (size_t col = 0; col < columns_; ++col)
+        ss >> data[row * columns_ + col];
     infile.close();
   }
 
@@ -80,13 +80,13 @@ namespace pgm
     std::ofstream outfile(path);
     outfile << type_to_str(type) << std::endl;
     outfile << "#" << std::endl;
-    outfile << width << " " << height << std::endl;
+    outfile << columns_ << " " << rows_ << std::endl;
     outfile << 255 << std::endl;
-    for (size_t row = 0; row < height; ++row)
+    for (size_t row = 0; row < rows_; ++row)
     {
-      for (size_t col = 0; col < width; ++col)
+      for (size_t col = 0; col < columns_; ++col)
       {
-        auto val = static_cast<int>((data[row * width + col] - offSet) * realScale);
+        auto val = static_cast<int>((data[row * columns_ + col] - offSet) * realScale);
         if (invert)
           val = 255 - val;
         outfile << val << " ";

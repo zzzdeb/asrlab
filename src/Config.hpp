@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <rapidjson/stream.h>
 
 class Configuration {
 private:
@@ -20,6 +21,7 @@ public:
   Configuration(std::unique_ptr<Internal>&& internal);
   Configuration(Configuration&& other);
   Configuration(std::string const& path);
+  Configuration(rapidjson::StringStream& json);
   ~Configuration();
 
   bool has_value(std::string const& name) const;

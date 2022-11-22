@@ -35,3 +35,4 @@ target_link_libraries(asrlabtest
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
                       asrlablib
                       )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 --std=c++14 -pedantic -msse -msse2 -msse3 -flto")

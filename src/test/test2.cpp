@@ -22,7 +22,7 @@ double calc_am_score(std::pair<FeatureIter, FeatureIter> features, Alignment con
 
 bool same(const double &a, const double &b, const double eps = 0.00001) { return std::abs(a - b) < eps; }
 
-BOOST_AUTO_TEST_SUITE(test_mixture);
+BOOST_AUTO_TEST_SUITE(test_mixture)
 
 BOOST_AUTO_TEST_CASE(test_case1)
 {
@@ -217,4 +217,4 @@ BOOST_AUTO_TEST_CASE(test_sum_scores)
 	mmodel.finalize();
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+BOOST_AUTO_TEST_SUITE_END()

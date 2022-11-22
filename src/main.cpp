@@ -85,7 +85,7 @@ int main(int argc, const char *argv[]) {
     }
   }
 /*****************************************************************************/
-  else if (action == "train" or action == "recognize") {
+  else if (action == "train" or action == "recognize" or action == "pruning-stat") {
     if (normalization_path.size() > 0) {
       std::ifstream normalization_stream(normalization_path.c_str(), std::ios_base::in);
       if (not normalization_stream.good()) {
@@ -104,6 +104,18 @@ int main(int argc, const char *argv[]) {
 
       Trainer trainer(config, lexicon, mixtures, tdp_model, max_approx);
       trainer.train(corpus);
+    }
+    else if (action == "pruning-stat") {
+      std::vector<double> prunings(50);
+      for (size_t i = 0; i < prunings.size(); i++) {
+        prunings.at(i) = 10 * (i+1);
+      
+        MixtureModel mixtures(config, analyzer.n_features_total, lexicon->num_states(), MixtureModel::MIXTURE_POOLING, max_approx);
+
+        Trainer trainer(config, lexicon, mixtures, tdp_model, max_approx);
+        trainer.set_pthreshold(prunings.at(i));
+        trainer.train(corpus);
+      }
     }
     else { // action == "recognize"
       std::string feature_scorer = paramFeatureScorer(config);

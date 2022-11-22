@@ -1,0 +1,399 @@
+PruningThreshold 10
+AM Score         26.3584
+Estimation  took 0.542482 seconds
+Alignment   took 0.512803 seconds
+IO          took 0.0575313 seconds
+Score comp. took 0.406367 seconds
+Training    took 2.12891 seconds
+--
+PruningThreshold 20
+AM Score         26.0652
+Estimation  took 0.627354 seconds
+Alignment   took 0.611153 seconds
+IO          took 0.0596505 seconds
+Score comp. took 0.477539 seconds
+Training    took 2.45375 seconds
+--
+PruningThreshold 30
+AM Score         25.6846
+Estimation  took 0.629405 seconds
+Alignment   took 0.676803 seconds
+IO          took 0.0618616 seconds
+Score comp. took 0.468833 seconds
+Training    took 2.54658 seconds
+--
+PruningThreshold 40
+AM Score         25.2451
+Estimation  took 0.647515 seconds
+Alignment   took 0.71288 seconds
+IO          took 0.0613622 seconds
+Score comp. took 0.490054 seconds
+Training    took 2.61325 seconds
+--
+PruningThreshold 50
+AM Score         25.026
+Estimation  took 0.653175 seconds
+Alignment   took 0.76472 seconds
+IO          took 0.0613355 seconds
+Score comp. took 0.485224 seconds
+Training    took 2.68411 seconds
+--
+PruningThreshold 60
+AM Score         24.6496
+Estimation  took 0.651893 seconds
+Alignment   took 0.774608 seconds
+IO          took 0.0642798 seconds
+Score comp. took 0.490389 seconds
+Training    took 2.70234 seconds
+--
+PruningThreshold 70
+AM Score         24.5161
+Estimation  took 0.662589 seconds
+Alignment   took 0.826664 seconds
+IO          took 0.0644085 seconds
+Score comp. took 0.497219 seconds
+Training    took 2.77974 seconds
+--
+PruningThreshold 80
+AM Score         24.6175
+Estimation  took 0.650886 seconds
+Alignment   took 0.835028 seconds
+IO          took 0.0640263 seconds
+Score comp. took 0.489938 seconds
+Training    took 2.77137 seconds
+--
+PruningThreshold 90
+AM Score         24.4335
+Estimation  took 0.66053 seconds
+Alignment   took 0.852648 seconds
+IO          took 0.0633819 seconds
+Score comp. took 0.497386 seconds
+Training    took 2.80077 seconds
+--
+PruningThreshold 100
+AM Score         24.4374
+Estimation  took 0.67794 seconds
+Alignment   took 0.903478 seconds
+IO          took 0.0661898 seconds
+Score comp. took 0.511378 seconds
+Training    took 2.90814 seconds
+--
+PruningThreshold 110
+AM Score         24.5079
+Estimation  took 0.720429 seconds
+Alignment   took 0.964523 seconds
+IO          took 0.0683466 seconds
+Score comp. took 0.547867 seconds
+Training    took 3.07428 seconds
+--
+PruningThreshold 120
+AM Score         24.6129
+Estimation  took 0.744319 seconds
+Alignment   took 1.06012 seconds
+IO          took 0.0947642 seconds
+Score comp. took 0.549983 seconds
+Training    took 3.38819 seconds
+--
+PruningThreshold 130
+AM Score         24.6116
+Estimation  took 0.675487 seconds
+Alignment   took 0.95683 seconds
+IO          took 0.066073 seconds
+Score comp. took 0.507953 seconds
+Training    took 2.98185 seconds
+--
+PruningThreshold 140
+AM Score         24.6116
+Estimation  took 0.679614 seconds
+Alignment   took 0.962654 seconds
+IO          took 0.0667352 seconds
+Score comp. took 0.506169 seconds
+Training    took 2.96215 seconds
+--
+PruningThreshold 150
+AM Score         24.6436
+Estimation  took 0.682848 seconds
+Alignment   took 0.994786 seconds
+IO          took 0.0657544 seconds
+Score comp. took 0.51031 seconds
+Training    took 3.00995 seconds
+--
+PruningThreshold 160
+AM Score         24.7049
+Estimation  took 0.677265 seconds
+Alignment   took 0.992955 seconds
+IO          took 0.0644914 seconds
+Score comp. took 0.511747 seconds
+Training    took 2.99812 seconds
+--
+PruningThreshold 170
+AM Score         24.6463
+Estimation  took 0.687306 seconds
+Alignment   took 1.03872 seconds
+IO          took 0.0672225 seconds
+Score comp. took 0.521697 seconds
+Training    took 3.07625 seconds
+--
+PruningThreshold 180
+AM Score         24.7291
+Estimation  took 0.684224 seconds
+Alignment   took 1.0758 seconds
+IO          took 0.0718591 seconds
+Score comp. took 0.511193 seconds
+Training    took 3.11809 seconds
+--
+PruningThreshold 190
+AM Score         24.7502
+Estimation  took 0.709664 seconds
+Alignment   took 1.06021 seconds
+IO          took 0.0720876 seconds
+Score comp. took 0.530258 seconds
+Training    took 3.13819 seconds
+--
+PruningThreshold 200
+AM Score         24.7502
+Estimation  took 0.703785 seconds
+Alignment   took 1.1011 seconds
+IO          took 0.0742385 seconds
+Score comp. took 0.527696 seconds
+Training    took 3.2235 seconds
+--
+PruningThreshold 210
+AM Score         24.7502
+Estimation  took 0.669493 seconds
+Alignment   took 1.07031 seconds
+IO          took 0.0671817 seconds
+Score comp. took 0.50488 seconds
+Training    took 3.07524 seconds
+--
+PruningThreshold 220
+AM Score         24.6965
+Estimation  took 0.673502 seconds
+Alignment   took 1.10965 seconds
+IO          took 0.065726 seconds
+Score comp. took 0.509628 seconds
+Training    took 3.11045 seconds
+--
+PruningThreshold 230
+AM Score         24.6894
+Estimation  took 0.670944 seconds
+Alignment   took 1.11327 seconds
+IO          took 0.0671307 seconds
+Score comp. took 0.505274 seconds
+Training    took 3.11642 seconds
+--
+PruningThreshold 240
+AM Score         24.6894
+Estimation  took 0.692215 seconds
+Alignment   took 1.13433 seconds
+IO          took 0.0665915 seconds
+Score comp. took 0.518222 seconds
+Training    took 3.16228 seconds
+--
+PruningThreshold 250
+AM Score         24.7059
+Estimation  took 0.683879 seconds
+Alignment   took 1.15004 seconds
+IO          took 0.0667069 seconds
+Score comp. took 0.516865 seconds
+Training    took 3.17587 seconds
+--
+PruningThreshold 260
+AM Score         24.7059
+Estimation  took 0.680981 seconds
+Alignment   took 1.13232 seconds
+IO          took 0.0662454 seconds
+Score comp. took 0.508225 seconds
+Training    took 3.1326 seconds
+--
+PruningThreshold 270
+AM Score         24.7059
+Estimation  took 0.67449 seconds
+Alignment   took 1.13919 seconds
+IO          took 0.0663721 seconds
+Score comp. took 0.508002 seconds
+Training    took 3.14618 seconds
+--
+PruningThreshold 280
+AM Score         24.7224
+Estimation  took 0.668794 seconds
+Alignment   took 1.15795 seconds
+IO          took 0.0648283 seconds
+Score comp. took 0.504474 seconds
+Training    took 3.13761 seconds
+--
+PruningThreshold 290
+AM Score         24.7224
+Estimation  took 0.666874 seconds
+Alignment   took 1.18124 seconds
+IO          took 0.0653183 seconds
+Score comp. took 0.502814 seconds
+Training    took 3.16233 seconds
+--
+PruningThreshold 300
+AM Score         24.7224
+Estimation  took 0.666752 seconds
+Alignment   took 1.23069 seconds
+IO          took 0.0676468 seconds
+Score comp. took 0.500462 seconds
+Training    took 3.22166 seconds
+--
+PruningThreshold 310
+AM Score         24.7224
+Estimation  took 0.669309 seconds
+Alignment   took 1.21153 seconds
+IO          took 0.0660597 seconds
+Score comp. took 0.50451 seconds
+Training    took 3.20246 seconds
+--
+PruningThreshold 320
+AM Score         24.7261
+Estimation  took 0.67388 seconds
+Alignment   took 1.20605 seconds
+IO          took 0.065179 seconds
+Score comp. took 0.499462 seconds
+Training    took 3.19697 seconds
+--
+PruningThreshold 330
+AM Score         24.7279
+Estimation  took 0.68111 seconds
+Alignment   took 1.2434 seconds
+IO          took 0.0658588 seconds
+Score comp. took 0.516601 seconds
+Training    took 3.2476 seconds
+--
+PruningThreshold 340
+AM Score         24.73
+Estimation  took 0.66483 seconds
+Alignment   took 1.25381 seconds
+IO          took 0.065027 seconds
+Score comp. took 0.506742 seconds
+Training    took 3.22626 seconds
+--
+PruningThreshold 350
+AM Score         24.7007
+Estimation  took 0.691662 seconds
+Alignment   took 1.27945 seconds
+IO          took 0.0646019 seconds
+Score comp. took 0.519879 seconds
+Training    took 3.3024 seconds
+--
+PruningThreshold 360
+AM Score         24.7037
+Estimation  took 0.69811 seconds
+Alignment   took 1.31621 seconds
+IO          took 0.066499 seconds
+Score comp. took 0.528316 seconds
+Training    took 3.36912 seconds
+--
+PruningThreshold 370
+AM Score         24.7037
+Estimation  took 0.680672 seconds
+Alignment   took 1.30473 seconds
+IO          took 0.0663045 seconds
+Score comp. took 0.510788 seconds
+Training    took 3.3135 seconds
+--
+PruningThreshold 380
+AM Score         24.7037
+Estimation  took 0.669648 seconds
+Alignment   took 1.31236 seconds
+IO          took 0.0697843 seconds
+Score comp. took 0.504626 seconds
+Training    took 3.33386 seconds
+--
+PruningThreshold 390
+AM Score         24.7037
+Estimation  took 0.664182 seconds
+Alignment   took 1.32244 seconds
+IO          took 0.0663545 seconds
+Score comp. took 0.502644 seconds
+Training    took 3.30972 seconds
+--
+PruningThreshold 400
+AM Score         24.7037
+Estimation  took 0.698891 seconds
+Alignment   took 1.38375 seconds
+IO          took 0.0657709 seconds
+Score comp. took 0.530606 seconds
+Training    took 3.42678 seconds
+--
+PruningThreshold 410
+AM Score         24.7037
+Estimation  took 0.667708 seconds
+Alignment   took 1.34396 seconds
+IO          took 0.0666887 seconds
+Score comp. took 0.499877 seconds
+Training    took 3.34655 seconds
+--
+PruningThreshold 420
+AM Score         24.7037
+Estimation  took 0.674243 seconds
+Alignment   took 1.37988 seconds
+IO          took 0.064775 seconds
+Score comp. took 0.510314 seconds
+Training    took 3.3812 seconds
+--
+PruningThreshold 430
+AM Score         24.6239
+Estimation  took 0.681467 seconds
+Alignment   took 1.38524 seconds
+IO          took 0.0674194 seconds
+Score comp. took 0.514548 seconds
+Training    took 3.40222 seconds
+--
+PruningThreshold 440
+AM Score         24.6239
+Estimation  took 0.679924 seconds
+Alignment   took 1.3633 seconds
+IO          took 0.06522 seconds
+Score comp. took 0.508416 seconds
+Training    took 3.37913 seconds
+--
+PruningThreshold 450
+AM Score         24.6149
+Estimation  took 0.672616 seconds
+Alignment   took 1.3869 seconds
+IO          took 0.0653916 seconds
+Score comp. took 0.510454 seconds
+Training    took 3.3927 seconds
+--
+PruningThreshold 460
+AM Score         24.6149
+Estimation  took 0.687939 seconds
+Alignment   took 1.41904 seconds
+IO          took 0.0694333 seconds
+Score comp. took 0.516888 seconds
+Training    took 3.48293 seconds
+--
+PruningThreshold 470
+AM Score         24.6149
+Estimation  took 0.679855 seconds
+Alignment   took 1.44039 seconds
+IO          took 0.0672684 seconds
+Score comp. took 0.513951 seconds
+Training    took 3.46296 seconds
+--
+PruningThreshold 480
+AM Score         24.6149
+Estimation  took 0.672715 seconds
+Alignment   took 1.40693 seconds
+IO          took 0.06595 seconds
+Score comp. took 0.505267 seconds
+Training    took 3.4053 seconds
+--
+PruningThreshold 490
+AM Score         24.6149
+Estimation  took 0.669736 seconds
+Alignment   took 1.43154 seconds
+IO          took 0.0700773 seconds
+Score comp. took 0.500904 seconds
+Training    took 3.42767 seconds
+--
+PruningThreshold 500
+AM Score         24.6149
+Estimation  took 0.68096 seconds
+Alignment   took 1.46768 seconds
+IO          took 0.0665285 seconds
+Score comp. took 0.517679 seconds
+Training    took 3.48789 seconds

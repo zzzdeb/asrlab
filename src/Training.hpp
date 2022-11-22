@@ -56,6 +56,7 @@ public:
     return mixtures_;
   }
 
+  void set_pthreshold(double v) { pruning_threshold_ = v; }
 private:
   const unsigned min_obs_;
   const unsigned num_splits_;
@@ -63,7 +64,7 @@ private:
   const unsigned num_estimates_;
   const unsigned num_max_aligns_;
 
-  const double pruning_threshold_;
+  double pruning_threshold_;
 
   const std::string mixture_path_;
   const std::string alignment_path_;

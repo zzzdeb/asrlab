@@ -213,6 +213,8 @@ void Trainer::train(Corpus const& corpus) {
 
   training_timer.tock();
 
+  std::cerr << "PruningThreshold " << pruning_threshold_ << std::endl;
+  std::cerr << "AM Score         " << calc_am_score(corpus, alignment) << std::endl;
   std::cerr << "Estimation  took " << estimate_timer.secs() << " seconds" << std::endl;
   std::cerr << "Alignment   took " << align_timer.secs()    << " seconds" << std::endl;
   std::cerr << "IO          took " << io_timer.secs()       << " seconds" << std::endl;

@@ -25,14 +25,9 @@ target_link_libraries(asrlab asrlablib)
 
 install(TARGETS asrlab RUNTIME DESTINATION ${CMAKE_CURRENT_LIST_DIR})
 
-set (Boost_USE_STATIC_LIBS OFF)
-find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
-include_directories (${Boost_INCLUDE_DIRS})
-add_executable (asrlabtest src/test/test2.cpp)
-target_link_libraries(asrlabtest
-                      ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY}
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-                      asrlablib
-                      )
+add_subdirectory(src/test)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 --std=c++14 -pedantic -msse -msse2 -msse3 -flto")
+SET(CMAKE_AR  "gcc-ar")
+SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> qcs <TARGET> <LINK_FLAGS> <OBJECTS>")
+SET(CMAKE_CXX_ARCHIVE_FINISH   true)

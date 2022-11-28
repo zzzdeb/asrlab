@@ -11,7 +11,8 @@ git clone https://git.rwth-aachen.de/asrlabws2223/group-1.git --recurse-submodul
 ```
 sudo apt-get install libblas-dev libgsl-dev
 ```
-or equivalent  
+or equivalent.
+to compile test Boost 1.74 needed. `sudo apt-get install libboost-all-dev`
 4. Compile code:
   - Using the makefile:
   ```bash

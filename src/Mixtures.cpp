@@ -443,7 +443,7 @@ std::pair<double, DensityIdx> MixtureModel::min_score(FeatureIter const& iter, S
 
 // compute the 'full' score of a feature vector for a given mixture. The weights
 // of each density are stored in weights and should sum up to 1.0
-double MixtureModel::sum_score(FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const {
+double MixtureModel::sum_score(FeatureIter const& iter, StateIdx mixture_idx, std::vector<double>* weights) const {//here the weights is not used?
   Vector scores = density_scores(iter, mixture_idx);
   if (scores.size() == 1)
     return *scores.begin;

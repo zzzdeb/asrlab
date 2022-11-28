@@ -26,12 +26,12 @@ namespace {
     }
     return -log1p(std::exp(-std::abs(diff))) + std::min(a, b);
   }
-  static const double INF = std::numeric_limits<double>::infinity();
+  static const double INF = std::numeric_limits<double>::infinity();//define the positiv infinity of Double in the namespace
 }
 
 /*****************************************************************************/
 
-Aligner::Aligner(MixtureModel const& mixtures, TdpModel const& tdp_model, size_t max_aligns)
+Aligner::Aligner(MixtureModel const& mixtures, TdpModel const& tdp_model, size_t max_aligns)//what's the meaning of this max_aligns? max 2 steps?
                  : mixtures_(mixtures), tdp_model_(tdp_model), max_aligns_(max_aligns) {}
 
 /*****************************************************************************/
@@ -43,15 +43,15 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
   size_t T = feature_end - feature_begin;
   size_t S = reference.num_states();
   std::vector<double> prev(S);
-  std::fill(prev.begin() + 1, prev.end(), INF);
+  std::fill(prev.begin() + 1, prev.end(), INF);//the first state doesn't have prev
   std::vector<double> cur(S);
-  std::vector<uint8_t> B(T*S);
+  std::vector<uint8_t> B(T*S);//record the {0,1,2} choice of every state from 3 choices of previous column. For backtracking in the end
 
   auto d = [&](size_t t, size_t s) { 
     auto feat = feature_begin + t;
     auto midx = reference[s];
     return mixtures_.score(feat, midx);
-  };
+  };//a function which return the score of (t,s)
 
   for (size_t t = 0; t < T; t++)
   {
@@ -60,8 +60,8 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
       // unreachable
       if (S - 1 > (T - t - 1) * 2)
         s = S - 1 - (T - t - 1) * 2;
-      std::fill(cur.begin(), cur.begin() + s, INF);
-    }
+      std::fill(cur.begin(), cur.begin() + s, INF);//the right bottom part which can't reach (T,S)
+    }//what is this {} use for here?
 
     for (; s < S; s++)
     {
@@ -69,29 +69,29 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
       for (size_t i = 0; i <= std::min(2ul, s); i++)
         to_scores.emplace_back(prev[s - i] + tdp_model_.score(s, i));
       auto min = std::min_element(to_scores.begin(), to_scores.end());
-      auto argmin = min - to_scores.begin();
+      auto argmin = min - to_scores.begin();//min and to_scores.begin() are pointers here, argmin is from {0,1,2}
       if (*min == INF) {
         cur.at(s) = INF; 
         continue;
       }
-      cur.at(s) = d(t, s) + *min;
-      B[t*S + s] = argmin;
+      cur.at(s) = d(t, s) + *min;//min=prev+tdp; d=mixture_score
+      B[t*S + s] = argmin;//2-dim stetch to a long 1-dim
     }
     // for (size_t i = 0; i < cur.size(); i++)
     //   std::cout << cur.at(i) <<":" << static_cast<int>(B[t*S + i]) << ",";
     // std::cout << std::endl;
-    std::swap(prev, cur);
+    std::swap(prev, cur);//store the cur to prev, but actually the prev is no more used later?
   }
   size_t s = S - 1;
   for(auto it = align_end-1; it != align_begin; it--) {
     size_t t = it - align_begin;
     (*it)->state = reference[s];
-    s -= B[t * S + s];
+    s -= B[t * S + s];//to see the state of last t should minus 0,1 or 2
     // std::cout << s << ",";
   }
-  (*align_begin)->state = reference[s];
+  (*align_begin)->state = reference[s];//s=0 now
   // std::cout << s << std::endl;
-  return prev.at(S-1);
+  return prev.at(S-1);//the prev now store the cur updated at the last column
 }
 
 /*****************************************************************************/

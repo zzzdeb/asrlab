@@ -101,7 +101,7 @@ namespace {
 
 /*****************************************************************************/
 
-const ParameterString MixtureModel::paramLoadMixturesFrom("load-mixtures-from", "");
+const ParameterString MixtureModel::paramLoadMixturesFrom("load-mixtures-from", ""); // todo ( write it and load back for later)
 const ParameterBool MixtureModel::paramWriteMixtures("write-mixtures", false);
 
 const char     MixtureModel::magic[8] = {'M', 'I', 'X', 'S', 'E', 'T', 0, 0};
@@ -348,11 +348,11 @@ void MixtureModel::split(size_t min_obs) {
           break;
           case NO_POOLING:
             add_vidx = mean_weights_.size() - 1;
-          vars_.add_row(vars_[vidx]);
-          var_accumulators_.add_row();
-          var_weight_accumulators_.emplace_back();
+            vars_.add_row(vars_[vidx]);
+            var_accumulators_.add_row();
+            var_weight_accumulators_.emplace_back();
             var_refs_.emplace_back();
-          norm_.emplace_back(norm_.at(vidx));
+            norm_.emplace_back(norm_.at(vidx));
           break;
         }
         var_refs_.at(add_vidx)++;

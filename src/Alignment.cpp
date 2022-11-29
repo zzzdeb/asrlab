@@ -67,7 +67,7 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
     {
       std::vector<double> to_scores;
       for (size_t i = 0; i <= std::min(2ul, s); i++)
-        to_scores.emplace_back(prev[s - i] + tdp_model_.score(s, i));
+        to_scores.emplace_back(prev[s - i] + tdp_model_.score(reference[s], i));
       auto min = std::min_element(to_scores.begin(), to_scores.end());
       auto argmin = min - to_scores.begin();//min and to_scores.begin() are pointers here, argmin is from {0,1,2}
       if (*min == INF) {

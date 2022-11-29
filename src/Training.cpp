@@ -226,8 +226,13 @@ void Trainer::train(Corpus const& corpus) {
 
 MarkovAutomaton Trainer::build_segment_automaton(WordIter segment_begin, WordIter segment_end) const {
   std::vector<MarkovAutomaton const *> automata;
-  std::transform(segment_begin, segment_end, std::back_inserter(automata), [this](const WordIdx& widx)
-            { return &lexicon_->get_automaton_for_word(widx); });
+  const auto& sa = lexicon_->get_silence_automaton();
+  automata.resize((segment_end-segment_begin) * 2 + 1);
+  automata.at(0) = &sa;
+  for (size_t i = 0; i < segment_end - segment_begin; i++) {
+    automata.at(2*i + 1) = &lexicon_->get_automaton_for_word(*(segment_begin + i));
+    automata.at(2*i + 2) = &sa;
+  }
   return MarkovAutomaton::concat(automata);
 }
 
@@ -286,19 +291,19 @@ std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &au
   }
   // align from n0 to n1 into automaton.states.front()
   for (auto iter = align_begin; iter < align_begin + boundaries.first; iter++)
-    (*iter)->state = 0;
+    (*iter)->state = automaton.states.front();
 
   // align from n2 to n3 into automaton.states.back()
   for (auto iter = align_begin+boundaries.second; iter < align_end; iter++)
-    (*iter)->state = 0;
+    (*iter)->state = automaton.states.back();
   
   // align from n1 to n2 into automaton.states.begin() +1 -> automaton.states.end() - 1;
   size_t speech_size = boundaries.second - boundaries.first;
-  size_t speech_align_size = automaton.states.size();
+  size_t speech_align_size = automaton.states.size() - 2;
   double factor = static_cast<double>(speech_align_size) / speech_size;
   for (auto iter = align_begin+boundaries.first; iter < align_begin + boundaries.second; iter++) {
     size_t align_dist = iter - (align_begin + boundaries.first);
-    (*iter)->state = automaton.states.at(align_dist * factor);
+    (*iter)->state = automaton.states.at(align_dist * factor + 1);
   }
 
   return boundaries;

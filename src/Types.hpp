@@ -31,14 +31,19 @@ struct AlignmentItem {
   StateIdx state;
   float    weight;
 
-  AlignmentItem() : count(0u), state(0u), weight(0.0) {}
+  AlignmentItem() : count(0u), state(0u), weight(0.0) {}//constructor without parameters, then set variables as defaulted values
 
   AlignmentItem(uint16_t count, StateIdx state, float weight)
-               : count(count), state(state), weight(weight) {}
+               : count(count), state(state), weight(weight) {}//equal to this.count=count; count outside is the variable, inside is the value
 };
 
 typedef std::vector<AlignmentItem> Alignment;
 
 typedef std::vector<WordIdx>::const_iterator WordIter;
+/*
+ const_iterator: C++ defines a type called const_iterator for each container type,
+ which can only be used to read the elements inside the container,
+ but cannot change its value. Dereferencing the const_iterator type yields a reference to a const object.
+ */
 
 #endif /* TYPES_HPP */

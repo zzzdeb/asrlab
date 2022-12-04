@@ -30,11 +30,11 @@ struct FeatureBuffer {
 };
 
 struct OutputBuffer {
-  std::valarray<float>& fwd_buffer;
-  std::valarray<float>& bwd_buffer;
+  std::shared_ptr<std::valarray<float>> fwd_buffer;
+  std::shared_ptr<std::valarray<float>> bwd_buffer;
   const std::gslice     slice;
 
-  OutputBuffer(std::valarray<float>& fwd_buffer, std::valarray<float>& bwd_buffer, std::gslice const& slice)
+  OutputBuffer(std::shared_ptr<std::valarray<float>> fwd_buffer, std::shared_ptr<std::valarray<float>> bwd_buffer, std::gslice const& slice)
               : fwd_buffer(fwd_buffer), bwd_buffer(bwd_buffer), slice(slice) {
   }
 
@@ -58,14 +58,15 @@ public:
   std::valarray<float>&       get_feature_buffer();
   std::gslice                 get_feature_buffer_slice() const;
   std::vector<unsigned>&      get_batch_mask();
-  std::valarray<float> const& get_score_buffer() const;
+  std::shared_ptr<std::valarray<float>> const get_score_buffer() const;
   NetworkLayer*               get_network_layer(std::string const& name);
 
-  std::map<std::string, std::valarray<float>*> const& get_parameters() const;
-  std::map<std::string, std::valarray<float>*> const& get_gradients()  const;
+  std::map<std::string, std::shared_ptr<std::valarray<float>>> const& get_parameters() const;
+  std::map<std::string, std::shared_ptr<std::valarray<float>>> const& get_gradients()  const;
 
   void init_parameters(std::function<float()> const& generator);
   void forward();
+  void forward_visualize();
   void backward(std::valarray<float> const& targets);
   void save(std::string const& folder) const;
   void load(std::string const& folder);
@@ -81,15 +82,15 @@ private:
 
   std::vector<std::unique_ptr<NetworkLayer>>   layers_;
   std::vector<std::vector<OutputBuffer>>       output_infos_;
-  std::map<std::string, std::valarray<float>*> parameters_;
-  std::map<std::string, std::valarray<float>*> gradients_;
+  std::map<std::string, std::shared_ptr<std::valarray<float>>> parameters_;
+  std::map<std::string, std::shared_ptr<std::valarray<float>>> gradients_;
 
-  std::valarray<float>  feature_buffer_;
+  std::valarray<float>  feature_buffer_; // feature_size * batch_size * max_seq_length
   FeatureIter           feature_buffer_start_;
   std::vector<unsigned> batch_mask_;
 
-  std::valarray<float> score_buffer_;
-  std::valarray<float> error_buffer_;
+  std::shared_ptr<std::valarray<float>> score_buffer_;
+  std::shared_ptr<std::valarray<float>> error_buffer_;
 
   const std::string    prior_path_;
   const float          prior_scale_;

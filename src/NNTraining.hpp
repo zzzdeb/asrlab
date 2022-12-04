@@ -73,7 +73,7 @@ private:
 
 class ParameterUpdater {
 public:
-  typedef std::map<std::string, std::valarray<float>*> VAMap;
+  typedef std::map<std::string, std::shared_ptr<std::valarray<float>>> VAMap;
 
   ParameterUpdater(VAMap const& parameters, VAMap const& gradients)
                   : parameters_(parameters), gradients_(gradients) {
@@ -95,7 +95,7 @@ public:
             : ParameterUpdater(parameters, gradients), learning_rate_(paramLearningRate(config)) {}
   ~SGDUpdater() {}
 
-  virtual void update();
+  void update() override;
 private:
   float learning_rate_;
 };
@@ -110,7 +110,7 @@ public:
                    learning_rate_(paramLearningRate(config)) {}
   ~AdaDeltaUpdater() {}
 
-  virtual void update();
+  void update() override;
 private:
   typedef std::map<std::string, std::valarray<float>> OwnedVAMap;
 
@@ -152,7 +152,7 @@ private:
   NeuralNetwork&    nn_;
   std::unique_ptr<ParameterUpdater> updater_;
 
-  double compute_loss(std::valarray<float>  const& hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
+  double compute_loss(std::shared_ptr<std::valarray<float>> hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
                       size_t max_frames, size_t batch_size, size_t num_classes) const;
 };
 

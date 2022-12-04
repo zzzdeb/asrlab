@@ -204,7 +204,12 @@ std::pair<size_t, size_t> MiniBatchBuilder::sequence_boundaries(size_t begin, si
 const ParameterFloat SGDUpdater::paramLearningRate("learning-rate", 0.001);
 
 void SGDUpdater::update() {
-  // TODO: implement
+    // W = W - speed * dW
+    // b = b - speed * db
+    for(const auto& [lname, param] : parameters_) {
+        const auto& grad = gradients_.at(lname);
+        *param -= learning_rate_ * (*grad);
+    }
 }
 
 const ParameterFloat AdaDeltaUpdater::paramAdaDeltaMomentum("adadelta-momentum", 0.90);
@@ -274,7 +279,7 @@ void NnTrainer::train() {
       for (size_t t = 0ul; t < max_len; t++) {
         for (size_t b = 0ul; b < batch_size; b++) {
           if (t < nn_.get_batch_mask()[b]) {
-            float const* score_begin = &nn_.get_score_buffer()[t * batch_size * num_classes + b * num_classes];
+            float const* score_begin = &(*nn_.get_score_buffer())[t * batch_size * num_classes + b * num_classes];
             float const* max_score   = std::max_element(score_begin, score_begin + num_classes);
             size_t       hyp_class   = std::distance(score_begin, max_score);
 
@@ -321,7 +326,7 @@ void NnTrainer::train() {
       for (size_t t = 0ul; t < max_len; t++) {
         for (size_t b = 0ul; b < batch_size; b++) {
           if (t < nn_.get_batch_mask()[b]) {
-            float const* score_begin = &nn_.get_score_buffer()[t * batch_size * num_classes + b * num_classes];
+            float const* score_begin = &(*nn_.get_score_buffer())[t * batch_size * num_classes + b * num_classes];
             float const* max_score   = std::max_element(score_begin, score_begin + num_classes);
             size_t       hyp_class   = std::distance(score_begin, max_score);
 
@@ -346,7 +351,7 @@ void NnTrainer::train() {
   }
 }
 
-double NnTrainer::compute_loss(std::valarray<float>  const& hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
+double NnTrainer::compute_loss(const std::shared_ptr<std::valarray<float>> hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
                                size_t max_frames, size_t batch_size, size_t num_classes) const {
   double sum = 0.0;
   size_t num_frames = 0ul;
@@ -359,7 +364,7 @@ double NnTrainer::compute_loss(std::valarray<float>  const& hyp, std::valarray<f
       size_t b_idx = t_idx + b * num_classes;
       num_frames += 1ul;
       for (size_t f = 0ul; f < num_classes; f++) {
-        double hyp_prob = hyp[b_idx + f];
+        double hyp_prob = (*hyp)[b_idx + f];
         double ref_prob = ref[b_idx + f];
         if (ref_prob > 0.0 and hyp_prob > 0.0) {
           sum += ref_prob * std::log(hyp_prob);

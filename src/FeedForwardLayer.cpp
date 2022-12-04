@@ -29,6 +29,7 @@ namespace {
     return FeedForwardLayer::Nonlinearity::None;
   }
 }
+using namespace linalg;
 
 const ParameterString FeedForwardLayer::paramNonlinearity("nonlinearity", "");
 
@@ -41,28 +42,102 @@ FeedForwardLayer::~FeedForwardLayer() {
 
 void FeedForwardLayer::init(bool input_error_needed) {
   NetworkLayer::init(input_error_needed);
-  params_.resize(feature_size_ * output_size_ + output_size_);
-  gradient_.resize(params_.size());
+  params_->resize(feature_size_ * output_size_ + output_size_);
+  W_.reset(params_, {feature_size_, output_size_});
+  b_.reset(params_, {output_size_}, feature_size_*output_size_);
+  gradient_->resize(params_->size());
+  dW_.reset(gradient_, {feature_size_, output_size_});
+  db_.reset(gradient_, {output_size_}, feature_size_*output_size_);
 }
 
 void FeedForwardLayer::init_parameters(std::function<float()> const& generator) {
-  for (size_t i = 0ul; i < params_.size(); i++) {
-    params_[i] = generator();
+  for (size_t i = 0ul; i < params_->size(); i++) {
+      (*params_)[i] = generator();
   }
 }
 
-void FeedForwardLayer::forward(std::valarray<float>& output, std::gslice const& slice, std::vector<unsigned> const& mask) const {
-  // TODO: implement
+
+void FeedForwardLayer::forward(std::shared_ptr<std::valarray<float>> output, std::gslice const& slice, std::vector<unsigned> const& mask) const {
+  // slice = max_seq, 7000 x batch_size, 200 x output_size, 1
+  Tensor output_tensor(output, slice);
+  for(size_t i = 0; i < mask.size(); i++)
+  {
+    const Matrix seq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL); // {max_seq, feature_size}
+    static_cast<Matrix>(output_tensor({0, mask.at(i)}, i, ALL)) = seq_matrix.dot(W_) + b_;
+  }
+  switch(nonlinearity_) {
+    case Nonlinearity::None:
+    break;
+    case Nonlinearity::ReLU:
+      output_tensor.relu();
+    break;
+    case Nonlinearity::Sigmoid:
+      output_tensor.sigmoid();
+    break;
+    case Nonlinearity::Tanh:
+      output_tensor.tanh();
+    break;
+    default:
+      throw std::invalid_argument("No type");
+  }
 }
 
 void FeedForwardLayer::backward_start() {
-  error_buffer_ = 0.0f;
-  gradient_     = 0.0f;
+  *error_buffer_ = 0.0f;
+  *gradient_     = 0.0f;
 }
 
-void FeedForwardLayer::backward(std::valarray<float>& output, std::valarray<float>& error,
+void FeedForwardLayer::backward(std::shared_ptr<std::valarray<float>> output, std::shared_ptr<std::valarray<float>> error,
                                 std::gslice const& slice, std::vector<unsigned> const& mask) {
-  // TODO: implement
+  Tensor output_tensor(output, slice);
+  Tensor dE_tensor(error, slice);
+  // error_tensor_;
+  // Out = output
+  // dE = error
+  switch(nonlinearity_) {
+    case Nonlinearity::None:
+        // dENL = dE
+    break;
+    case Nonlinearity::ReLU:
+        // dENL = dE * dOut(out <= 0 -> 0 , out > 0 -> 1)
+        output_tensor.drelu();
+        dE_tensor *= output_tensor;
+    break;
+    case Nonlinearity::Sigmoid:
+        // dENL = dE * dOut(out* (1-out))
+        output_tensor.dsigmoid();
+        dE_tensor *= output_tensor;
+    break;
+    case Nonlinearity::Tanh:
+        // dENL = dE * dOut(1-tanh^2(out))
+        output_tensor.dtanh();
+        dE_tensor *= output_tensor;
+    break;
+    default:
+      throw std::invalid_argument("No type");
+  }
+  // dENL = dE * dNL
+  float num_features = std::accumulate(mask.cbegin(), mask.cend(), 0);
+
+  // dW = input * dENL
+  for(size_t j = 0; j < batch_size_; j++)
+      for(size_t i = 0; i < mask.at(j); i++)
+        dW_ += input_tensor_.at(i, j).outer(dE_tensor.at(i, j));
+  db_ = dE_tensor.sumx();
+  for(auto& v : *gradient_)
+      v /= num_features;
+
+  // error = dENL * W
+  // return ret
+  for(size_t i = 0; i < mask.size(); i++)
+  {
+      const Matrix seq_matrix = input_tensor_(LinObj::Sect{0, mask.at(i)}, LinObj::Sect{i}, ALL); // {max_seq, feature_size}
+      static_cast<Matrix>(output_tensor({0, mask.at(i)}, i, ALL)) = seq_matrix.dot(W_) + b_;
+  }
+  // dENL * dL
+  if (input_error_needed_) {
+
+  }
 }
 
 FeedForwardLayer::FeedForwardLayer(Configuration const& config, Nonlinearity nonlinearity)

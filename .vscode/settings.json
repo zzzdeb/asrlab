@@ -67,6 +67,7 @@
         "list": "cpp",
         "set": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "core": "cpp"
     }
 }

@@ -9,7 +9,7 @@ git clone https://git.rwth-aachen.de/asrlabws2223/group-1.git --recurse-submodul
 ```
 3. Possibly need to install additional libraries such as libblas and libgsl:
 ```
-sudo apt-get install libblas-dev libgsl-dev
+sudo apt-get install libblas-dev libgsl-dev libboost-all-dev
 ```
 or equivalent.
 to compile test Boost 1.74 needed. `sudo apt-get install libboost-all-dev`

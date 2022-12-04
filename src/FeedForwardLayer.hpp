@@ -26,11 +26,11 @@ public:
   virtual void init(bool input_error_needed);
 
   virtual void init_parameters(std::function<float()> const& generator);
-  virtual void forward (std::valarray<float>& output,
-                        std::gslice const& slice, std::vector<unsigned> const& mask) const;
+  void forward (std::shared_ptr<std::valarray<float>> output,
+                        std::gslice const& slice, std::vector<unsigned> const& mask) const override;
   virtual void backward_start();
-  virtual void backward(std::valarray<float>& output, std::valarray<float>& error,
-                        std::gslice const& slice, std::vector<unsigned> const& mask);
+  void backward(std::shared_ptr<std::valarray<float>> output, std::shared_ptr<std::valarray<float>> error,
+                        std::gslice const& slice, std::vector<unsigned> const& mask) override;
 protected:
   FeedForwardLayer(Configuration const& config, Nonlinearity nonlinearity);
 private:

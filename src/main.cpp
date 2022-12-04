@@ -140,8 +140,8 @@ int main(int argc, const char *argv[]) {
     }
   }
 /*****************************************************************************/
-  else if (action == "train-nn" or action == "compute-prior") {
-    const ParameterUInt paramBatchSize("batch-size", 32u);
+  else if (action == "train-nn" or action == "compute-prior" or action == "visualize-nn") {
+    const ParameterUInt paramBatchSize("batch-size", 35u);
     const unsigned batch_size(paramBatchSize(config));
 
     Corpus corpus;
@@ -150,10 +150,12 @@ int main(int argc, const char *argv[]) {
     MiniBatchBuilder mini_batch_builder(config, corpus, batch_size, lexicon->num_states(), lexicon->get_silence_automaton()[0]);
     NeuralNetwork    nn(config, mini_batch_builder.feature_size(), batch_size, corpus.get_max_seq_length(), lexicon->num_states());
 
-    if (action == "train-nn") {
+    if (action == "train-nn" or action == "visualize-nn") {
       NnTrainer nn_trainer(config, mini_batch_builder, nn);
       nn_trainer.train();
-    }
+      if (action == "visualize-nn") {}
+        nn.forward_visualize();
+    } 
     else { // action == "compute-prior"
       const ParameterString paramPriorFile("prior-file", "");
       std::string prior_file = paramPriorFile(config);
@@ -163,7 +165,11 @@ int main(int argc, const char *argv[]) {
         std::cerr << "Could not open prior-file: " << prior_file << std::endl;
         std::abort();
       }
-
+    // size_t idx = 0ul;
+    // while (input.good() and not input.eof() and idx < log_prior_.size()) {
+    //   input >> log_prior_[idx++];
+    // }
+    // log_prior_ = prior_scale_ * std::log(log_prior_);
       // TODO: implement
     }
   }

@@ -21,7 +21,7 @@ void NetworkLayer::init(bool input_error_needed) {
 void NetworkLayer::save(std::string const& path) const {
   create_dir(path);
   std::ofstream out(path, std::ios::out | std::ios::trunc);
-  out.write(reinterpret_cast<const char*>(&params_[0]), params_.size() * sizeof(float));
+  out.write(reinterpret_cast<const char*>(&(*params_)[0]), params_->size() * sizeof(float));
 }
 
 void NetworkLayer::load(std::string const& path) {
@@ -30,5 +30,5 @@ void NetworkLayer::load(std::string const& path) {
     std::cerr << "error loading parameters: " << path << std::endl;
     std::abort();
   }
-  in.read(reinterpret_cast<char*>(&params_[0]), params_.size() * sizeof(float));
+  in.read(reinterpret_cast<char*>(&(*params_)[0]), params_->size() * sizeof(float));
 }

@@ -73,6 +73,10 @@ void Recognizer::recognize(Corpus const& corpus) {
 
 void Recognizer::recognizeSequence(FeatureIter feature_begin, FeatureIter feature_end, std::vector<WordIdx>& output) {
   // TODO: implement
+  // scorer_.prepare_sequence(feature_begin, feature_end);
+  // for(auto feat = feature_begin; feat < feature_end; feat++) {
+  //   scorer_.score(feat);
+  // }
 }
 
 /*****************************************************************************/

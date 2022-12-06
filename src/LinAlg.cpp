@@ -51,7 +51,7 @@ namespace linalg {
         return {data, std::gslice(slice.start() + slice.stride()[1] * j, {shape()[0]}, {slice.stride()[0]})};
     }
 
-    const Tensor Tensor::operator() (const Sect& a, const Sect& b, const Sect& c) const {
+    Tensor Tensor::operator() (const Sect& a, const Sect& b, const Sect& c) const {
         std::valarray<size_t> size(3);
         size_t startl = slice.start() + a.s * slice.stride()[0] + b.s * slice.stride()[1] + c.s * slice.stride()[2];
         size[0] = a == ALL ? slice.size()[0] : a.e - a.s;
@@ -102,7 +102,7 @@ namespace linalg {
 
     Matrix operator+(const Matrix& m, const Vector& v) {
         Matrix ret(m);
-        for (int i = 0; i < ret.shape()[1]; ++i) {
+        for (size_t i = 0; i < ret.shape()[1]; ++i) {
             ret.col(i) += v;
         }
         return ret;

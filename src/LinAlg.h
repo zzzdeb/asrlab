@@ -54,14 +54,16 @@ public:
                shape)
         {
         }
-    LinObj(std::shared_ptr<BaseT> data, std::gslice const& slice) : data(data), slice(slice) {
+    LinObj(std::shared_ptr<BaseT> data, std::gslice const& slice) : data(std::move(data)), slice(slice) {
     }
     LinObj& operator=(const LinObj& other) {
-        assert(other.slice.size().size() == slice.size().size());
-        for (size_t i = 0; i < slice.size().size(); i++)
-            assert(other.slice.size()[i] == slice.size()[i]);
-        BaseT tmp = other.get();
-        get() = tmp;
+        if (&other != this) {
+            assert(other.slice.size().size() == slice.size().size());
+            for (size_t i = 0; i < slice.size().size(); i++)
+                assert(other.slice.size()[i] == slice.size()[i]);
+            BaseT tmp = other.get();
+            get() = tmp;
+        }
         return *this;
     }
     void reset(std::shared_ptr<BaseT> datap, std::valarray<size_t> shape, const size_t& start = 0) {
@@ -78,8 +80,8 @@ public:
         slice = std::gslice(start, shape, strides);
     }
 
-    std::gslice_array<float> get() const { return (*data)[slice]; }
-    std::valarray<size_t> shape() const { return slice.size();}
+    [[nodiscard]] std::gslice_array<float> get() const { return (*data)[slice]; }
+    [[nodiscard]] std::valarray<size_t> shape() const { return slice.size();}
 
     LinObj& operator*=(const LinObj& other) {
         assert(shape() == other.shape());
@@ -116,8 +118,8 @@ public:
         get() = tmp;
     }
 
-    std::gslice slice;
     std::shared_ptr<BaseT> data;
+    std::gslice slice;
 };
 
 static const LinObj::Sect ALL(0, std::numeric_limits<size_t>::infinity());
@@ -126,19 +128,18 @@ class Vector : public LinObj {
 public:
     using LinObj::LinObj;
 //    Vector(std::shared_ptr<BaseT> data, const std::slice& slicep) : LinObj(data, std::gslice(slicep.start(), {slicep.size()}, {slicep.stride()})) {}
-    float dot(const Vector& v) const;
+    [[nodiscard]] float dot(const Vector& v) const;
     Vector(const LinObj& other) : LinObj(other) {
         assert(slice.size().size() == 1);
     }
-    Vector dot(const Matrix& m) const;
     void softmax() {
         BaseT v = get();
         v = std::exp(v);
         v /= v.sum();
         get() = v;
     }
-    const float& at(size_t i) const { return (*data)[slice.start() + i * slice.stride()[0]]; }
-    Matrix outer(const Vector& v) const;
+    [[nodiscard]] const float& at(size_t i) const { return (*data)[slice.start() + i * slice.stride()[0]]; }
+    [[nodiscard]] Matrix outer(const Vector& v) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const Vector& v);
@@ -152,22 +153,22 @@ public:
     }
 
     void softmax() {
-        for (int i = 0; i < shape()[0]; ++i) {
+        for (size_t i = 0; i < shape()[0]; ++i) {
             Vector v = operator[](i);
             v.softmax();
         }
     }
     Matrix& radd(const Vector& v) {
-        for (int i = 0; i < shape()[0]; ++i)
+        for (size_t i = 0; i < shape()[0]; ++i)
             operator[](i) += v;
         return *this;
     }
 
     float& at(size_t i, size_t j);
     Vector operator[](size_t j) const;
-    Vector col(size_t j) const;
 
-    Matrix dot(const Matrix& m) const {
+    [[nodiscard]] Vector col(size_t j) const;
+    [[nodiscard]] Matrix dot(const Matrix& m) const {
         assert(slice.size()[1] == m.slice.size()[0]);
         Matrix ret({shape()[0], m.shape()[1]});
         for (size_t j = 0; j < m.shape()[1]; j++)
@@ -175,10 +176,10 @@ public:
                 ret.at(i, j) = operator[](i).dot(m.col(j));
         return ret;
     }
-    Matrix transpose() const {
+    [[nodiscard]] Matrix transpose() const {
         return {data, {slice.start(), {slice.size()[1], slice.size()[0]}, {slice.stride()[1], slice.stride()[0]}}};
     }
-    Vector sumy() const {
+    [[nodiscard]] Vector sumy() const {
         Vector ret({slice.size()[0]});
         for (size_t i = 0; i < slice.size()[1]; i++) {
             ret += col(i);
@@ -192,7 +193,7 @@ Matrix operator+(const Matrix& m, const Vector& v);
 class Tensor : public LinObj {
 public:
     using LinObj::LinObj;
-    const Tensor operator() (const Sect& a, const Sect& b, const Sect& c) const;
+    Tensor operator() (const Sect& a, const Sect& b, const Sect& c) const;
     Tensor operator() (const Sect& a, const Sect& b, const Sect& c);
     void resize(size_t x, size_t y, size_t z) {
         data->resize(x * y * z);
@@ -201,33 +202,8 @@ public:
 
     Matrix mat() const;
 
-    //   auto dot = [&](std::valarray<float>& W, std::valarray<float>& x, std::valarray<float>& out) {
-    //     const auto& outlen = output_size_;
-    //     for (size_t i = 0; i < outlen; i++)
-    //     {
-    //       out[i] = (W[std::slice(i, 1, outlen)] * x).sum();
-    //     }
-    //   };
-    //   output[std::slice(s, output_size_, 1)] = dot(W, x, out);
-    //   output[std::slice(s, output_size_, 2)] += b;
-    // }
-
-
-    // size_t index =   slice.start()
-    //                + (center_time + delta - trunc_offsets.first)          * slice.stride()[0]
-    //                + i                                                    * slice.stride()[1]
-    //                + ((delta + context_frames_) * base_feature_size_ + f) * slice.stride()[2];
-    // float val = (*iters.first)[f];
-    // output[index] = val;
-
-    // output[slice] = res;
-    // params_
-    // input_buffer_
-    // input;
-
-    // std::gslice(offset,
-    //             {   max_seq_length_, batch_size_, feature_size_},
-    //             {batch_size_ * fdim,        fdim,             1})));
+    [[nodiscard]] Vector sumx() const;
+    [[nodiscard]] Vector at(size_t i, size_t j) const;
 };
 }
 

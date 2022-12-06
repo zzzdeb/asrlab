@@ -86,10 +86,14 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
   for(auto it = align_end-1; it != align_begin; it--) {
     size_t t = it - align_begin;
     (*it)->state = reference[s];
+    (*it)->weight = 1;
+    (*it)->count = 1;
     s -= B[t * S + s];//to see the state of last t should minus 0,1 or 2
     // std::cout << s << ",";
   }
   (*align_begin)->state = reference[s];//s=0 now
+  (*align_begin)->weight = 1;
+  (*align_begin)->count = 1;
   // std::cout << s << std::endl;
   return prev.at(S-1);//the prev now store the cur updated at the last column
 }
@@ -147,10 +151,14 @@ double Aligner::align_sequence_pruned(FeatureIter feature_begin, FeatureIter fea
   for(auto it = align_end-1; it != align_begin; it--) {
     size_t t = it - align_begin;
     (*it)->state = reference[s];
+    (*it)->count = 1;
+    (*it)->weight = 1;
     s -= B[t * S + s];
     // std::cout << s << ",";
   }
   (*align_begin)->state = reference[s];
+  (*align_begin)->count = 1;
+  (*align_begin)->weight = 1;
   // std::cout << s << std::endl;
   return prev.at(S-1);
 }

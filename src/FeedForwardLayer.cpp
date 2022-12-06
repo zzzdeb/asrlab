@@ -60,6 +60,7 @@ void FeedForwardLayer::init_parameters(std::function<float()> const& generator) 
 void FeedForwardLayer::forward(std::shared_ptr<std::valarray<float>> output, std::gslice const& slice, std::vector<unsigned> const& mask) const {
   // slice = max_seq, 7000 x batch_size, 200 x output_size, 1
   Tensor output_tensor(output, slice);
+  #pragma omp parallel for
   for (size_t i = 0; i < mask.size(); i++) {
       const Matrix seq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}
       output_tensor({0, mask.at(i)}, i, ALL).mat() = seq_matrix.dot(W_).radd(b_);
@@ -93,6 +94,7 @@ void FeedForwardLayer::backward(std::shared_ptr<std::valarray<float>> output, st
     Tensor dE_tensor(error, slice);
     float num_features = std::accumulate(mask.cbegin(), mask.cend(), 0);
     // dW = input * dENL
+    #pragma omp parallel for
     for(size_t j = 0; j < batch_size_; j++)
         for(size_t i = 0; i < mask.at(j); i++)
             dW_ += input_tensor_.at(i, j).outer(dE_tensor.at(i, j));
@@ -102,6 +104,7 @@ void FeedForwardLayer::backward(std::shared_ptr<std::valarray<float>> output, st
 
     // error = dENL * W (dENL * dL)
     if (input_error_needed_) {
+        #pragma omp parallel for
         for(size_t i = 0; i < mask.size(); i++)
         {
             const Matrix seq_matrix = dE_tensor({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}

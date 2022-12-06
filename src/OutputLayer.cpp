@@ -10,6 +10,7 @@ void OutputLayer::forward(std::shared_ptr<BaseT> output, std::gslice const& slic
   // softmax
     FeedForwardLayer::forward(output, slice, mask);
     Tensor output_tensor(output, slice);
+    #pragma omp parallel for
     for(size_t i = 0; i < mask.size(); i++)
     {
         const Matrix seq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}

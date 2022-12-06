@@ -57,6 +57,7 @@ const ParameterString NeuralNetwork::paramLoadNeuralNetworkFrom("load-nn-from", 
 const ParameterString NeuralNetwork::paramPriorFile            ("prior-file", "");
 const ParameterFloat  NeuralNetwork::paramPriorScale           ("prior-scale", 0.0f);
 const ParameterUInt   NeuralNetwork::paramContextFrames        ("context-frames", 0); // this duplicates a parameter from MinibatchBuilder, it is only used if the NN is used as a feature-scorer
+const ParameterString  NeuralNetwork::paramNNOutFile        ("nn-out-file", "artifacts/nn.text");
 
 NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, size_t batch_size,
                              size_t max_seq_length, size_t num_classes)
@@ -68,7 +69,9 @@ NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, s
                               score_buffer_(std::make_shared<std::valarray<float>>(max_seq_length * batch_size * num_classes)),
                               error_buffer_(std::make_shared<std::valarray<float>>(max_seq_length * batch_size * num_classes)),
                               prior_path_(paramPriorFile(config)), prior_scale_(paramPriorScale(config)),
-                              log_prior_(num_classes) {
+                              log_prior_(num_classes),
+                              out_file(paramNNOutFile(config))
+{
   // first we create the layers from configs
   std::vector<Configuration> layer_configs = config.get_array<Configuration>("layers");
   layers_.resize(layer_configs.size());
@@ -255,6 +258,15 @@ void NeuralNetwork::forward() {
         (*out2.fwd_buffer)[out.slice] = (*out.fwd_buffer)[out2.slice];
     }
   }
+
+    for (size_t l = 0ul; l < output_infos_.size(); l++) {
+        auto& out = output_infos_[l][0];
+        for (int i = 0; i < out.fwd_buffer->size()/batch_size_/max_seq_length_; ++i) {
+            out_file << (*out.fwd_buffer)[i] << " ";
+        }
+        out_file << std::endl;
+    }
+    out_file << "==" << std::endl;
 }
 
 void NeuralNetwork::forward_visualize() {

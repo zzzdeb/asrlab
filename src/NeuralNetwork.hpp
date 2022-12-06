@@ -16,6 +16,7 @@
 #include "FeatureScorer.hpp"
 #include "NetworkLayer.hpp"
 #include "OutputLayer.hpp"
+#include <fstream>
 
 struct FeatureBuffer {
   std::valarray<float>& output;
@@ -48,6 +49,7 @@ public:
   static const ParameterString paramPriorFile;
   static const ParameterFloat  paramPriorScale;
   static const ParameterUInt   paramContextFrames;
+  static const ParameterString  paramNNOutFile;
 
   NeuralNetwork(Configuration const& config, size_t feature_size, size_t batch_size, size_t max_seq_length, size_t num_classes);
   ~NeuralNetwork();
@@ -97,6 +99,7 @@ private:
   std::valarray<float> log_prior_;
 
   void load_prior(std::string const& path);
+  std::ofstream out_file;
 };
 
 #endif /* __NEURAL_NETWORK_HPP__ */

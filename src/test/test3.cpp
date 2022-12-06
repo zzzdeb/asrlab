@@ -46,6 +46,23 @@ BOOST_AUTO_TEST_CASE(test_case5)
 //    BOOST_TEST(dotv.at(1) == 12);
 //    BOOST_TEST(dotv.at(2) == 15);
 }
+
+BOOST_AUTO_TEST_CASE(test_transpose) {
+    BaseT d = {5, 1, 2, 3, 4, 5, 6};
+    auto tmp = std::make_shared<BaseT>(d);
+    Matrix m(tmp, {2, 3}, 1);
+    BOOST_TEST(m.at(0, 0) == 1);
+    BOOST_TEST(m.at(1, 1) == 5);
+    BOOST_TEST(m.at(1, 2) == 6);
+    Matrix tm = m.transpose();
+    BOOST_TEST(tm.at(0, 0) == 1);
+    BOOST_TEST(tm.at(0, 1) == 4);
+    BOOST_TEST(tm.at(1, 0) == 2);
+    BOOST_TEST(tm.at(1, 1) == 5);
+    BOOST_TEST(tm.at(2, 0) == 3);
+    BOOST_TEST(tm.at(2, 1) == 6);
+}
+
 BOOST_AUTO_TEST_CASE(test_tensor)
 {
     BaseT d = {5, 1, 2, 3, 4, 5, 6, 7, 8};
@@ -58,13 +75,13 @@ BOOST_AUTO_TEST_CASE(test_tensor)
     BOOST_TEST(t.slice.stride()[1] == 2);
     BOOST_TEST(t.slice.stride()[2] == 1);
 
-    Matrix m = t({0}, {0, 2}, {0, 2});
+    Matrix m = t({0}, {0, 2}, {0, 2}).mat();
     BOOST_TEST(m.at(0, 0) == 1);
     BOOST_TEST(m.at(0, 1) == 2);
     BOOST_TEST(m.at(1, 0) == 3);
     BOOST_TEST(m.at(1, 1) == 4);
 
-    Matrix m1 = t(ALL, {0}, ALL);
+    Matrix m1 = t(ALL, {0}, ALL).mat();
     BOOST_TEST(m1.slice.size()[0] == 2);
     BOOST_TEST(m1.slice.size()[1] == 2);
 
@@ -82,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_addvec)
     auto tmp = std::make_shared<BaseT>(d);
     Tensor t(tmp, {2, 2, 2}, 1);
     BaseT data = t.get();
-    Matrix m = t(ALL, {0}, ALL);
+    Matrix m = t(ALL, {0}, ALL).mat();
     Vector v = m.col(1);
     std::cout << v << std::endl;
     BOOST_TEST(v.at(0) == 2);

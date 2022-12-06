@@ -85,7 +85,7 @@ namespace linalg {
         return size;
     }
 
-    Tensor::operator Matrix() const {
+    Matrix Tensor::mat() const {
         auto it = find(slice.size(), 1ul);
         assert(it != end(slice.size()));
         auto dist = it - begin(slice.size());

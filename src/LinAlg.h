@@ -14,6 +14,7 @@
 #include <iostream>
 #include <cassert>
 #include <limits>
+#include "Types.h"
 
 namespace {
     bool operator==(const std::valarray<size_t>& a, const std::valarray<size_t>& b) {
@@ -132,6 +133,12 @@ public:
     Vector(const LinObj& other) : LinObj(other) {
         assert(slice.size().size() == 1);
     }
+    operator Vect() {
+        Vect v(shape()[0]);
+        for (size_t i = 0; i < shape()[0]; i++)
+            v(i) = at(i);
+        return v;
+    }
     void softmax() {
         BaseT v = get();
         v = std::exp(v);
@@ -151,6 +158,13 @@ public:
     Matrix(const LinObj& other) : LinObj(other) {
         assert(slice.size().size() == 2);
     }
+    Matrix& operator=(const Matr& m) {
+        assert(shape()[0] == m.rows() && shape()[1] == m.cols());
+        for (size_t i = 0; i < shape()[0]; i++)
+            for (size_t j = 0; j < shape()[1]; j++)
+                 at(i, j) = m(i, j);
+        return *this;
+    }
 
     void softmax() {
         for (size_t i = 0; i < shape()[0]; ++i) {
@@ -163,8 +177,16 @@ public:
             operator[](i) += v;
         return *this;
     }
+    operator Matr() {
+        Matr m(shape()[0], shape()[1]);
+        for (size_t i = 0; i < shape()[0]; i++)
+            for (size_t j = 0; j < shape()[1]; j++)
+                m(i, j) = at(i, j);
+        return m;
+    }
 
     float& at(size_t i, size_t j);
+    const float& at(size_t i, size_t j) const;
     Vector operator[](size_t j) const;
 
     [[nodiscard]] Vector col(size_t j) const;
@@ -205,6 +227,7 @@ public:
     [[nodiscard]] Vector sumx() const;
     [[nodiscard]] Vector at(size_t i, size_t j) const;
 };
+bool operator==(const Matrix& m1, const Matr& m2);
 }
 
 #endif //ASRLAB_LINALG_H

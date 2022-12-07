@@ -62,6 +62,7 @@ public:
   std::vector<unsigned>&      get_batch_mask();
   std::shared_ptr<std::valarray<float>> const get_score_buffer() const;
   NetworkLayer*               get_network_layer(std::string const& name);
+  void update();
 
   std::map<std::string, std::shared_ptr<std::valarray<float>>> const& get_parameters() const;
   std::map<std::string, std::shared_ptr<std::valarray<float>>> const& get_gradients()  const;

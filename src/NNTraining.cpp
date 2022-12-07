@@ -298,6 +298,7 @@ void NnTrainer::train() {
 
       nn_.backward(targets);
       updater_->update();
+      nn_.update();
 
       total_frames           += batch_frames;
       total_incorrect_frames += incorrect_frames;

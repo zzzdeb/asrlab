@@ -10,6 +10,7 @@
 #include <valarray>
 #include <functional>
 
+#include "Types.h"
 #include "Config.hpp"
 #include "LinAlg.h"
 
@@ -42,6 +43,7 @@ public:
                         std::gslice const& slice, std::vector<unsigned> const& mask) = 0;
   virtual void save(std::string const& path) const;
   virtual void load(std::string const& path);
+  void update();
 protected:
   const std::string layer_name_;
 
@@ -60,10 +62,14 @@ protected:
 
   std::shared_ptr<std::valarray<float>> params_; // feature_size * output_size + output_size
   linalg::Matrix W_;
+  Matr eW_;
   linalg::Vector b_;
+  Vect eb_;
   std::shared_ptr<std::valarray<float>> gradient_;
   linalg::Matrix dW_;
+  Matr edW_;
   linalg::Vector db_;
+  Vect edb_;
 };
 
 // Some methods are defined in the header to allow inlining

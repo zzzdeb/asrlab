@@ -44,7 +44,9 @@ void FeedForwardLayer::init(bool input_error_needed) {
   NetworkLayer::init(input_error_needed);
   params_->resize(feature_size_ * output_size_ + output_size_);
   W_.reset(params_, {feature_size_, output_size_});
+  eW_.resize(feature_size_, output_size_);
   b_.reset(params_, {output_size_}, feature_size_*output_size_);
+  eb_.resize(output_size_);
   gradient_->resize(params_->size());
   dW_.reset(gradient_, {feature_size_, output_size_});
   db_.reset(gradient_, {output_size_}, feature_size_*output_size_);
@@ -62,8 +64,8 @@ void FeedForwardLayer::forward(std::shared_ptr<std::valarray<float>> output, std
   Tensor output_tensor(output, slice);
   #pragma omp parallel for
   for (size_t i = 0; i < mask.size(); i++) {
-      const Matrix seq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}
-      output_tensor({0, mask.at(i)}, i, ALL).mat() = seq_matrix.dot(W_).radd(b_);
+      Matr eseq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat();
+      output_tensor({0, mask.at(i)}, i, ALL).mat() = (eseq_matrix * eW_).rowwise() + eb_.transpose();
   }
   switch(nonlinearity_) {
     case Nonlinearity::None:
@@ -107,8 +109,8 @@ void FeedForwardLayer::backward(std::shared_ptr<std::valarray<float>> output, st
         #pragma omp parallel for
         for(size_t i = 0; i < mask.size(); i++)
         {
-            const Matrix seq_matrix = dE_tensor({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}
-            error_tensor_({0, mask.at(i)}, i, ALL).mat() = seq_matrix.dot(W_.transpose());
+            Matr eseq_matrix = dE_tensor({0, mask.at(i)}, {i}, ALL).mat();
+            error_tensor_({0, mask.at(i)}, i, ALL).mat() = eseq_matrix * eW_.transpose();
         }
     }
 }

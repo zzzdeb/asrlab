@@ -240,6 +240,7 @@ void NeuralNetwork::init_parameters(std::function<float()> const& generator) {
   if (not initialized_) {
     for (auto& layer : layers_) {
       layer->init_parameters(generator);
+      layer->update();
     }
     initialized_ = true;
   }
@@ -298,6 +299,12 @@ void NeuralNetwork::backward(std::valarray<float> const& targets) {
       layers_[l-1ul]->backward(out.fwd_buffer, out.bwd_buffer, out.slice, batch_mask_);
     }
   }
+}
+
+void NeuralNetwork::update() {
+    for (size_t i = 0; i< layers_.size(); i++) {
+        layers_[i]->update();
+    }
 }
 
 void NeuralNetwork::save(std::string const& folder) const {

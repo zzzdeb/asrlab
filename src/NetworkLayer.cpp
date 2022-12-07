@@ -23,6 +23,10 @@ void NetworkLayer::save(std::string const& path) const {
   std::ofstream out(path, std::ios::out | std::ios::trunc);
   out.write(reinterpret_cast<const char*>(&(*params_)[0]), params_->size() * sizeof(float));
 }
+void NetworkLayer::update() {
+    eW_ = W_;
+    eb_ = b_;
+}
 
 void NetworkLayer::load(std::string const& path) {
   std::ifstream in(path, std::ios::in);

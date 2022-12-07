@@ -44,6 +44,9 @@ namespace linalg {
     float& Matrix::at(size_t i, size_t j) {
         return (*data)[slice.start() + i * slice.stride()[0] + j * slice.stride()[1]];
     }
+    const float& Matrix::at(size_t i, size_t j) const {
+        return (*data)[slice.start() + i * slice.stride()[0] + j * slice.stride()[1]];
+    }
     Vector Matrix::operator[](size_t j) const {
         return {data, std::gslice{slice.start() + slice.stride()[0] * j, {shape()[1]}, {slice.stride()[1]}}};
     }
@@ -137,5 +140,14 @@ namespace linalg {
         for(const auto& a: tmp)
             out << a << " ";
         return out;
+    }
+    bool operator==(const Matrix& m1, const Matr& m2) {
+        if(m1.shape()[0] != m2.rows() || m1.shape()[1] != m2.cols())
+            return false;
+        for (size_t i = 0; i < m1.shape()[0]; i++)
+            for (size_t j = 0; j < m1.shape()[1]; j++)
+                if(std::abs(m2(i, j) - m1.at(i, j)) > 0.00001)
+                    return false;
+        return true;
     }
 }

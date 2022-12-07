@@ -5,6 +5,8 @@
 #include <rapidjson/document.h>
 #include <memory>
 #include <cmath>
+#include "../Timer.hpp"
+#include "../Eigen/Core"
 
 //bool same(const double &a, const double &b, const double eps = 0.00001) { return std::abs(a - b) < eps; }
 
@@ -109,6 +111,23 @@ BOOST_AUTO_TEST_CASE(test_addvec)
     BOOST_TEST(m.at(0, 1) == 4);
     BOOST_TEST(m.at(1, 0) == 11);
     BOOST_TEST(m.at(1, 1) == 12);
+}
+
+BOOST_AUTO_TEST_CASE(test_perf) {
+    Matrix m({1000, 2000});
+    (*m.data) = 2;
+    Timer timer;
+    timer.tick();
+    auto val = m.dot(m.transpose());
+    timer.tock();
+    std::cout << "m " << timer.secs() << " " << val.at(0, 1) << std::endl;
+    Eigen::MatrixXf em(1000, 2000);
+    em.fill(2);
+    timer.reset();
+    timer.tick();
+    auto eigval = em * em.transpose();
+    timer.tock();
+    std::cout << "em " << timer.secs() << " " << eigval(0, 1) << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -216,7 +216,28 @@ const ParameterFloat AdaDeltaUpdater::paramAdaDeltaMomentum("adadelta-momentum",
 const ParameterFloat AdaDeltaUpdater::paramLearningRate("learning-rate", 0.001);
 
 void AdaDeltaUpdater::update() {
-  // TODO: implement
+    float eps = 0.00000000001;
+    for(const auto& [lname, param] : parameters_) {
+        const auto& grad = gradients_.at(lname);
+
+        gradient_rms_.emplace(lname, std::valarray<float>(grad->size()));
+        update_rms_.emplace(lname, std::valarray<float>(grad->size()));
+        update_buffer_.resize(grad->size());
+
+        auto& g_rms = gradient_rms_.at(lname);
+        auto& u_rms = update_rms_.at(lname);
+        for(size_t i = 0; i < grad->size(); i++) {
+            float& u = update_buffer_[i];
+            const float& g = (*grad)[i];
+            float& E_g2 = g_rms[i];
+            float& E_u2 = u_rms[i];
+            E_g2 = momentum_ * E_g2 + (1 - momentum_) * (g * g);
+            u = -std::sqrt(E_u2 + eps) / std::sqrt(E_g2 + eps) * g;
+            E_u2 = momentum_ * E_u2 + (1 - momentum_) * (u * u);
+        }
+        assert(param->size() == update_buffer_.size());
+        *param += learning_rate_ * update_buffer_;
+    }
 }
 
 // -------------------- NnTrainer  --------------------

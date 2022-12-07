@@ -158,19 +158,34 @@ int main(int argc, const char *argv[]) {
     } 
     else { // action == "compute-prior"
       const ParameterString paramPriorFile("prior-file", "");
-      std::string prior_file = paramPriorFile(config);
+      const std::string prior_file = paramPriorFile(config);
 
       std::ofstream out(prior_file, std::ios::out | std::ios::trunc);
       if (not out.good()) {
         std::cerr << "Could not open prior-file: " << prior_file << std::endl;
         std::abort();
       }
-    // size_t idx = 0ul;
-    // while (input.good() and not input.eof() and idx < log_prior_.size()) {
-    //   input >> log_prior_[idx++];
-    // }
-    // log_prior_ = prior_scale_ * std::log(log_prior_);
-      // TODO: implement
+      const size_t num_classes = lexicon->num_states();
+      std::valarray<float> prior(num_classes);
+      std::valarray<float> targets;
+
+      for (size_t batch = 0ul; batch < mini_batch_builder.num_train_batches(); batch++) {
+          nn.get_feature_buffer() = 0.0f;
+          mini_batch_builder.build_batch(batch, false,
+                                         nn.get_feature_buffer(),
+                                         nn.get_feature_buffer_slice(),
+                                         targets,
+                                         nn.get_batch_mask());
+          nn.forward();
+          const std::valarray<float>& score_buffer = *nn.get_score_buffer();
+          for (size_t i = 0; i < nn.get_batch_mask().size(); i++)
+            for (size_t j = 0; j < nn.get_batch_mask()[i]; j++) {
+                prior += score_buffer[std::slice((i * mini_batch_builder.max_seq_length() + j) * num_classes, num_classes, 1)];
+          }
+      }
+      prior /= prior.sum(); // todo(ze) some priors are zero.
+      for (size_t i = 0; i < prior.size(); i++)
+          out << prior[i] << " ";
     }
   }
 /*****************************************************************************/

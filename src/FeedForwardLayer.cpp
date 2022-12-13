@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <cblas.h>
+#include "Timer.hpp"
 
 #include "Util.hpp"
 
@@ -59,25 +60,36 @@ void FeedForwardLayer::init_parameters(std::function<float()> const& generator) 
 }
 
 
-void FeedForwardLayer::forward(std::shared_ptr<std::valarray<float>> output, std::gslice const& slice, std::vector<unsigned> const& mask) const {
-  // slice = max_seq, 7000 x batch_size, 200 x output_size, 1
-  Tensor output_tensor(output, slice);
+void FeedForwardLayer::forward(BufferT& outputs_, std::vector<unsigned> const& mask) const {
+  size_t true_batch_size = 0;
+  for (;true_batch_size<outputs_.size();true_batch_size++)
+      if (outputs_.at(true_batch_size).rows() == 0)
+          break;
   #pragma omp parallel for
   for (size_t i = 0; i < mask.size(); i++) {
-      Matr eseq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat();
-      output_tensor({0, mask.at(i)}, i, ALL).mat() = (eseq_matrix * eW_).rowwise() + eb_.transpose();
+      const Matr& eseq_matrix = input_buffer_.at(i);
+      outputs_[i] = (eseq_matrix * eW_).rowwise() + eb_.transpose();
   }
+  auto sigmoid = [](const float& v) -> float { return 1 / (1 - std::exp(-v));};
+  auto relu = [](const float& v) { return v>0 ? v : 0; };
+  auto tanh = [](const float& v) { return std::tanh(v); };
   switch(nonlinearity_) {
     case Nonlinearity::None:
     break;
     case Nonlinearity::ReLU:
-      output_tensor.relu();
+        for(size_t i = 0; i< outputs_.size(); i++) {
+            outputs_.at(i) = outputs_.at(i).unaryExpr(relu);
+        }
     break;
     case Nonlinearity::Sigmoid:
-      output_tensor.sigmoid();
+        for(size_t i = 0; i< outputs_.size(); i++) {
+            outputs_.at(i) = outputs_.at(i).unaryExpr(sigmoid);
+        }
     break;
     case Nonlinearity::Tanh:
-      output_tensor.tanh();
+        for(size_t i = 0; i< outputs_.size(); i++) {
+            outputs_.at(i) = outputs_.at(i).unaryExpr(tanh);
+        }
     break;
     default:
       throw std::invalid_argument("No type");
@@ -85,59 +97,66 @@ void FeedForwardLayer::forward(std::shared_ptr<std::valarray<float>> output, std
 }
 
 void FeedForwardLayer::backward_start() {
-  *error_buffer_ = 0.0f;
+  std::for_each(error_buffer_.begin(), error_buffer_.end(), [](auto& v) {v.fill(0.0f);});
   *gradient_     = 0.0f;
+  edW_.resize(eW_.rows(), eW_.cols());
+  edW_.fill(0);
+  edb_.resize(eb_.size());
+  edb_.fill(0);
 }
 
-void FeedForwardLayer::backward(std::shared_ptr<std::valarray<float>> output, std::shared_ptr<std::valarray<float>> error,
-                                std::gslice const& slice, std::vector<unsigned> const& mask) {
-    nonlinear_backward(output, error, slice, mask);
+void FeedForwardLayer::backward(BufferT& output, BufferT& error, std::vector<unsigned> const& mask) {
+    nonlinear_backward(output, error, mask);
     // dENL = dE * dNL
-    Tensor dE_tensor(error, slice);
     float num_features = std::accumulate(mask.cbegin(), mask.cend(), 0);
     // dW = input * dENL
     #pragma omp parallel for
-    for(size_t j = 0; j < batch_size_; j++)
-        for(size_t i = 0; i < mask.at(j); i++)
-            dW_ += input_tensor_.at(i, j).outer(dE_tensor.at(i, j));
-    db_ = dE_tensor.sumx();
-    for(auto& v : *gradient_)
-        v /= num_features;
+    for(size_t j = 0; j < output.size(); j++) {
+        edW_ = input_buffer_.at(j).transpose() * error.at(j);
+    }
+    edW_.array() /= num_features;
+    for(auto& out: error)
+        edb_ += out.colwise().sum();
+    edb_.array() /= num_features;
 
     // error = dENL * W (dENL * dL)
     if (input_error_needed_) {
         #pragma omp parallel for
         for(size_t i = 0; i < mask.size(); i++)
-        {
-            Matr eseq_matrix = dE_tensor({0, mask.at(i)}, {i}, ALL).mat();
-            error_tensor_({0, mask.at(i)}, i, ALL).mat() = eseq_matrix * eW_.transpose();
-        }
+            error_buffer_.at(i) = error.at(i) * eW_.transpose();
     }
+    dW_ = edW_;
+    for (size_t i = 0; i < db_.shape()[0]; i++)
+        db_.at(i) = edb_(i);
 }
 
-void FeedForwardLayer::nonlinear_backward(std::shared_ptr<std::valarray<float>> output, std::shared_ptr<std::valarray<float>> error,
-        std::gslice const& slice, std::vector<unsigned> const& mask) {
-    Tensor output_tensor(output, slice);
-    Tensor dE_tensor(error, slice);
+void FeedForwardLayer::nonlinear_backward(BufferT& output, BufferT& error, std::vector<unsigned> const& mask) {
     // Out = output; dE = error
+    auto sigmoid = [](const float& v) -> float { return 1 / (1 - std::exp(-v));};
+    auto dsigmoid = [&sigmoid](const float& v) -> float { auto s = sigmoid(v); return s * (1 - s); };
+    auto drelu = [](const float& v) -> float { return v > 0 ? 1 : 0; };
+    auto dtanh = [](const float& v) -> float { return 1 - std::pow(std::tanh(v), 2); };
     switch(nonlinearity_) {
         case Nonlinearity::None:
             // dENL = dE
             break;
         case Nonlinearity::ReLU:
             // dENL = dE * dOut(out <= 0 -> 0 , out > 0 -> 1)
-            output_tensor.drelu();
-            dE_tensor *= output_tensor;
+            for(size_t i = 0; i< output.size(); i++) {
+                error.at(i) = error.at(i).cwiseProduct(output.at(i).unaryExpr(drelu));
+            }
             break;
         case Nonlinearity::Sigmoid:
             // dENL = dE * dOut(out* (1-out))
-            output_tensor.dsigmoid();
-            dE_tensor *= output_tensor;
+            for(size_t i = 0; i< output.size(); i++) {
+                error.at(i) = error.at(i).cwiseProduct(output.at(i).unaryExpr(dsigmoid));
+            }
             break;
         case Nonlinearity::Tanh:
             // dENL = dE * dOut(1-tanh^2(out))
-            output_tensor.dtanh();
-            dE_tensor *= output_tensor;
+            for(size_t i = 0; i< output.size(); i++) {
+                error.at(i) = error.at(i).cwiseProduct(output.at(i).unaryExpr(dtanh));
+            }
             break;
         default:
             throw std::invalid_argument("No type");

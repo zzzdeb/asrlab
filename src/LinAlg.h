@@ -14,7 +14,7 @@
 #include <iostream>
 #include <cassert>
 #include <limits>
-#include "Types.h"
+#include "Types.hpp"
 
 namespace {
     bool operator==(const std::valarray<size_t>& a, const std::valarray<size_t>& b) {
@@ -146,6 +146,7 @@ public:
         get() = v;
     }
     [[nodiscard]] const float& at(size_t i) const { return (*data)[slice.start() + i * slice.stride()[0]]; }
+    [[nodiscard]] float& at(size_t i) { return (*data)[slice.start() + i * slice.stride()[0]]; }
     [[nodiscard]] Matrix outer(const Vector& v) const;
 };
 

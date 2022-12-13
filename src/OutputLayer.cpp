@@ -6,15 +6,18 @@
 
 using namespace linalg;
 
-void OutputLayer::forward(std::shared_ptr<BaseT> output, std::gslice const& slice, std::vector<unsigned> const& mask) const {
+void OutputLayer::forward(BufferT& outputs_, std::vector<unsigned> const& mask) const {
   // softmax
-    FeedForwardLayer::forward(output, slice, mask);
-    Tensor output_tensor(output, slice);
+    FeedForwardLayer::forward(outputs_, mask);
     #pragma omp parallel for
-    for(size_t i = 0; i < mask.size(); i++)
+    for(size_t i = 0; i < outputs_.size(); i++)
     {
-        const Matrix seq_matrix = input_tensor_({0, mask.at(i)}, {i}, ALL).mat(); // {max_seq, feature_size}
-        output_tensor({0, mask.at(i)}, i, ALL).mat() = seq_matrix.dot(W_).radd(b_);
-        output_tensor({0, mask.at(i)}, i, ALL).mat().softmax();
+        if (outputs_.at(i).rows() == 0)
+            continue;
+        auto& out = outputs_.at(i);
+        out.colwise()-=out.rowwise().maxCoeff();
+        out = out.array().exp();
+        Vect norm = out.rowwise().sum();
+        out.array().colwise() /= norm.array();
     }
 }

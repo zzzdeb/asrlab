@@ -14,7 +14,7 @@ public:
   OutputLayer(Configuration const& config);
   virtual ~OutputLayer();
 
-  void forward(std::shared_ptr<linalg::BaseT> output, std::gslice const& slice, std::vector<unsigned> const& mask) const override;
+  void forward(BufferT& outputs_, std::vector<unsigned> const& mask) const override;
 private:
 };
 

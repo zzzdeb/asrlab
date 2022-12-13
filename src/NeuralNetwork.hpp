@@ -31,12 +31,12 @@ struct FeatureBuffer {
 };
 
 struct OutputBuffer {
-  std::shared_ptr<std::valarray<float>> fwd_buffer;
-  std::shared_ptr<std::valarray<float>> bwd_buffer;
-  const std::gslice     slice;
+  using BufferT = std::vector<Matr>;
+  BufferT& fwd_buffer;
+  BufferT& bwd_buffer;
 
-  OutputBuffer(std::shared_ptr<std::valarray<float>> fwd_buffer, std::shared_ptr<std::valarray<float>> bwd_buffer, std::gslice const& slice)
-              : fwd_buffer(fwd_buffer), bwd_buffer(bwd_buffer), slice(slice) {
+  OutputBuffer(BufferT& fwd_buffer, BufferT& bwd_buffer)
+              : fwd_buffer(fwd_buffer), bwd_buffer(bwd_buffer) {
   }
 
   ~OutputBuffer() {
@@ -94,6 +94,8 @@ private:
 
   std::shared_ptr<std::valarray<float>> score_buffer_;
   std::shared_ptr<std::valarray<float>> error_buffer_;
+  BufferT escore_buffer_;
+  BufferT eerror_buffer_;
 
   const std::string    prior_path_;
   const float          prior_scale_;

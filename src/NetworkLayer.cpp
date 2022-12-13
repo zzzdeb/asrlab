@@ -35,4 +35,5 @@ void NetworkLayer::load(std::string const& path) {
     std::abort();
   }
   in.read(reinterpret_cast<char*>(&(*params_)[0]), params_->size() * sizeof(float));
+  update();
 }

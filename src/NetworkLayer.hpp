@@ -10,7 +10,7 @@
 #include <valarray>
 #include <functional>
 
-#include "Types.h"
+#include "Types.hpp"
 #include "Config.hpp"
 #include "LinAlg.h"
 
@@ -30,17 +30,16 @@ public:
 
   std::vector<std::string> const& get_input_layer_names() const;
 
-  std::shared_ptr<std::valarray<float>> get_input_buffer();
-  std::shared_ptr<std::valarray<float>> get_error_buffer();
+  BufferT& get_input_buffer();
+  BufferT& get_error_buffer();
   std::shared_ptr<std::valarray<float>> get_params();
   std::shared_ptr<std::valarray<float>> get_gradient();
 
   virtual void init_parameters(std::function<float()> const& generator) = 0;
-  virtual void forward (std::shared_ptr<std::valarray<float>> output,
-                        std::gslice const& slice, std::vector<unsigned> const& mask) const = 0;
+  virtual void forward (std::vector<Matr>& outputs_,
+                        std::vector<unsigned> const& mask) const = 0;
   virtual void backward_start() = 0;
-  virtual void backward(std::shared_ptr<std::valarray<float>> output, std::shared_ptr<std::valarray<float>> error,
-                        std::gslice const& slice, std::vector<unsigned> const& mask) = 0;
+  virtual void backward(BufferT& output, BufferT& error, std::vector<unsigned> const& mask) = 0;
   virtual void save(std::string const& path) const;
   virtual void load(std::string const& path);
   void update();
@@ -55,10 +54,8 @@ protected:
 
   std::vector<std::string> input_layer_names_;
 
-  std::shared_ptr<std::valarray<float>> input_buffer_; // feature_size * batch_size * max_seq_length
-  linalg::Tensor input_tensor_; //  Tensor input_tensor(input_buffer_, {max_seq_length_, batch_size_, feature_size_});
-  std::shared_ptr<std::valarray<float>> error_buffer_; // feature_size * batch_size * max_seq_length
-  linalg::Tensor error_tensor_;
+  BufferT input_buffer_;
+  BufferT error_buffer_;
 
   std::shared_ptr<std::valarray<float>> params_; // feature_size * output_size + output_size
   linalg::Matrix W_;
@@ -81,16 +78,14 @@ inline NetworkLayer::NetworkLayer(Configuration const& config)
                                    max_seq_length_(0ul),
                                    output_size_(paramOutputSize(config)),
                                    input_layer_names_(config.get_array<std::string>("input")) ,
-                                   input_buffer_(std::make_shared<linalg::BaseT>()),
-                                   input_tensor_(input_buffer_, {0, 0, 0}),
-                                   error_buffer_(std::make_shared<linalg::BaseT>()),
-                                   error_tensor_(error_buffer_, {0, 0, 0}),
+                                   input_buffer_(batch_size_),
+                                   error_buffer_(batch_size_),
                                    params_(std::make_shared<linalg::BaseT>()),
                                    W_(params_, {feature_size_, output_size_}),
-                                   b_(params_, {feature_size_}, feature_size_*output_size_),
+                                   b_(params_, {output_size_}, feature_size_*output_size_),
                                    gradient_(std::make_shared<linalg::BaseT>()),
                                    dW_(gradient_, {feature_size_, output_size_}),
-                                   db_(gradient_, {feature_size_}, feature_size_*output_size_)
+                                   db_(gradient_, {output_size_}, feature_size_*output_size_)
 {
 }
  
@@ -105,8 +100,8 @@ inline void NetworkLayer::set_input_sizes(size_t feature_size, size_t batch_size
   feature_size_   = feature_size;
   batch_size_     = batch_size;
   max_seq_length_ = max_seq_length;
-  input_tensor_.resize(max_seq_length, batch_size, feature_size);
-  error_tensor_.resize(max_seq_length, batch_size, feature_size);
+  input_buffer_.resize(batch_size);
+  error_buffer_.resize(batch_size);
 }
 
 inline size_t NetworkLayer::get_output_size() const {
@@ -117,11 +112,11 @@ inline std::vector<std::string> const& NetworkLayer::get_input_layer_names() con
   return input_layer_names_;
 }
 
-inline std::shared_ptr<std::valarray<float>> NetworkLayer::get_input_buffer() {
+inline BufferT& NetworkLayer::get_input_buffer() {
   return input_buffer_;
 }
 
-inline std::shared_ptr<std::valarray<float>> NetworkLayer::get_error_buffer() {
+inline BufferT& NetworkLayer::get_error_buffer() {
   return error_buffer_;
 }
 

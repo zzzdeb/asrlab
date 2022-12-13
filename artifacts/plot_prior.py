@@ -5,23 +5,23 @@ import sys
 import matplotlib.pyplot as plt
 from math import ceil, e
 import numpy as np
-import re
 
 _HEIGHT = 60
+_WIDTH = 200
 
 def _draw_group(g, epoch):
     lines = g.strip().split('\n')
     layers = []
     for l in range(4):
-        layers.append([float(i) for i in lines[l].split()[:-1]])
+        layers.append([float(i) for i in lines[l].split(' ')[:-1]])
 
-    _WIDTH = max([len(l) for l in layers])
+    print([len(l) for l in layers])
     YALL = np.arange(0, _HEIGHT, _HEIGHT / len(layers))
     color = 'go'
-    scales = []
     for i, layer in enumerate(layers):
-        scale = 10/max([abs(i) for i in layer])
-        scales.append(scale)
+        scale = 1
+        if (i == len(layers)-1):
+            scale = 10
         X = np.arange(0, _WIDTH, _WIDTH / len(layer))
         print(len(X))
         Y = np.zeros((len(X)))
@@ -31,20 +31,21 @@ def _draw_group(g, epoch):
             dv = np.sign(v) * np.log(np.abs(v))
             plt.plot([X[j], X[j]], [Y[j], Y[j] + scale*v], markersize=0.3)
 
-    plt.title(f'Epoch {epoch}, Scales {scales}')
-    margin = [_WIDTH/20, _HEIGHT/20]
-    plt.axis([-margin[0], _WIDTH+margin[0], -margin[1] - 10, _HEIGHT - margin[1]])
+    plt.title(f'Epoch {epoch}')
+    plt.axis([-1, _WIDTH+1, -20, _HEIGHT - 10])
     plt.show()
 
 def _main():
-    parser = argparse.ArgumentParser(prog = 'amscore_plot', description = 'plots linear segmentation')
+    parser = argparse.ArgumentParser(prog = 'prior-plot', description = 'plots linear segmentation')
     parser.add_argument('file')
     args = parser.parse_args()
     with open(args.file, 'r') as f:
-        file = f.read()
-    groups = file.split('==')[:-1]
-    for i, group in enumerate(groups[:]):
-        _draw_group(group, i)
+        prior = f.readlines()[0]
+    prior = [float(x) for x in prior.strip().split(' ')]
+    plt.title('Prior')
+    for i, p in enumerate(prior):
+        plt.plot([i, i], [0, p])
+    plt.show()
 
 if __name__ == '__main__':
     _main()

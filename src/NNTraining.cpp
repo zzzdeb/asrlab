@@ -389,10 +389,14 @@ void NnTrainer::train() {
     }
 
     std::stringstream ss;
-    ss << output_dir_ << '/' << epoch << '/';
+    ss << output_dir_ << '/' << epoch % 100 << '/';
     nn_.save(ss.str());
-    std::cerr << "Epoch train frame error-rate: " << (static_cast<double>(total_incorrect_frames) / static_cast<double>(total_frames))    << std::endl;
-    std::cerr << "Epoch cv    frame error-rate: " << (static_cast<double>(cv_errors)              / static_cast<double>(cv_total_frames)) << std::endl;
+    double err = (static_cast<double>(total_incorrect_frames) / static_cast<double>(total_frames));
+    double cv_er = (static_cast<double>(cv_errors)              / static_cast<double>(cv_total_frames));
+    std::cerr << "Epoch train frame error-rate: " <<  err << std::endl;
+    std::cerr << "Epoch cv    frame error-rate: " <<  cv_er << std::endl;
+    if (cv_er - err > 0.1)
+      break;
   }
 }
 

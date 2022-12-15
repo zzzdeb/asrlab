@@ -9,11 +9,18 @@ import re
 
 _HEIGHT = 60
 
-def _draw_group(g, epoch):
+_LAST_REF = []
+
+def _draw_group(g, time):
+    global _LAST_REF
     lines = g.strip().split('\n')
     layers = []
-    for l in range(4):
+    for l in range(5):
         layers.append([float(i) for i in lines[l].split()[:-1]])
+
+    if len(_LAST_REF) == len(layers[4]) and all([x == y for x, y in zip(layers[4], _LAST_REF)]):
+        return
+    _LAST_REF = layers[4][:]
 
     _WIDTH = max([len(l) for l in layers])
     YALL = np.arange(0, _HEIGHT, _HEIGHT / len(layers))
@@ -31,7 +38,7 @@ def _draw_group(g, epoch):
             dv = np.sign(v) * np.log(np.abs(v))
             plt.plot([X[j], X[j]], [Y[j], Y[j] + scale*v], markersize=0.3)
 
-    plt.title(f'Epoch {epoch}, Scales {scales}')
+    plt.title(f'Time {time}, Scales {scales}')
     margin = [_WIDTH/20, _HEIGHT/20]
     plt.axis([-margin[0], _WIDTH+margin[0], -margin[1] - 10, _HEIGHT - margin[1]])
     plt.show()

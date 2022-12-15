@@ -57,7 +57,6 @@ const ParameterString NeuralNetwork::paramLoadNeuralNetworkFrom("load-nn-from", 
 const ParameterString NeuralNetwork::paramPriorFile            ("prior-file", "");
 const ParameterFloat  NeuralNetwork::paramPriorScale           ("prior-scale", 0.0f);
 const ParameterUInt   NeuralNetwork::paramContextFrames        ("context-frames", 0); // this duplicates a parameter from MinibatchBuilder, it is only used if the NN is used as a feature-scorer
-const ParameterString  NeuralNetwork::paramNNOutFile        ("nn-out-file", "artifacts/nn.text");
 
 NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, size_t batch_size,
                              size_t max_seq_length, size_t num_classes)
@@ -71,8 +70,7 @@ NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, s
                               escore_buffer_(batch_size),
                               eerror_buffer_(batch_size),
                               prior_path_(paramPriorFile(config)), prior_scale_(paramPriorScale(config)),
-                              log_prior_(num_classes),
-                              out_file(paramNNOutFile(config))
+                              log_prior_(num_classes)
 {
   // first we create the layers from configs
   std::vector<Configuration> layer_configs = config.get_array<Configuration>("layers");
@@ -262,13 +260,6 @@ void NeuralNetwork::forward() {
                 if (r < escore_buffer_.at(i).rows())
                     (*score_buffer_)[r*batch_size_*num_classes_ + num_classes_ * i + c] = escore_buffer_.at(i)(r, c);
     }
-
-
-    for (size_t l = 0ul; l < output_infos_.size(); l++) {
-        auto& out = output_infos_[l][0];
-        out_file << out.fwd_buffer.at(0).row(0) << std::endl;
-    }
-    out_file << "==" << std::endl;
 }
 
 void NeuralNetwork::forward_visualize() {

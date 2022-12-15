@@ -49,7 +49,6 @@ public:
   static const ParameterString paramPriorFile;
   static const ParameterFloat  paramPriorScale;
   static const ParameterUInt   paramContextFrames;
-  static const ParameterString  paramNNOutFile;
 
   NeuralNetwork(Configuration const& config, size_t feature_size, size_t batch_size, size_t max_seq_length, size_t num_classes);
   ~NeuralNetwork();
@@ -74,6 +73,7 @@ public:
   void save(std::string const& folder) const;
   void load(std::string const& folder);
   void load_prior(); // only needed when the NN is used as a feature-scorer
+  auto& get_output_infos() { return output_infos_; }
 private:
   const size_t feature_size_;
   const size_t batch_size_;
@@ -102,7 +102,6 @@ private:
   std::valarray<float> log_prior_;
 
   void load_prior(std::string const& path);
-  std::ofstream out_file;
 };
 
 #endif /* __NEURAL_NETWORK_HPP__ */

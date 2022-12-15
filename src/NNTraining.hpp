@@ -133,6 +133,7 @@ public:
   static const ParameterBool   paramRandomParamInit;
   static const ParameterString paramOutputDir;
   static const ParameterString paramNNTrainingStatsPath;
+  static const ParameterString  paramNNOutFile;
 
   NnTrainer(Configuration const& config, MiniBatchBuilder& mini_batch_builder, NeuralNetwork& nn);
   virtual ~NnTrainer();
@@ -154,6 +155,9 @@ private:
 
   double compute_loss(std::shared_ptr<std::valarray<float>> hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
                       size_t max_frames, size_t batch_size, size_t num_classes) const;
+
+  std::ofstream out_file;
+  const std::string out_file_path;
 };
 
 // -------------------- inline functions --------------------

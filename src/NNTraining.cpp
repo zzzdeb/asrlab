@@ -250,13 +250,17 @@ const ParameterFloat  NnTrainer::paramLearningRate       ("learning-rate",      
 const ParameterBool   NnTrainer::paramRandomParamInit    ("random-param-init",      true);
 const ParameterString NnTrainer::paramOutputDir          ("output-dir",             "./models");
 const ParameterString NnTrainer::paramNNTrainingStatsPath("nn-training-stats-path", "");
+const ParameterString  NnTrainer::paramNNOutFile        ("nn-out-file", "");
 
 NnTrainer::NnTrainer(Configuration const& config, MiniBatchBuilder& mini_batch_builder, NeuralNetwork& nn)
                            : num_epochs_(paramNumEpochs(config)), start_epoch_(std::max(1u, paramStartEpoch(config))),
                              learning_rate_(paramLearningRate(config)), random_param_init_(paramRandomParamInit(config)),
                              output_dir_(paramOutputDir(config)), nn_training_stats_path_(paramNNTrainingStatsPath(config)),
                              rng_(paramSeed(config)), mini_batch_builder_(mini_batch_builder), nn_(nn),
-                             updater_(get_updater(paramUpdater(config), config, nn_.get_parameters(), nn_.get_gradients())) {
+                             updater_(get_updater(paramUpdater(config), config, nn_.get_parameters(), nn_.get_gradients())),
+                             out_file_path(paramNNOutFile(config))
+
+{
 }
 
 NnTrainer::~NnTrainer() {
@@ -331,6 +335,25 @@ void NnTrainer::train() {
                 << std::fixed << std::setprecision(6)
                 << " | loss: " << batch_loss
                 << " | time: " << batch_timer.secs() << std::endl;
+
+      if (batch == 0 && out_file_path != "") {
+        out_file.open(out_file_path);
+        const size_t seq = 0;
+        const auto& seqlen = nn_.get_batch_mask().at(seq);
+        const auto &output_infos = nn_.get_output_infos();
+        for (size_t r = 0; r < seqlen; r++) {
+          for (size_t l = 0ul; l < output_infos.size(); l++) {
+            const auto &out = output_infos[l][0].fwd_buffer.at(seq);
+            out_file << out.row(r) << std::endl;
+          }
+//          out_file << "=layers" << std::endl;
+          for (size_t cl = 0; cl < num_classes; cl++)
+            out_file << targets[batch_size * num_classes * r + num_classes * seq + cl] << " ";
+          out_file << std::endl;
+          out_file << "==" << std::endl;
+        }
+        out_file.close();
+      }
     }
 
     size_t cv_total_frames = 0ul;

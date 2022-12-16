@@ -1,0 +1,43 @@
+Linear alignment took 0.0944139 seconds
+Acoustic Model Training
+AM score: 33.8479
+Num densities: 199
+Computing alignment 52.6821s
+AM score (accumulate): 31.7208
+Num densities: 398
+AM score (post split): 31.426
+Computing alignment 13.7731s
+AM score (accumulate): 30.571
+AM score (accumulate): 30.5483
+AM score (accumulate): 30.5359
+AM score (accumulate): 30.5271
+AM score (accumulate): 30.5198
+Num densities: 796
+AM score (post split): 30.2785
+Computing alignment 10.7844s
+AM score (accumulate): 29.8314
+AM score (accumulate): 29.7888
+AM score (accumulate): 29.7667
+AM score (accumulate): 29.7507
+AM score (accumulate): 29.7379
+Num densities: 1586
+AM score (post split): 28.9571
+Computing alignment 11.7184s
+AM score (accumulate): 28.6919
+AM score (accumulate): 28.6567
+AM score (accumulate): 28.6323
+AM score (accumulate): 28.6111
+AM score (accumulate): 28.5907
+Num densities: 3080
+AM score (post split): 28.2019
+Computing alignment 14.7818s
+AM score (accumulate): 27.7087
+AM score (accumulate): 27.3625
+AM score (accumulate): 27.3114
+AM score (accumulate): 27.2538
+AM score (accumulate): 27.2187
+Estimation  took 19.4515 seconds
+Alignment   took 103.74 seconds
+IO          took 0.0941625 seconds
+Score comp. took 12.6217 seconds
+Training    took 136.021 seconds

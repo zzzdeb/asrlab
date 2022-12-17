@@ -206,9 +206,9 @@ const ParameterFloat SGDUpdater::paramLearningRate("learning-rate", 0.001);
 void SGDUpdater::update() {
     // W = W - speed * dW
     // b = b - speed * db
-    for(const auto& [lname, param] : parameters_) {
-        const auto& grad = gradients_.at(lname);
-        *param -= learning_rate_ * (*grad);
+    for(const auto& lnameParam : parameters_) {
+        const auto& grad = gradients_.at(lnameParam.first);
+        *lnameParam.second -= learning_rate_ * (*grad);
     }
 }
 
@@ -217,7 +217,9 @@ const ParameterFloat AdaDeltaUpdater::paramLearningRate("learning-rate", 0.001);
 
 void AdaDeltaUpdater::update() {
     float eps = 0.00000000001;
-    for(const auto& [lname, param] : parameters_) {
+      for(const auto& lnameParam : parameters_) {
+        const auto& lname = lnameParam.first;
+        const auto& param = lnameParam.second;
         const auto& grad = gradients_.at(lname);
 
         gradient_rms_.emplace(lname, std::valarray<float>(grad->size()));

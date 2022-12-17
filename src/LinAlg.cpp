@@ -34,11 +34,11 @@ namespace linalg {
     void LinObj::sigmoid() {
         // 1/(1+e^-x)
         std::valarray<float>  v = get();
-        get() = 1 / (1 + std::exp(-v));
+//        get() = 1 / (1 + std::exp(-v));
     }
     void LinObj::dsigmoid() {
         std::valarray<float>  v = get();
-        get() = v * (1 - v);
+//        get() = v * (1 - v);
     }
 
     float& Matrix::at(size_t i, size_t j) {

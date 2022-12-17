@@ -35,8 +35,10 @@ def _main():
             Y = [p[1] for p in line]
             if height > 1:
                 current_plt = axs[i%width, int(i/width)]
-            else:
+            elif width > 1:
                 current_plt = axs[int((i+1)/width)]
+            else:
+                current_plt = axs
             current_plt.plot(X, Y)
             #  current_plt.ylabel('Energy')
             #  current_plt.xlabel('Time')

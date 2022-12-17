@@ -78,6 +78,12 @@ private:
   std::shared_ptr<const Lexicon> lexicon_;
   MixtureModel& mixtures_;
   Aligner aligner_;
+  struct Count {
+      size_t min{std::numeric_limits<size_t>::max()};
+      size_t count;
+      size_t sum;
+  };
+  std::unordered_map<WordIdx, Count> count;
 
   void write_linear_segmentation(std::string const& feature_path, size_t speech_begin, size_t speech_end,
                                  FeatureIter feature_begin, FeatureIter feature_end) const;

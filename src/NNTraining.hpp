@@ -34,6 +34,7 @@ public:
   size_t feature_size() const;
   size_t num_train_batches() const;
   size_t num_cv_batches() const;
+  const Corpus& get_corpus() const { return corpus_; }
 
   void shuffle();
   void build_batch(size_t batch_index, bool cv, std::valarray<float>& output, std::gslice const& slice,

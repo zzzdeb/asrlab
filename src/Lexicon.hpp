@@ -24,6 +24,7 @@ public:
 
   MarkovAutomaton const& get_silence_automaton() const;
   MarkovAutomaton const& get_automaton_for_word(WordIdx word_idx) const;
+  std::string const& get_orth(WordIdx word_idx) const { return orth_.at(word_idx); };
 
   StateIdx num_states() const;
   WordIdx  num_words() const;

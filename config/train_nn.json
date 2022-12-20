@@ -1,0 +1,73 @@
+{
+  "action": "train-nn",
+
+  "num-epochs": 1000000000,
+  "target-file": "artifacts/alignment.dump",
+  "feature-scorer": "nn",
+  "prior-file": "artifacts/prior.data",
+  "updater": "adadelta",
+  "load-nn-from": "models/74/",
+  "nn-out-file": "artifacts/nn.text",
+  "learning-rate": 0.99,
+  "batch-size": 32,
+  "cv-size": 0.1,
+  "layers": [
+    {
+      "layer-name": "ff1",
+      "type": "feed-forward",
+      "num-outputs": 400,
+      "input": [
+        "data"
+      ],
+      "nonlinearity": "tanh"
+    },
+    {
+      "layer-name": "ff2",
+      "type": "feed-forward",
+      "num-outputs": 400,
+      "input": [
+        "ff1"
+      ],
+      "nonlinearity": "relu"
+    },
+    {
+      "layer-name": "output",
+      "type": "output",
+      "num-outputs": 199,
+      "input": [
+        "ff2"
+      ]
+    }
+  ],
+
+  "corpus":       "corpora/demo_corpus.json",
+  "lexicon-path": "config/initial.lex",
+  "audio-path":   "data/audio/",
+  "audio-format": "sph",
+  "feature-path": "data/features/",
+
+  "sample-rate":    8000,
+  "window-shift":     10,
+  "window-size":      25,
+  "dft-length":     1024,
+  "n-mel-features":   15,
+  "n-features-file":  12,
+  "n-features-first": 12,
+  "n-features-second": 1,
+  "deriv-step":        3,
+
+  "tdp-loop": 0.0,
+  "tdp-forward": 0.0,
+  "tdp-skip": 0.0,
+
+  "min-obs":        1,
+  "num-splits":     3,
+  "num-aligns":     1,
+  "num-estimates":  20,
+  "num-max-aligns": 1,
+  
+  "mixture-path": "iter-",
+  "alignment-path": "alignments/alignment-",
+  "training-stats-path": "am_scores.data",
+  "normalization-path": "data/Normalization.bin" 
+}

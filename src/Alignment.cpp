@@ -67,7 +67,7 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
     {
       std::vector<double> to_scores;
       for (size_t i = 0; i <= std::min(2ul, s); i++)
-        to_scores.emplace_back(prev[s - i] + tdp_model_.score(s, i));
+        to_scores.emplace_back(prev[s - i] + tdp_model_.score(reference[s], i));
       auto min = std::min_element(to_scores.begin(), to_scores.end());
       auto argmin = min - to_scores.begin();//min and to_scores.begin() are pointers here, argmin is from {0,1,2}
       if (*min == INF) {
@@ -86,10 +86,14 @@ double Aligner::align_sequence_full(FeatureIter feature_begin, FeatureIter featu
   for(auto it = align_end-1; it != align_begin; it--) {
     size_t t = it - align_begin;
     (*it)->state = reference[s];
+    (*it)->weight = 1;
+    (*it)->count = 1;
     s -= B[t * S + s];//to see the state of last t should minus 0,1 or 2
     // std::cout << s << ",";
   }
   (*align_begin)->state = reference[s];//s=0 now
+  (*align_begin)->weight = 1;
+  (*align_begin)->count = 1;
   // std::cout << s << std::endl;
   return prev.at(S-1);//the prev now store the cur updated at the last column
 }
@@ -147,10 +151,14 @@ double Aligner::align_sequence_pruned(FeatureIter feature_begin, FeatureIter fea
   for(auto it = align_end-1; it != align_begin; it--) {
     size_t t = it - align_begin;
     (*it)->state = reference[s];
+    (*it)->count = 1;
+    (*it)->weight = 1;
     s -= B[t * S + s];
     // std::cout << s << ",";
   }
   (*align_begin)->state = reference[s];
+  (*align_begin)->count = 1;
+  (*align_begin)->weight = 1;
   // std::cout << s << std::endl;
   return prev.at(S-1);
 }

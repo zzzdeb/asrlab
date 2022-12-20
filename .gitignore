@@ -1,5 +1,8 @@
 src/.build/**
-build/**
+*build*/**
+models/*
+alignments/*
+.idea/*
 asrlab
 data/Normalization.bin
 *.mix

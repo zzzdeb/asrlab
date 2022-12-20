@@ -31,6 +31,30 @@
         "miDebuggerPath": "/usr/bin/gdb"
         },
         {
+        "name": "recognize train_demo_train",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/asrlab",
+        "args" : ["config/train_demo_corpus.config", "recognize"],
+        "environment": [{ "name": "config", "value": "Debug" }],
+        "cwd": "${workspaceFolder}",
+        "MIMode": "gdb",
+        "preLaunchTask": "CMake: build",
+        "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+        "name": "trainnn",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/asrlab",
+        "args" : ["config/train_nn.config"],
+        "environment": [{ "name": "config", "value": "Debug" }],
+        "cwd": "${workspaceFolder}",
+        "MIMode": "gdb",
+        "preLaunchTask": "CMake: build",
+        "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
         "name": "test",
         "type": "cppdbg",
         "request": "launch",

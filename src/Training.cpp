@@ -151,21 +151,47 @@ void Trainer::train(Corpus const& corpus) {
         // realignment
         std::cerr << "Computing alignment" << std::endl;
         align_timer.tick();
+        count.clear();
         for (SegmentIdx s = 0ul; s < corpus.get_corpus_size(); s++) {
           std::pair<FeatureIter, FeatureIter> seq = corpus.get_feature_sequence(s);
-          AlignmentIter alignment_begin(&*(alignment.begin() + segment_offsets[s]     * num_max_aligns_), num_max_aligns_);
-          AlignmentIter alignment_end  (&*(alignment.begin() + segment_offsets[s+1ul] * num_max_aligns_), num_max_aligns_);
+          AlignmentIter alignment_begin(&*(alignment.begin() + segment_offsets[s] * num_max_aligns_), num_max_aligns_);
+          AlignmentIter alignment_end(&*(alignment.begin() + segment_offsets[s + 1ul] * num_max_aligns_),
+                                      num_max_aligns_);
           if (alignment_pruning_) {
             aligner_.align_sequence_pruned(seq.first, seq.second,
                                            segment_automata[s],
                                            alignment_begin, alignment_end,
                                            pruning_threshold_);
-          }
-          else {
+          } else {
             aligner_.align_sequence_full(seq.first, seq.second,
                                          segment_automata[s],
                                          alignment_begin, alignment_end);
           }
+
+          int last = -1;
+          AlignmentIter beg = alignment_begin;
+          for (auto align = alignment_begin; align < alignment_end; align++)
+            for(size_t s = 0; s < lexicon_->num_words(); s++) {
+              const auto &aut = lexicon_->get_automaton_for_word(s);
+              if ((*align)->state <= aut.last_state() && (*align)->state >= aut.first_state()) {
+                size_t dist = align - beg;
+                if (last == -1) {
+                  last = s;
+                  continue;
+                }
+                if (s != last) {
+                  count[last].min = std::min(dist, count[last].min);
+                  count[last].count++;
+                  count[last].sum += dist;
+                  last = s;
+                  beg = align;
+                }
+              }
+            }
+        }
+        for(size_t s = 0; s < lexicon_->num_words(); s++) {
+          if (count.find(s) != count.end())
+            std::cout << "Word " << lexicon_->get_orth(s) << " to " << count.at(s).min << " " << static_cast<double>(count.at(s).sum)/ count.at(s).count<< " " << count.at(s).sum << " " <<count.at(s).count << " "<< std::endl;
         }
         align_timer.tock();
 
@@ -226,8 +252,13 @@ void Trainer::train(Corpus const& corpus) {
 
 MarkovAutomaton Trainer::build_segment_automaton(WordIter segment_begin, WordIter segment_end) const {
   std::vector<MarkovAutomaton const *> automata;
-  std::transform(segment_begin, segment_end, std::back_inserter(automata), [this](const WordIdx& widx)
-            { return &lexicon_->get_automaton_for_word(widx); });
+  const auto& sa = lexicon_->get_silence_automaton();
+  automata.resize((segment_end-segment_begin) * 2 + 1);
+  automata.at(0) = &sa;
+  for (size_t i = 0; i < segment_end - segment_begin; i++) {
+    automata.at(2*i + 1) = &lexicon_->get_automaton_for_word(*(segment_begin + i));
+    automata.at(2*i + 2) = &sa;
+  }
   return MarkovAutomaton::concat(automata);
 }
 
@@ -286,19 +317,19 @@ std::pair<size_t, size_t> Trainer::linear_segmentation(MarkovAutomaton const &au
   }
   // align from n0 to n1 into automaton.states.front()
   for (auto iter = align_begin; iter < align_begin + boundaries.first; iter++)
-    (*iter)->state = 0;
+    (*iter)->state = automaton.states.front();
 
   // align from n2 to n3 into automaton.states.back()
   for (auto iter = align_begin+boundaries.second; iter < align_end; iter++)
-    (*iter)->state = 0;
+    (*iter)->state = automaton.states.back();
   
   // align from n1 to n2 into automaton.states.begin() +1 -> automaton.states.end() - 1;
   size_t speech_size = boundaries.second - boundaries.first;
-  size_t speech_align_size = automaton.states.size();
+  size_t speech_align_size = automaton.states.size() - 2;
   double factor = static_cast<double>(speech_align_size) / speech_size;
   for (auto iter = align_begin+boundaries.first; iter < align_begin + boundaries.second; iter++) {
     size_t align_dist = iter - (align_begin + boundaries.first);
-    (*iter)->state = automaton.states.at(align_dist * factor);
+    (*iter)->state = automaton.states.at(align_dist * factor + 1);
   }
 
   return boundaries;

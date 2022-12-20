@@ -140,8 +140,8 @@ int main(int argc, const char *argv[]) {
     }
   }
 /*****************************************************************************/
-  else if (action == "train-nn" or action == "compute-prior") {
-    const ParameterUInt paramBatchSize("batch-size", 32u);
+  else if (action == "train-nn" or action == "compute-prior" or action == "visualize-nn") {
+    const ParameterUInt paramBatchSize("batch-size", 35u);
     const unsigned batch_size(paramBatchSize(config));
 
     Corpus corpus;
@@ -150,21 +150,42 @@ int main(int argc, const char *argv[]) {
     MiniBatchBuilder mini_batch_builder(config, corpus, batch_size, lexicon->num_states(), lexicon->get_silence_automaton()[0]);
     NeuralNetwork    nn(config, mini_batch_builder.feature_size(), batch_size, corpus.get_max_seq_length(), lexicon->num_states());
 
-    if (action == "train-nn") {
+    if (action == "train-nn" or action == "visualize-nn") {
       NnTrainer nn_trainer(config, mini_batch_builder, nn);
       nn_trainer.train();
-    }
+      if (action == "visualize-nn") {}
+        nn.forward_visualize();
+    } 
     else { // action == "compute-prior"
       const ParameterString paramPriorFile("prior-file", "");
-      std::string prior_file = paramPriorFile(config);
+      const std::string prior_file = paramPriorFile(config);
 
       std::ofstream out(prior_file, std::ios::out | std::ios::trunc);
       if (not out.good()) {
         std::cerr << "Could not open prior-file: " << prior_file << std::endl;
         std::abort();
       }
+      const size_t num_classes = lexicon->num_states();
+      std::valarray<float> prior(num_classes);
+      std::valarray<float> targets;
 
-      // TODO: implement
+      for (size_t batch = 0ul; batch < mini_batch_builder.num_train_batches(); batch++) {
+          nn.get_feature_buffer() = 0.0f;
+          mini_batch_builder.build_batch(batch, false,
+                                         nn.get_feature_buffer(),
+                                         nn.get_feature_buffer_slice(),
+                                         targets,
+                                         nn.get_batch_mask());
+          nn.forward();
+          const std::valarray<float>& score_buffer = *nn.get_score_buffer();
+          for (size_t i = 0; i < nn.get_batch_mask().size(); i++)
+            for (size_t j = 0; j < nn.get_batch_mask()[i]; j++) {
+                prior += score_buffer[std::slice((i * mini_batch_builder.max_seq_length() + j) * num_classes, num_classes, 1)];
+          }
+      }
+      prior /= prior.sum(); // todo(ze) some priors are zero.
+      for (size_t i = 0; i < prior.size(); i++)
+          out << prior[i] << " ";
     }
   }
 /*****************************************************************************/

@@ -23,14 +23,14 @@ public:
   FeedForwardLayer(Configuration const& config);
   virtual ~FeedForwardLayer();
 
-  virtual void init(bool input_error_needed);
+  void init(bool input_error_needed) override;
 
-  virtual void init_parameters(std::function<float()> const& generator);
-  virtual void forward (std::valarray<float>& output,
-                        std::gslice const& slice, std::vector<unsigned> const& mask) const;
-  virtual void backward_start();
-  virtual void backward(std::valarray<float>& output, std::valarray<float>& error,
-                        std::gslice const& slice, std::vector<unsigned> const& mask);
+  void init_parameters(std::function<float()> const& generator) override;
+  void forward(BufferT& outputs_, std::vector<unsigned> const& mask) const override;
+  void backward_start() override;
+  void backward(BufferT& output, BufferT& error,
+                        std::vector<unsigned> const& mask) override;
+  void nonlinear_backward(BufferT& output, BufferT& error, std::vector<unsigned> const& mask);
 protected:
   FeedForwardLayer(Configuration const& config, Nonlinearity nonlinearity);
 private:

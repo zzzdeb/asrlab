@@ -65,10 +65,13 @@ NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, s
                               initialized_(false), feature_buffer_(0.0f, feature_size * batch_size * max_seq_length),
                               feature_buffer_start_(&feature_buffer_[0], feature_size / (2ul * context_frames_ + 1ul)),
                               batch_mask_(batch_size, 0ul),
-                              score_buffer_(max_seq_length * batch_size * num_classes),
-                              error_buffer_(max_seq_length * batch_size * num_classes),
+                              score_buffer_(std::make_shared<std::valarray<float>>(max_seq_length * batch_size * num_classes)),
+                              error_buffer_(std::make_shared<std::valarray<float>>(max_seq_length * batch_size * num_classes)),
+                              escore_buffer_(batch_size),
+                              eerror_buffer_(batch_size),
                               prior_path_(paramPriorFile(config)), prior_scale_(paramPriorScale(config)),
-                              log_prior_(num_classes) {
+                              log_prior_(num_classes)
+{
   // first we create the layers from configs
   std::vector<Configuration> layer_configs = config.get_array<Configuration>("layers");
   layers_.resize(layer_configs.size());
@@ -137,37 +140,28 @@ NeuralNetwork::NeuralNetwork(Configuration const& config, size_t feature_size, s
     }
 
     layers_[l]->set_input_sizes(fdim, batch_size_, max_seq_length_);
-    std::valarray<float>& input_buffer = layers_[l]->get_input_buffer();
-    std::valarray<float>& error_buffer = layers_[l]->get_error_buffer();
+    auto& input_buffer = layers_[l]->get_input_buffer();
+    auto& error_buffer = layers_[l]->get_error_buffer();
     size_t offset = 0ul;
     for (std::string const& input : layers_[l]->get_input_layer_names()) {
       if (input == "data") {
         output_infos_[0].push_back(OutputBuffer(input_buffer,
-                                                error_buffer,
-                                                std::gslice(offset,
-                                                            {   max_seq_length_, batch_size_, feature_size_},
-                                                            {batch_size_ * fdim,        fdim,             1})));
+                                                error_buffer));
         offset += feature_size_;
       }
       else {
         size_t idx = name_to_idx[input];
         output_infos_[idx + 1].push_back(OutputBuffer(input_buffer,
-                                                      error_buffer,
-                                                      std::gslice(offset,
-                                                                  {   max_seq_length_, batch_size_, layers_[idx]->get_output_size()},
-                                                                  {batch_size_ * fdim,        fdim,                               1})));
+                                                      error_buffer));
         offset += layers_[idx]->get_output_size();
       }
     }
     layers_[l]->init(input_error_needed[l]);
-    parameters_[layers_[l]->get_layer_name()] = &layers_[l]->get_params();
-    gradients_ [layers_[l]->get_layer_name()] = &layers_[l]->get_gradient();
+    parameters_[layers_[l]->get_layer_name()] = layers_[l]->get_params();
+    gradients_ [layers_[l]->get_layer_name()] = layers_[l]->get_gradient();
   }
-  output_infos_.back().push_back(OutputBuffer(score_buffer_,
-                                              error_buffer_,
-                                              std::gslice(0,
-                                                          { max_seq_length_, batch_size_, num_classes_ },
-                                                          { batch_size_ * num_classes_, num_classes_, 1ul })));
+  output_infos_.back().push_back(OutputBuffer(escore_buffer_,
+                                              eerror_buffer_));
 
   std::string path = paramLoadNeuralNetworkFrom(config);
   if (not path.empty()) {
@@ -186,15 +180,16 @@ void NeuralNetwork::prepare_sequence(FeatureIter const& start, FeatureIter const
                         context_frames_, feature_buffer_, get_feature_buffer_slice());
   batch_mask_[0ul] = std::distance(start, end);
   forward();
-  score_buffer_ = -std::log(score_buffer_);
+  auto& score_buffer = *score_buffer_;
+  score_buffer = -std::log(score_buffer);
   for (size_t t = 0ul; t < batch_mask_[0ul]; t++) {
-    score_buffer_[std::slice(t * num_classes_, num_classes_, 1ul)] += log_prior_;
+    score_buffer[std::slice(t * num_classes_, num_classes_, 1ul)] += log_prior_;
   }
 }
 
 double NeuralNetwork::score(FeatureIter const& iter, StateIdx state_idx) const {
   size_t frame = std::distance(feature_buffer_start_, iter);
-  return score_buffer_[frame * num_classes_ + state_idx];
+  return (*score_buffer_)[frame * num_classes_ + state_idx];
 }
 
 std::valarray<float>& NeuralNetwork::get_feature_buffer() {
@@ -211,7 +206,7 @@ std::vector<unsigned>& NeuralNetwork::get_batch_mask() {
   return batch_mask_;
 }
 
-std::valarray<float> const& NeuralNetwork::get_score_buffer() const {
+std::shared_ptr<std::valarray<float>> const NeuralNetwork::get_score_buffer() const {
   return score_buffer_;
 }
 
@@ -224,11 +219,11 @@ NetworkLayer* NeuralNetwork::get_network_layer(std::string const& name) {
   return nullptr;
 }
 
-std::map<std::string, std::valarray<float>*> const& NeuralNetwork::get_parameters() const {
+std::map<std::string, std::shared_ptr<std::valarray<float>>> const& NeuralNetwork::get_parameters() const {
   return parameters_;
 }
 
-std::map<std::string, std::valarray<float>*> const& NeuralNetwork::get_gradients() const {
+std::map<std::string, std::shared_ptr<std::valarray<float>>> const& NeuralNetwork::get_gradients() const {
   return gradients_;
 }
 
@@ -236,6 +231,7 @@ void NeuralNetwork::init_parameters(std::function<float()> const& generator) {
   if (not initialized_) {
     for (auto& layer : layers_) {
       layer->init_parameters(generator);
+      layer->update();
     }
     initialized_ = true;
   }
@@ -244,32 +240,66 @@ void NeuralNetwork::init_parameters(std::function<float()> const& generator) {
 void NeuralNetwork::forward() {
   // set input features
   for (auto& out : output_infos_[0ul]) {
-    out.fwd_buffer[out.slice] = feature_buffer_;
+      for (size_t i=0; i< out.fwd_buffer.size(); i++)
+          out.fwd_buffer.at(i) = valarr_to_matr(feature_buffer_, std::gslice(i * feature_size_, {batch_mask_.at(i), feature_size_}, {batch_size_*feature_size_, 1}));
   }
   for (size_t l = 0ul; l < layers_.size(); l++) {
     OutputBuffer& out = output_infos_[l + 1ul][0ul];
-    layers_[l]->forward(out.fwd_buffer, out.slice, batch_mask_);
+      for (size_t i=0; i< out.fwd_buffer.size(); i++)
+          out.fwd_buffer.at(i).resize(batch_mask_.at(i), layers_[l]->get_output_size());
+    layers_[l]->forward(out.fwd_buffer, batch_mask_);
     for (size_t o = 1ul; o < output_infos_[l + 1ul].size(); o++) {
       OutputBuffer& out2 = output_infos_[l + 1ul][o];
-      out2.fwd_buffer[out.slice] = out.fwd_buffer[out2.slice];
+      out2.fwd_buffer = out.fwd_buffer;
     }
   }
+    *score_buffer_ = 0;
+    for (size_t r = 0; r < max_seq_length_; r++)
+        for (size_t i=0; i< escore_buffer_.size(); i++) {
+            for (size_t c = 0; c < escore_buffer_.at(i).cols(); c++)
+                if (r < escore_buffer_.at(i).rows())
+                    (*score_buffer_)[r*batch_size_*num_classes_ + num_classes_ * i + c] = escore_buffer_.at(i)(r, c);
+    }
+}
+
+void NeuralNetwork::forward_visualize() {
+  // set input features
+//  for (auto& out : output_infos_[0ul]) {
+//      (*out.fwd_buffer)[out.slice] = feature_buffer_;
+//  }
+//  for (size_t l = 0ul; l < layers_.size(); l++) {
+//    OutputBuffer& out = output_infos_[l + 1ul][0ul];
+//    layers_[l]->forward(out.fwd_buffer, out.slice, batch_mask_);
+//    for (size_t o = 1ul; o < output_infos_[l + 1ul].size(); o++) {
+//      OutputBuffer& out2 = output_infos_[l + 1ul][o];
+//      out2.fwd_buffer[out.slice] = out.fwd_buffer[out2.slice];
+//    }
+//  }
 }
 
 void NeuralNetwork::backward(std::valarray<float> const& targets) {
-  if (score_buffer_.size() != targets.size()) {
-    std::cerr << "target size is wrong. is: " << targets.size() << " should be: " << score_buffer_.size() << std::endl;
-    abort();
-  }
+    auto slice = [&](size_t i){return std::gslice(i * num_classes_, {batch_mask_.at(i), num_classes_}, {num_classes_ * batch_size_, 1});};
+    if (score_buffer_->size() != targets.size()) {
+        std::cerr << "target size is wrong. is: " << targets.size() << " should be: " << score_buffer_->size() << std::endl;
+        abort();
+    }
 
-  error_buffer_ = score_buffer_ - targets; // we compute the gradient for the softmax output here
+  *error_buffer_ = *score_buffer_ - targets; // we compute the gradient for the softmax output here
+  for (size_t i=0; i< eerror_buffer_.size(); i++)
+      eerror_buffer_.at(i) = valarr_to_matr(*error_buffer_, slice(i));
   for (size_t l = layers_.size(); l > 0ul; l--) {
     layers_[l-1ul]->backward_start();
     for (size_t o = 0ul; o < output_infos_[l].size(); o++) {
       OutputBuffer& out = output_infos_[l][o];
-      layers_[l-1ul]->backward(out.fwd_buffer, out.bwd_buffer, out.slice, batch_mask_);
+      layers_[l-1ul]->backward(out.fwd_buffer, out.bwd_buffer, batch_mask_);
     }
   }
+}
+
+void NeuralNetwork::update() {
+    for (size_t i = 0; i< layers_.size(); i++) {
+        layers_[i]->update();
+    }
 }
 
 void NeuralNetwork::save(std::string const& folder) const {

@@ -204,14 +204,42 @@ std::pair<size_t, size_t> MiniBatchBuilder::sequence_boundaries(size_t begin, si
 const ParameterFloat SGDUpdater::paramLearningRate("learning-rate", 0.001);
 
 void SGDUpdater::update() {
-  // TODO: implement
+    // W = W - speed * dW
+    // b = b - speed * db
+    for(const auto& lnameParam : parameters_) {
+        const auto& grad = gradients_.at(lnameParam.first);
+        *lnameParam.second -= learning_rate_ * (*grad);
+    }
 }
 
 const ParameterFloat AdaDeltaUpdater::paramAdaDeltaMomentum("adadelta-momentum", 0.90);
 const ParameterFloat AdaDeltaUpdater::paramLearningRate("learning-rate", 0.001);
 
 void AdaDeltaUpdater::update() {
-  // TODO: implement
+    float eps = 0.00000000001;
+      for(const auto& lnameParam : parameters_) {
+        const auto& lname = lnameParam.first;
+        const auto& param = lnameParam.second;
+        const auto& grad = gradients_.at(lname);
+
+        gradient_rms_.emplace(lname, std::valarray<float>(grad->size()));
+        update_rms_.emplace(lname, std::valarray<float>(grad->size()));
+        update_buffer_.resize(grad->size());
+
+        auto& g_rms = gradient_rms_.at(lname);
+        auto& u_rms = update_rms_.at(lname);
+        for(size_t i = 0; i < grad->size(); i++) {
+            float& u = update_buffer_[i];
+            const float& g = (*grad)[i];
+            float& E_g2 = g_rms[i];
+            float& E_u2 = u_rms[i];
+            E_g2 = momentum_ * E_g2 + (1 - momentum_) * (g * g);
+            u = -std::sqrt(E_u2 + eps) / std::sqrt(E_g2 + eps) * g;
+            E_u2 = momentum_ * E_u2 + (1 - momentum_) * (u * u);
+        }
+        assert(param->size() == update_buffer_.size());
+        *param += learning_rate_ * update_buffer_;
+    }
 }
 
 // -------------------- NnTrainer  --------------------
@@ -224,13 +252,17 @@ const ParameterFloat  NnTrainer::paramLearningRate       ("learning-rate",      
 const ParameterBool   NnTrainer::paramRandomParamInit    ("random-param-init",      true);
 const ParameterString NnTrainer::paramOutputDir          ("output-dir",             "./models");
 const ParameterString NnTrainer::paramNNTrainingStatsPath("nn-training-stats-path", "");
+const ParameterString  NnTrainer::paramNNOutFile        ("nn-out-file", "");
 
 NnTrainer::NnTrainer(Configuration const& config, MiniBatchBuilder& mini_batch_builder, NeuralNetwork& nn)
                            : num_epochs_(paramNumEpochs(config)), start_epoch_(std::max(1u, paramStartEpoch(config))),
                              learning_rate_(paramLearningRate(config)), random_param_init_(paramRandomParamInit(config)),
                              output_dir_(paramOutputDir(config)), nn_training_stats_path_(paramNNTrainingStatsPath(config)),
                              rng_(paramSeed(config)), mini_batch_builder_(mini_batch_builder), nn_(nn),
-                             updater_(get_updater(paramUpdater(config), config, nn_.get_parameters(), nn_.get_gradients())) {
+                             updater_(get_updater(paramUpdater(config), config, nn_.get_parameters(), nn_.get_gradients())),
+                             out_file_path(paramNNOutFile(config))
+
+{
 }
 
 NnTrainer::~NnTrainer() {
@@ -274,7 +306,7 @@ void NnTrainer::train() {
       for (size_t t = 0ul; t < max_len; t++) {
         for (size_t b = 0ul; b < batch_size; b++) {
           if (t < nn_.get_batch_mask()[b]) {
-            float const* score_begin = &nn_.get_score_buffer()[t * batch_size * num_classes + b * num_classes];
+            float const* score_begin = &(*nn_.get_score_buffer())[t * batch_size * num_classes + b * num_classes];
             float const* max_score   = std::max_element(score_begin, score_begin + num_classes);
             size_t       hyp_class   = std::distance(score_begin, max_score);
 
@@ -293,6 +325,7 @@ void NnTrainer::train() {
 
       nn_.backward(targets);
       updater_->update();
+      nn_.update();
 
       total_frames           += batch_frames;
       total_incorrect_frames += incorrect_frames;
@@ -304,6 +337,25 @@ void NnTrainer::train() {
                 << std::fixed << std::setprecision(6)
                 << " | loss: " << batch_loss
                 << " | time: " << batch_timer.secs() << std::endl;
+
+      if (batch == 0 && out_file_path != "") {
+        out_file.open(out_file_path);
+        const size_t seq = 0;
+        const auto& seqlen = nn_.get_batch_mask().at(seq);
+        const auto &output_infos = nn_.get_output_infos();
+        for (size_t r = 0; r < seqlen; r++) {
+          for (size_t l = 0ul; l < output_infos.size(); l++) {
+            const auto &out = output_infos[l][0].fwd_buffer.at(seq);
+            out_file << out.row(r) << std::endl;
+          }
+//          out_file << "=layers" << std::endl;
+          for (size_t cl = 0; cl < num_classes; cl++)
+            out_file << targets[batch_size * num_classes * r + num_classes * seq + cl] << " ";
+          out_file << std::endl;
+          out_file << "==" << std::endl;
+        }
+        out_file.close();
+      }
     }
 
     size_t cv_total_frames = 0ul;
@@ -321,7 +373,7 @@ void NnTrainer::train() {
       for (size_t t = 0ul; t < max_len; t++) {
         for (size_t b = 0ul; b < batch_size; b++) {
           if (t < nn_.get_batch_mask()[b]) {
-            float const* score_begin = &nn_.get_score_buffer()[t * batch_size * num_classes + b * num_classes];
+            float const* score_begin = &(*nn_.get_score_buffer())[t * batch_size * num_classes + b * num_classes];
             float const* max_score   = std::max_element(score_begin, score_begin + num_classes);
             size_t       hyp_class   = std::distance(score_begin, max_score);
 
@@ -339,14 +391,18 @@ void NnTrainer::train() {
     }
 
     std::stringstream ss;
-    ss << output_dir_ << '/' << epoch << '/';
+    ss << output_dir_ << '/' << epoch % 100 << '/';
     nn_.save(ss.str());
-    std::cerr << "Epoch train frame error-rate: " << (static_cast<double>(total_incorrect_frames) / static_cast<double>(total_frames))    << std::endl;
-    std::cerr << "Epoch cv    frame error-rate: " << (static_cast<double>(cv_errors)              / static_cast<double>(cv_total_frames)) << std::endl;
+    double err = (static_cast<double>(total_incorrect_frames) / static_cast<double>(total_frames));
+    double cv_er = (static_cast<double>(cv_errors)              / static_cast<double>(cv_total_frames));
+    std::cerr << "Epoch train frame error-rate: " <<  err << std::endl;
+    std::cerr << "Epoch cv    frame error-rate: " <<  cv_er << std::endl;
+    if (cv_er - err > 0.1)
+      break;
   }
 }
 
-double NnTrainer::compute_loss(std::valarray<float>  const& hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
+double NnTrainer::compute_loss(const std::shared_ptr<std::valarray<float>> hyp, std::valarray<float>  const& ref, std::vector<unsigned> const& batch_mask,
                                size_t max_frames, size_t batch_size, size_t num_classes) const {
   double sum = 0.0;
   size_t num_frames = 0ul;
@@ -359,7 +415,7 @@ double NnTrainer::compute_loss(std::valarray<float>  const& hyp, std::valarray<f
       size_t b_idx = t_idx + b * num_classes;
       num_frames += 1ul;
       for (size_t f = 0ul; f < num_classes; f++) {
-        double hyp_prob = hyp[b_idx + f];
+        double hyp_prob = (*hyp)[b_idx + f];
         double ref_prob = ref[b_idx + f];
         if (ref_prob > 0.0 and hyp_prob > 0.0) {
           sum += ref_prob * std::log(hyp_prob);

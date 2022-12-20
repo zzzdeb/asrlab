@@ -43,6 +43,10 @@ struct EDAccumulator {
   void deletion_error()     { total_count++; delete_count++;     }
 };
 
+bool operator==(EDAccumulator const& a, EDAccumulator const& b);
+bool operator<(EDAccumulator const& a, EDAccumulator const& b);
+std::ostream& operator<<(std::ostream& os, EDAccumulator const& b);
+
 class Recognizer {
 public:
   static const ParameterBool   paramLookahead;
@@ -57,7 +61,7 @@ public:
   void recognize(Corpus const& corpus);
   void recognizeSequence(FeatureIter feature_begin, FeatureIter feature_end, std::vector<WordIdx>& output);
 
-  EDAccumulator editDistance(WordIter ref_begin, WordIter ref_end, WordIter rec_begin, WordIter rec_end);
+  static EDAccumulator editDistance(WordIter ref_begin, WordIter ref_end, WordIter rec_begin, WordIter rec_end);
 private:
   const double am_threshold_;
   const double word_penalty_;

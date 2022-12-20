@@ -18,6 +18,7 @@
 /*****************************************************************************/
 
 namespace {
+    static const double INF = std::numeric_limits<double>::infinity();//define the positiv infinity of Double in the namespace
 }
 
 /*****************************************************************************/
@@ -82,9 +83,48 @@ void Recognizer::recognizeSequence(FeatureIter feature_begin, FeatureIter featur
 /*****************************************************************************/
 
 EDAccumulator Recognizer::editDistance(WordIter ref_begin, WordIter ref_end, WordIter rec_begin, WordIter rec_end) {
-  EDAccumulator result;
-  // TODO: implement
-  return result;
+  const auto EDINS = EDAccumulator(1, 0, 1, 0);
+  const auto EDDEL = EDAccumulator(1, 0, 0, 1);
+  const auto EDSUB = EDAccumulator(1, 1, 0, 0);
+
+  size_t m = ref_end - ref_begin;
+  size_t n = rec_end - rec_begin;
+
+  std::vector<EDAccumulator> prev(m + 1);
+  for (size_t i = 1; i <= m; i++) {
+    prev.at(i) = prev.at(i-1) + EDINS;
+  }
+  std::vector<EDAccumulator> cur(m + 1);
+
+  for(size_t i = 1; i <= n; i++) {
+    for (size_t j = 0; j <= m; j++) {
+      if (j == 0) {
+        cur.at(j) = prev.at(j) + EDDEL;
+        continue;
+      }
+      std::vector<EDAccumulator> hyps{
+          prev.at(j) + EDDEL,
+          cur.at(j - 1) + EDINS,
+      };
+      if (*(ref_begin + j - 1) == *(rec_begin + i - 1))
+        hyps.emplace_back(prev.at(j - 1));
+      else
+        hyps.emplace_back(prev.at(j - 1) + EDSUB);
+      cur.at(j) = *std::min_element(hyps.begin(), hyps.end());
+    }
+    std::swap(cur, prev);
+  }
+  return prev.back();
+}
+
+bool operator==(EDAccumulator const& a, EDAccumulator const& b) {
+  return a.total_count == b.total_count && a.delete_count == b.delete_count && a.insert_count == b.insert_count && a.substitute_count == b.substitute_count;
+}
+bool operator<(EDAccumulator const& a, EDAccumulator const& b) {
+  return a.total_count < b.total_count;
+}
+std::ostream& operator<<(std::ostream& os, EDAccumulator const& b){
+  return os << b.total_count << '|' << b.substitute_count << '|' << b.insert_count << '|' << b.delete_count << '|';
 }
 
 /*****************************************************************************/

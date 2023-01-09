@@ -137,6 +137,21 @@ void Recognizer::recognizeSequence(FeatureIter feature_begin, FeatureIter featur
         cur.at(w).at(s) = d(t, s, w) + *min;
         B.at(w).at(t + s * T) = B.at(w).at(t - 1 + T * (s - argmin));
       }
+
+      if (true) { // pruning
+        double best_hyp = INF;
+        for (auto &wordD: cur) {
+          double cur_best = *std::min_element(wordD.begin(), wordD.end());
+          if (cur_best < best_hyp)
+            best_hyp = cur_best;
+        }
+        double threshold = best_hyp + am_threshold_;
+
+        for (auto &wordD: cur)
+          for (auto &stateD: wordD)
+            if (stateD > threshold)
+              stateD = INF;
+      }
     }
     WordIdx w_min = 0;
     double min_score = INF;

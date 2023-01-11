@@ -58,6 +58,16 @@ int main(int argc, const char *argv[]) {
   corpus_description.read(lexicon);
   SignalAnalysis analyzer(config);
 
+  if (action != "extract-features") {
+    if (normalization_path.size() > 0) {
+      std::ifstream normalization_stream(normalization_path.c_str(), std::ios_base::in);
+      if (not normalization_stream.good()) {
+        std::cerr << "Error: could not open normalization file" << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      analyzer.read_normalization_file(normalization_stream);
+    }
+  }
 /*****************************************************************************/
   if (action == "extract-features") {
     const ParameterString paramAudioPath  ("audio-path",   "");
@@ -86,14 +96,6 @@ int main(int argc, const char *argv[]) {
   }
 /*****************************************************************************/
   else if (action == "train" or action == "recognize" or action == "pruning-stat") {
-    if (normalization_path.size() > 0) {
-      std::ifstream normalization_stream(normalization_path.c_str(), std::ios_base::in);
-      if (not normalization_stream.good()) {
-        std::cerr << "Error: could not open normalization file" << std::endl;
-        exit(EXIT_FAILURE);
-      }
-      analyzer.read_normalization_file(normalization_stream);
-    }
     Corpus corpus;
     corpus.read(corpus_description, feature_path, analyzer);
 

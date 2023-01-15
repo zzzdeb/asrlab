@@ -137,8 +137,18 @@ int main(int argc, const char *argv[]) {
         exit(EXIT_FAILURE);
       }
 
-      Recognizer recognizer(config, lexicon, *fs, tdp_model);
-      recognizer.recognize(corpus);
+      if (true) {
+        Recognizer recognizer(config, lexicon, *fs, tdp_model);
+        recognizer.recognize(corpus);
+      } else { // many threshold
+        std::vector<double> thresholds{1000000, 500, 250, 100, 25};
+        for (const auto& threshold : thresholds) {
+          Recognizer recognizer(config, lexicon, *fs, tdp_model);
+          recognizer.threshold() = threshold;
+          recognizer.recognize(corpus);
+          std::cout << "AM_THRESHOLD = " << threshold << std::endl << std::endl;
+        }
+      }
     }
   }
 /*****************************************************************************/

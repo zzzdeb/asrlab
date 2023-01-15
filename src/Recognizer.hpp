@@ -62,8 +62,9 @@ public:
   void recognizeSequence(FeatureIter feature_begin, FeatureIter feature_end, std::vector<WordIdx>& output);
 
   static EDAccumulator editDistance(WordIter ref_begin, WordIter ref_end, WordIter rec_begin, WordIter rec_end);
+  auto& threshold() { return am_threshold_; }
 private:
-  const double am_threshold_;
+  double am_threshold_;
   const double word_penalty_;
 
   std::shared_ptr<const Lexicon>& lexicon_;

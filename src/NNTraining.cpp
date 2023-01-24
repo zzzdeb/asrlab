@@ -216,7 +216,7 @@ const ParameterFloat AdaDeltaUpdater::paramAdaDeltaMomentum("adadelta-momentum",
 const ParameterFloat AdaDeltaUpdater::paramLearningRate("learning-rate", 0.001);
 
 void AdaDeltaUpdater::update() {
-    float eps = 0.00000000001;
+    float eps = 0.000001;
       for(const auto& lnameParam : parameters_) {
         const auto& lname = lnameParam.first;
         const auto& param = lnameParam.second;

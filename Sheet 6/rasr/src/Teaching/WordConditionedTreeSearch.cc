@@ -4,6 +4,8 @@
 #include <vector>
 #include "WordConditionedTreeSearch.hh"
 #include "BookKeeping.hh"
+#include <string>
+#include <sstream>
 
 using namespace Teaching;
 
@@ -28,6 +30,9 @@ private:
 
         /** mixtures of arc */
         MixtureSequence mixtures;
+
+        Word word;
+        size_t depth;
 
         TreeLexiconArc(Arc succArcBegin, Arc succArcEnd, Word endingWord, const MixtureSequence &mixtures) : succArcBegin(succArcBegin), succArcEnd(succArcEnd), endingWord(endingWord), mixtures(mixtures) {
         }
@@ -115,8 +120,157 @@ public:
     }
 };
 
-TreeLexicon::TreeLexicon(const Lexicon &lexicon) {
-    //TODO
+struct TreeNode {
+    std::map<Phoneme, TreeNode> children;
+    Word endingWord;
+    Word word;
+    size_t depth = 0;
+    std::string mark;
+};
+
+TreeLexicon::TreeLexicon(const Lexicon &lexicon) :
+  nWords_(lexicon.nWords()),
+  silence_(lexicon.silence()),
+  silenceMixture_(lexicon.silenceMixture())
+{
+  TreeNode root;
+  size_t nodeid = 0;
+  for (Word w = 0; w < nWords_; ++w) {
+    std::cout << "Word " << w << " " << lexicon.symbol(w) << std::endl;
+    TreeNode* currentNode = &root;
+
+    for (int p = 0; p < lexicon.nPhonemes(w); ++p) {
+      Phoneme curPhon = lexicon.getPhoneme(w, p);
+      std::map<Phoneme, TreeNode>::iterator it = currentNode->children.find(curPhon);
+      if (it == currentNode->children.end()) {
+        TreeNode childNode;
+        childNode.endingWord = invalidWord;
+        childNode.word = w;
+        childNode.depth = currentNode->depth+1;
+        {
+          std::stringstream ss;
+          ss << nodeid++;
+          childNode.mark = ss.str();
+        }
+        currentNode->children[curPhon] = childNode;
+      }
+      currentNode = &currentNode->children[curPhon];
+      std::cout << lexicon.format(*lexicon.allophone(w, p))  << " ";
+    }
+    TreeNode childNode;
+    childNode.endingWord = w;
+    childNode.word = w;
+    childNode.depth = currentNode->depth+1;
+    childNode.mark = "\"" + lexicon.symbol(w) + "\"";
+    currentNode->children[-1] = childNode;
+    std::cout << std::endl;
+  }
+
+  std::queue<TreeNode*> queue;
+  size_t last_arc = 0;
+  size_t current_arc_pos = 0;
+  {
+    std::map<Phoneme, TreeNode>::iterator child = root.children.begin();
+    for (;child != root.children.end(); child++) {
+      queue.push(&child->second);
+      MixtureSequence mixtures;
+      treeLexiconArcs_.push_back(TreeLexiconArc(0, 0, child->second.endingWord, mixtures));
+    }
+    last_arc = treeLexiconArcs_.size();
+  }
+
+  while (!queue.empty()) {
+    TreeNode& currentNode = *queue.front();
+    std::map<Phoneme, TreeNode>::iterator child = currentNode.children.begin();
+    for (;child != currentNode.children.end(); child++) {
+      queue.push(&child->second);
+
+      MixtureSequence mixtures;
+      treeLexiconArcs_.push_back(TreeLexiconArc(0, 0, child->second.endingWord, mixtures));
+    }
+    {
+      size_t numChild = currentNode.children.size();
+      TreeLexiconArc& current = treeLexiconArcs_.at(current_arc_pos++);
+      current.succArcBegin = last_arc;
+      current.succArcEnd = current.succArcBegin + numChild;
+      current.endingWord = currentNode.endingWord;
+      current.depth = currentNode.depth;
+      current.word = currentNode.word;
+      if (current.endingWord < lexicon.nWords())
+        current.mixtures = *lexicon.mixtures(current.word, current.depth - 2);
+      last_arc = current.succArcEnd;
+    }
+    queue.pop();
+  }
+  std::cerr << "HERE" << std::endl;
+
+  std::cout << "digraph tree {" << std::endl;
+//  {
+//    std::queue<TreeNode*> queue;
+//    {
+//      {
+//        std::map<Phoneme, TreeNode>::iterator child = root.children.begin();
+//        for (; child != root.children.end(); child++) {
+//          queue.push(&child->second);
+//        }
+//      }
+//      size_t i = 0;
+//
+//      while (!queue.empty()) {
+//        TreeNode &currentNode = *queue.front();
+//        std::cout << currentNode.mark << std::endl;
+//        std::map<Phoneme, TreeNode>::iterator child = currentNode.children.begin();
+//        for (; child != currentNode.children.end(); child++) {
+//          queue.push(&child->second);
+//        }
+//        queue.pop();
+//      }
+//    }
+//    {
+//      {
+//        std::map<Phoneme, TreeNode>::iterator child = root.children.begin();
+//        for (; child != root.children.end(); child++) {
+//          queue.push(&child->second);
+//        }
+//      }
+//      while (!queue.empty()) {
+//        TreeNode &currentNode = *queue.front();
+//        std::map<Phoneme, TreeNode>::iterator child = currentNode.children.begin();
+//        for (; child != currentNode.children.end(); child++) {
+//          queue.push(&child->second);
+//          std::cout << currentNode.mark << " -> " << child->second.mark;
+//          std::cout << " [label=\"" << lexicon.format(*lexicon.allophone(child->second.word, child->second.depth-2)) << "\"];" << std::endl;
+//        }
+//        queue.pop();
+//      }
+//    }
+//  }
+
+  for (int i = 0; i < treeLexiconArcs_.size(); ++i) {
+    const TreeLexiconArc& currentArc = treeLexiconArcs_.at(i);
+    if (currentArc.endingWord < lexicon.nWords())
+      std::cout << '"' << lexicon.symbol(currentArc.endingWord) << '"' << ";" << std::endl;
+    else
+      std::cout << i << ";" << std::endl;
+  }
+  for (int i = 0; i < treeLexiconArcs_.size(); ++i) {
+    TreeLexiconArc& currentArc = treeLexiconArcs_.at(i);
+    for (int j = currentArc.succArcBegin; j < currentArc.succArcEnd; ++j) {
+      TreeLexiconArc& childArc = treeLexiconArcs_.at(j);
+      if (currentArc.endingWord < lexicon.nWords())
+        std::cout << '"' << lexicon.symbol(currentArc.endingWord) << '"';
+      else
+        std::cout << i;
+      std::cout << " -> ";
+      if (childArc.endingWord < lexicon.nWords())
+        std::cout << '"' << lexicon.symbol(childArc.endingWord) << '"';
+      else
+        std::cout << j;
+
+      std::cout << " [label=\"" << lexicon.format(*lexicon.allophone(childArc.word, childArc.depth-2)) << "\"];" << std::endl;
+    }
+  }
+  std::cout << "}";
 }
 
 // -------------------------------------------------------------------------------------------------

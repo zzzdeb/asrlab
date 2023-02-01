@@ -1,0 +1,3004 @@
+{
+  "segments": [
+    {
+      "gender": "male",
+      "name": "m/463/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/tel1_num.08",
+      "orth": "zwei sechs drei eins null null",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/tel2_num.08",
+      "orth": "eins drei sieben sechs fuenf null",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/463/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "463"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/tel2_num.08",
+      "orth": "null zwo zwo acht neun drei zwei fuenf fuenf vier",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/464/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "464"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/tel2_num.08",
+      "orth": "null acht neun sechs drei sechs zwo drei sieben vier",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/z51_ket.08",
+      "orth": "zwo drei vier eins neun",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/465/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "465"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/nu_zw_nu.08",
+      "orth": "null zwo null",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/tel2_num.08",
+      "orth": "eins vier sieben drei drei zwo vier",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/466/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "466"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/tel1_num.08",
+      "orth": "null acht neun zwo eins acht null",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/tel2_num.08",
+      "orth": "null acht neun sechs drei sechs sieben zwo drei sieben vier",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/z52_ket.08",
+      "orth": "sieben fuenf null sechs acht",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/467/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "467"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/tel2_num.08",
+      "orth": "sieben eins acht acht eins drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/z51_ket.08",
+      "orth": "zwo drei vier eins neun",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/468/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "468"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/tel2_num.08",
+      "orth": "drei null null fuenf vier acht null",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/470/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "470"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/tel1_num.08",
+      "orth": "null acht neun sieben drei zwei neun eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/471/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "471"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/tel1_num.08",
+      "orth": "drei sechs eins vier drei neun fuenf",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/tel2_num.08",
+      "orth": "fuenf acht neun sieben vier sieben drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/473/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "473"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/tel1_num.08",
+      "orth": "null sechs fuenf fuenf drei fuenf zwei eins drei fuenf sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/tel2_num.08",
+      "orth": "null eins drei null fuenf eins drei fuenf sechs",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/475/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "475"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ac_zo_fu.08",
+      "orth": "acht zwei fuenf",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ne_ei_zo.08",
+      "orth": "neun eins zwei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/tel1_num.08",
+      "orth": "sieben eins acht vier neun drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/tel2_num.08",
+      "orth": "drei acht vier sieben neun drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zo_ac_si.08",
+      "orth": "zwei acht sieben",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zo_dr_fu.08",
+      "orth": "zwei drei fuenf",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/477/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "477"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/tel1_num.08",
+      "orth": "null sechs eins acht eins zwo neun zwo eins fuenf",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/tel2_num.08",
+      "orth": "null sechs neun drei drei acht vier acht",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/479/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "479"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/nu_vi_ne.08",
+      "orth": "null vier neun",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/nu_zw_nu.08",
+      "orth": "null zwei null",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/se_ac_ei.08",
+      "orth": "sechs acht eins",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/se_vi_ei.08",
+      "orth": "sechs vier eins",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/si_ac_se.08",
+      "orth": "sieben acht sechs",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/si_vi_se.08",
+      "orth": "sieben vier sechs",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/tel1_num.08",
+      "orth": "acht drei eins vier vier zwo",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/tel2_num.08",
+      "orth": "acht drei eins vier vier zwo",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/vi_ac_vi.08",
+      "orth": "vier acht vier",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/vi_vi_dr.08",
+      "orth": "vier vier drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/z51_ket.08",
+      "orth": "zwei drei vier eins neun",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/z52_ket.08",
+      "orth": "sieben null fuenf sechs acht",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zo_ac_si.08",
+      "orth": "zwo acht sieben",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zo_dr_fu.08",
+      "orth": "zwo drei fuenf",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zo_ne_zo.08",
+      "orth": "zwo neun zwo",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zo_si_dr.08",
+      "orth": "zwo sieben drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zo_zo_ei.08",
+      "orth": "zwo zwo eins",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zw_ei_dr.08",
+      "orth": "zwei eins drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zw_fu_ei.08",
+      "orth": "zwei fuenf eins",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zw_vi_zw.08",
+      "orth": "zwei vier zwei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/480/zw_zw_dr.08",
+      "orth": "zwei zwei drei",
+      "speaker": "480"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ac_fu_dr.08",
+      "orth": "acht fuenf drei",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ac_zo_fu.08",
+      "orth": "acht zwo fuenf",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/dr_ac_dr.08",
+      "orth": "drei acht drei",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/dr_se_ne.08",
+      "orth": "drei sechs neun",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/dr_si_zw.08",
+      "orth": "drei sieben zwei",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ei_ei_zw.08",
+      "orth": "eins eins zwei",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ei_nu_dr.08",
+      "orth": "eins null drei",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ei_se_si.08",
+      "orth": "eins sechs sieben",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/fu_ac_ac.08",
+      "orth": "fuenf acht acht",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/fu_nu_se.08",
+      "orth": "fuenf null sechs",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/fu_si_se.08",
+      "orth": "fuenf sieben sechs",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/fu_vi_ne.08",
+      "orth": "fuenf vier neun",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/fu_zw_nu.08",
+      "orth": "fuenf zwei null",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ne_ei_zo.08",
+      "orth": "neun eins zwo",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/ne_ne_se.08",
+      "orth": "neun neun sechs",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/nu_ac_ne.08",
+      "orth": "null acht neun",
+      "speaker": "482"
+    },
+    {
+      "gender": "male",
+      "name": "m/482/nu_nu_ei.08",
+      "orth": "null null eins",
+      "speaker": "482"
+    }
+  ]
+}

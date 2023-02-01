@@ -58,6 +58,16 @@ int main(int argc, const char *argv[]) {
   corpus_description.read(lexicon);
   SignalAnalysis analyzer(config);
 
+  if (action != "extract-features") {
+    if (normalization_path.size() > 0) {
+      std::ifstream normalization_stream(normalization_path.c_str(), std::ios_base::in);
+      if (not normalization_stream.good()) {
+        std::cerr << "Error: could not open normalization file" << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      analyzer.read_normalization_file(normalization_stream);
+    }
+  }
 /*****************************************************************************/
   if (action == "extract-features") {
     const ParameterString paramAudioPath  ("audio-path",   "");
@@ -86,14 +96,6 @@ int main(int argc, const char *argv[]) {
   }
 /*****************************************************************************/
   else if (action == "train" or action == "recognize" or action == "pruning-stat") {
-    if (normalization_path.size() > 0) {
-      std::ifstream normalization_stream(normalization_path.c_str(), std::ios_base::in);
-      if (not normalization_stream.good()) {
-        std::cerr << "Error: could not open normalization file" << std::endl;
-        exit(EXIT_FAILURE);
-      }
-      analyzer.read_normalization_file(normalization_stream);
-    }
     Corpus corpus;
     corpus.read(corpus_description, feature_path, analyzer);
 
@@ -135,8 +137,18 @@ int main(int argc, const char *argv[]) {
         exit(EXIT_FAILURE);
       }
 
-      Recognizer recognizer(config, lexicon, *fs, tdp_model);
-      recognizer.recognize(corpus);
+      if (true) {
+        Recognizer recognizer(config, lexicon, *fs, tdp_model);
+        recognizer.recognize(corpus);
+      } else { // many threshold
+        std::vector<double> thresholds{1000000, 500, 250, 100, 25};
+        for (const auto& threshold : thresholds) {
+          Recognizer recognizer(config, lexicon, *fs, tdp_model);
+          recognizer.threshold() = threshold;
+          recognizer.recognize(corpus);
+          std::cout << "AM_THRESHOLD = " << threshold << std::endl << std::endl;
+        }
+      }
     }
   }
 /*****************************************************************************/

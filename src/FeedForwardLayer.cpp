@@ -112,7 +112,7 @@ void FeedForwardLayer::backward(BufferT& output, BufferT& error, std::vector<uns
     // dW = input * dENL
     #pragma omp parallel for
     for(size_t j = 0; j < output.size(); j++) {
-        edW_ = input_buffer_.at(j).transpose() * error.at(j);
+        edW_ += input_buffer_.at(j).transpose() * error.at(j);
     }
     edW_.array() /= num_features;
     for(auto& out: error)
@@ -132,10 +132,9 @@ void FeedForwardLayer::backward(BufferT& output, BufferT& error, std::vector<uns
 
 void FeedForwardLayer::nonlinear_backward(BufferT& output, BufferT& error, std::vector<unsigned> const& mask) {
     // Out = output; dE = error
-    auto sigmoid = [](const float& v) -> float { return 1 / (1 - std::exp(-v));};
-    auto dsigmoid = [&sigmoid](const float& v) -> float { auto s = sigmoid(v); return s * (1 - s); };
+    auto dsigmoid = [](const float& v) -> float { return v * (1 - v); };
     auto drelu = [](const float& v) -> float { return v > 0 ? 1 : 0; };
-    auto dtanh = [](const float& v) -> float { return 1 - std::pow(std::tanh(v), 2); };
+    auto dtanh = [](const float& v) -> float { return 1 - std::pow(v, 2); };
     switch(nonlinearity_) {
         case Nonlinearity::None:
             // dENL = dE

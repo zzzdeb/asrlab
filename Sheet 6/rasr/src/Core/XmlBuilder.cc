@@ -17,9 +17,9 @@
 
 namespace Core {
 
-    /*
-      void XmlStringBuilderElement::characters(const char *ch, int len) {
-      product_.append(ch, len);
-      }
-    */
+/*
+  void XmlStringBuilderElement::characters(const char *ch, int len) {
+  product_.append(ch, len);
+  }
+*/
 } // namespace Core

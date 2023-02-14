@@ -14,4 +14,3 @@
 #include "Debug.hh"
 
 using namespace Core;
-

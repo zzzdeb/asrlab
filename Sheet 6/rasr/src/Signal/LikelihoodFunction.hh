@@ -19,75 +19,86 @@
 
 namespace Signal {
 
-    /** Base class for likelihood functions implementing
-     *  the class dependent density of feature vector sequence: p(x_1^t | k).
-     */
-    class LikelihoodFunction : public virtual Core::Component {
-    public:
-	typedef f32 Score;
-	typedef f32 Data;
-	typedef f32 Weight;
-	typedef std::vector<Score> ScoreVector;
-    private:
-	Weight sumOfWeights_;
-    public:
-	LikelihoodFunction(const Core::Configuration &c) : Component(c), sumOfWeights_(0) {}
-	virtual ~LikelihoodFunction() {}
+/** Base class for likelihood functions implementing
+ *  the class dependent density of feature vector sequence: p(x_1^t | k).
+ */
+class LikelihoodFunction : public virtual Core::Component {
+public:
+  typedef f32 Score;
+  typedef f32 Data;
+  typedef f32 Weight;
+  typedef std::vector<Score> ScoreVector;
 
-	virtual bool setClasses(const std::vector<std::string> &classLabels) = 0;
-	virtual bool setDimension(size_t dimension) { return true; }
+private:
+  Weight sumOfWeights_;
 
-	virtual void reset() { sumOfWeights_ = 0; }
+public:
+  LikelihoodFunction(const Core::Configuration &c)
+      : Component(c), sumOfWeights_(0) {}
+  virtual ~LikelihoodFunction() {}
 
-	/** Accumulates the scores for @param featureVector weighted by @param featureScoreWeight.
-	 * The scores for @param featureVector are written in @param scores (if present)
-	 */
-	virtual void feed(const std::vector<Data> &featureVector, Weight featureScoreWeight, ScoreVector *scores = 0) {
-	    sumOfWeights_ += featureScoreWeight;
-	}
-	/** Returns the current score for the class @param classIndex. */
-	virtual Score operator[](u32 classIndex) = 0;
-	/** Returns the sum of feature score weights. */
-	Weight sumOfWeights() const { return sumOfWeights_; }
-    };
+  virtual bool setClasses(const std::vector<std::string> &classLabels) = 0;
+  virtual bool setDimension(size_t dimension) { return true; }
 
+  virtual void reset() { sumOfWeights_ = 0; }
 
-    /** IndependentSequenceLikelihood implements the class dependent density of feature vector sequence:
-     *    sum_{t} ( - log p(x_t | k) )
-     *
-     *  Assumptions:
-     *    (i) feature vectors are independent
-     *    (ii) classes are independent
-     *
-     *  Density p(x_t | k) is dependent on the FeatureScorer object.
-     */
-    class IndependentSequenceLikelihood : public LikelihoodFunction {
-	typedef LikelihoodFunction Precursor;
-    private:
-	std::vector<Score> scores_;
+  /** Accumulates the scores for @param featureVector weighted by @param
+   * featureScoreWeight. The scores for @param featureVector are written in
+   * @param scores (if present)
+   */
+  virtual void feed(const std::vector<Data> &featureVector,
+                    Weight featureScoreWeight, ScoreVector *scores = 0) {
+    sumOfWeights_ += featureScoreWeight;
+  }
+  /** Returns the current score for the class @param classIndex. */
+  virtual Score operator[](u32 classIndex) = 0;
+  /** Returns the sum of feature score weights. */
+  Weight sumOfWeights() const { return sumOfWeights_; }
+};
 
-	/** Object providing -log( p(x_t | k) ) scores
-	 */
-	Core::Ref<Mm::FeatureScorer> logLikelihoodFunctions_;
-    private:
-	/** Copying of Mm::FeatureScorer not supported. */
-	IndependentSequenceLikelihood(const IndependentSequenceLikelihood &v) :
-	    Component(v.getConfiguration()), Precursor(v.getConfiguration()) {}
-	IndependentSequenceLikelihood& operator=(const IndependentSequenceLikelihood&) { return *this; }
-    public:
-	IndependentSequenceLikelihood(const Core::Configuration &c);
-	virtual ~IndependentSequenceLikelihood();
+/** IndependentSequenceLikelihood implements the class dependent density of
+ * feature vector sequence: sum_{t} ( - log p(x_t | k) )
+ *
+ *  Assumptions:
+ *    (i) feature vectors are independent
+ *    (ii) classes are independent
+ *
+ *  Density p(x_t | k) is dependent on the FeatureScorer object.
+ */
+class IndependentSequenceLikelihood : public LikelihoodFunction {
+  typedef LikelihoodFunction Precursor;
 
-	virtual bool setClasses(const std::vector<std::string> &classLabels);
-	virtual bool setDimension(size_t dimension);
+private:
+  std::vector<Score> scores_;
 
-	virtual void reset();
+  /** Object providing -log( p(x_t | k) ) scores
+   */
+  Core::Ref<Mm::FeatureScorer> logLikelihoodFunctions_;
 
-	/** Accumulates the scores for @param featureVector. */
-	virtual void feed(const std::vector<Data> &featureVector, Weight featureScoreWeight = 1, ScoreVector *scores = 0);
-	/** Returns the current score for the class @param classIndex. */
-	virtual Score operator[](u32 classIndex) { return scores_[classIndex]; }
-    };
+private:
+  /** Copying of Mm::FeatureScorer not supported. */
+  IndependentSequenceLikelihood(const IndependentSequenceLikelihood &v)
+      : Component(v.getConfiguration()), Precursor(v.getConfiguration()) {}
+  IndependentSequenceLikelihood &
+  operator=(const IndependentSequenceLikelihood &) {
+    return *this;
+  }
+
+public:
+  IndependentSequenceLikelihood(const Core::Configuration &c);
+  virtual ~IndependentSequenceLikelihood();
+
+  virtual bool setClasses(const std::vector<std::string> &classLabels);
+  virtual bool setDimension(size_t dimension);
+
+  virtual void reset();
+
+  /** Accumulates the scores for @param featureVector. */
+  virtual void feed(const std::vector<Data> &featureVector,
+                    Weight featureScoreWeight = 1, ScoreVector *scores = 0);
+  /** Returns the current score for the class @param classIndex. */
+  virtual Score operator[](u32 classIndex) { return scores_[classIndex]; }
+};
 
 } // namespace Signal
 

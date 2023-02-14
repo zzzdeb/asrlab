@@ -14,19 +14,21 @@
 #include <Core/Application.hh>
 #include <Core/BinaryStream.hh>
 
+#include "FeatureScorer.hh"
 #include "MixtureSet.hh"
 #include "MixtureSetEstimator.hh"
-#include "FeatureScorer.hh"
 #include "Module.hh"
 
 class TestApplication : public Core::Application {
 public:
-    TestApplication() : Core::Application() {
-	INIT_MODULE(Mm)
-	setTitle("check");
-    }
-    virtual std::string getUsage() const { return "short program to test Mm features\n"; }
-    int main(const std::vector<std::string> &arguments);
+  TestApplication() : Core::Application() {
+    INIT_MODULE(Mm)
+    setTitle("check");
+  }
+  virtual std::string getUsage() const {
+    return "short program to test Mm features\n";
+  }
+  int main(const std::vector<std::string> &arguments);
 };
 
 /*****************************************************************************/
@@ -34,8 +36,8 @@ int TestApplication::main(const std::vector<std::string> &arguments)
 /*****************************************************************************/
 {
 
-    Mm::Module::instance().createFeatureScorer(config);
-    return 0;
+  Mm::Module::instance().createFeatureScorer(config);
+  return 0;
 }
 
 APPLICATION(TestApplication)

@@ -18,14 +18,14 @@
 
 namespace Search {
 
-    typedef f32 Score;
-    typedef u32 TimeframeIndex;
-    static TimeframeIndex InvalidTimeframeIndex = Core::Type<u32>::max;
+typedef f32 Score;
+typedef u32 TimeframeIndex;
+static TimeframeIndex InvalidTimeframeIndex = Core::Type<u32>::max;
 
-    typedef u32 Index;
-    typedef std::vector<Index> IndexVector;
-    static const Index noIndex = Core::Type<Index>::max;
+typedef u32 Index;
+typedef std::vector<Index> IndexVector;
+static const Index noIndex = Core::Type<Index>::max;
 
-}
+} // namespace Search
 
 #endif // _SEARCH_TYPES_HH

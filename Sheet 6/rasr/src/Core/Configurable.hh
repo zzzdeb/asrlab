@@ -20,37 +20,38 @@
 
 namespace Core {
 
-    /**
-     * Abstract base class for run-time configurable classes.
-     *
-     * Each run-time configurable class must inherit Configurable to
-     * ensure automatic creation of the selection hierarchy and passing of
-     * configuration.
-     */
+/**
+ * Abstract base class for run-time configurable classes.
+ *
+ * Each run-time configurable class must inherit Configurable to
+ * ensure automatic creation of the selection hierarchy and passing of
+ * configuration.
+ */
 
-    class Configurable {
-    protected:
-	Configuration config;
-    public:
-	Configurable(const Configuration &c) : config(c) {}
+class Configurable {
+protected:
+  Configuration config;
 
-	Configuration& getConfiguration() { return config; }
-	const Configuration& getConfiguration() const { return config; }
+public:
+  Configurable(const Configuration &c) : config(c) {}
 
-	const std::string& name() const { return config.getName(); }
+  Configuration &getConfiguration() { return config; }
+  const Configuration &getConfiguration() const { return config; }
 
-	/**
-	 * Run-time name of the component. This is just the
-	 * configuration path.
-	 */
-	const std::string& fullName() const { return config.getSelection(); }
+  const std::string &name() const { return config.getName(); }
 
-    protected:
-	Configuration select(const std::string &selection) const {
-	    return Configuration(config, selection);
-	}
-    };
+  /**
+   * Run-time name of the component. This is just the
+   * configuration path.
+   */
+  const std::string &fullName() const { return config.getSelection(); }
 
-}
+protected:
+  Configuration select(const std::string &selection) const {
+    return Configuration(config, selection);
+  }
+};
+
+} // namespace Core
 
 #endif // _CORE_CONFIGURABLE_HH

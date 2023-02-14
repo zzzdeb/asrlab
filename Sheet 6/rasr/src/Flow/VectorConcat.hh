@@ -14,57 +14,58 @@
 #ifndef _FLOW_VECTOR_CONCAT_HH
 #define _FLOW_VECTOR_CONCAT_HH
 
-#include <Core/Types.hh>
 #include "Merger.hh"
 #include "Vector.hh"
+#include <Core/Types.hh>
 
 namespace Flow {
 
-    /**
-     * Vector concatenation filter.
-     * All input packets must be vectors, which will be concatenated
-     * into a single vector.
-     * Inputs: many, dynamically generated.
-     * Outputs: one
-     * All inputs consume the same nummber of packets.  The dimension of
-     * the output vector will be the sum of the dimensions of all input
-     * vectors.  The time stamp of the output vector is set so that it
-     * contains the time ranges of all input vectors.
-     */
+/**
+ * Vector concatenation filter.
+ * All input packets must be vectors, which will be concatenated
+ * into a single vector.
+ * Inputs: many, dynamically generated.
+ * Outputs: one
+ * All inputs consume the same nummber of packets.  The dimension of
+ * the output vector will be the sum of the dimensions of all input
+ * vectors.  The time stamp of the output vector is set so that it
+ * contains the time ranges of all input vectors.
+ */
 
-    template <typename T>
-    class VectorConcatNode :
-	public MergerNode< Vector<T>, Vector<T> >
-    {
-	typedef  MergerNode< Vector<T>, Vector<T> > Precursor;
-    private:
-	u32 output_size_;
+template <typename T>
+class VectorConcatNode : public MergerNode<Vector<T>, Vector<T> > {
+  typedef MergerNode<Vector<T>, Vector<T> > Precursor;
 
-    public:
-	static std::string filterName() {
-	    return std::string("generic-vector-") + Core::NameHelper<T>() + "-concat";
-	}
-	VectorConcatNode(const Core::Configuration &c) :
-	    Core::Component(c), Precursor(c), output_size_(0) {}
-	virtual ~VectorConcatNode() {}
+private:
+  u32 output_size_;
 
-	virtual bool configure() {
-	    output_size_ = 0;
-	    return Precursor::configure();
-	}
+public:
+  static std::string filterName() {
+    return std::string("generic-vector-") + Core::NameHelper<T>() + "-concat";
+  }
+  VectorConcatNode(const Core::Configuration &c)
+      : Core::Component(c), Precursor(c), output_size_(0) {}
+  virtual ~VectorConcatNode() {}
 
-	virtual Vector<T> *merge(std::vector< DataPtr< Vector<T> > > &inputData) {
-	    Flow::Vector<T> *out = new Flow::Vector<T>;
-	    if (output_size_ > 0) out->reserve(output_size_);
+  virtual bool configure() {
+    output_size_ = 0;
+    return Precursor::configure();
+  }
 
-	    for (u32 i = 0; i < inputData.size(); i++) {
-		Flow::DataPtr<Flow::Vector<T> > &in(inputData[i]);
-		out->insert(out->end(), in->begin(), in->end());
-	    }
-	    if (out->size() > output_size_) output_size_ = out->size();
-	    return out;
-	}
-    };
+  virtual Vector<T> *merge(std::vector<DataPtr<Vector<T> > > &inputData) {
+    Flow::Vector<T> *out = new Flow::Vector<T>;
+    if (output_size_ > 0)
+      out->reserve(output_size_);
+
+    for (u32 i = 0; i < inputData.size(); i++) {
+      Flow::DataPtr<Flow::Vector<T> > &in(inputData[i]);
+      out->insert(out->end(), in->begin(), in->end());
+    }
+    if (out->size() > output_size_)
+      output_size_ = out->size();
+    return out;
+  }
+};
 
 } // namespace Flow
 

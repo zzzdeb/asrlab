@@ -14,250 +14,249 @@
 #ifndef _SIGNAL_FAST_FOURIER_TRANSFORM_HH
 #define _SIGNAL_FAST_FOURIER_TRANSFORM_HH
 
-
+#include "ComplexVectorFunction.hh"
 #include <Core/Types.hh>
 #include <Math/FastFourierTransform.hh>
-#include "ComplexVectorFunction.hh"
 
 namespace Signal {
 
+/** FastFourierTransform: base class to perform fast fourier transform.
+ */
+class FastFourierTransform {
+public:
+  typedef f32 Data;
 
-    /** FastFourierTransform: base class to perform fast fourier transform.
-     */
-    class FastFourierTransform {
-    public:
-	typedef f32 Data;
-    protected:
-	u32 length_;
-	/** sample rate of input vector. */
-	f64 sampleRate_;
-	Math::FastFourierTransform fft_;
-	std::string lastError_;
+protected:
+  u32 length_;
+  /** sample rate of input vector. */
+  f64 sampleRate_;
+  Math::FastFourierTransform fft_;
+  std::string lastError_;
 
-    protected:
-	virtual bool zeroPadding(std::vector<Data> &data);
-	virtual bool applyAlgorithm(std::vector<Data> &data) = 0;
-	/** Calculates an estimation of the continuous values.
-	 *  Each element is multiplied by {\Delta t} resp. {\Delta \omega}.
-	 */
-	virtual bool estimateContinuous(std::vector<Data> &data);
-    public:
-	FastFourierTransform(u32 length = 0, Data sampleRate = 1);
-	virtual ~FastFourierTransform() {}
+protected:
+  virtual bool zeroPadding(std::vector<Data> &data);
+  virtual bool applyAlgorithm(std::vector<Data> &data) = 0;
+  /** Calculates an estimation of the continuous values.
+   *  Each element is multiplied by {\Delta t} resp. {\Delta \omega}.
+   */
+  virtual bool estimateContinuous(std::vector<Data> &data);
 
-	virtual bool transform(std::vector<Data> &data);
+public:
+  FastFourierTransform(u32 length = 0, Data sampleRate = 1);
+  virtual ~FastFourierTransform() {}
 
-	/** @return number of FFT points. */
-	u32 length() const { return length_; }
-	/** sets the number of FFT points (length_) as the
-	 *  -smallest number which is
-	 *  -power of 2
-	 *  -larger than @param length
-	 *
-	 * @return number of FFT points.
-	 */
-	u32 setLength(u32 length);
+  virtual bool transform(std::vector<Data> &data);
 
-	/** @return maximum input size for the number of FFT points.
-	 */
-	virtual u32 maximalInputSize() const = 0;
-	/** Sets the number of FFT points necesseary for transforming
-	 *  an input of length @param inputSize.
-	 */
-	virtual void setInputSize(u32 inputSize) = 0;
-	virtual u32 outputSize() const = 0;
+  /** @return number of FFT points. */
+  u32 length() const { return length_; }
+  /** sets the number of FFT points (length_) as the
+   *  -smallest number which is
+   *  -power of 2
+   *  -larger than @param length
+   *
+   * @return number of FFT points.
+   */
+  u32 setLength(u32 length);
 
-	/** Sample-rate of input vector. (@see outputSampleRate() too.)
-	 */
-	void setInputSampleRate(f64 sampleRate) { require(sampleRate > 0); sampleRate_ = sampleRate; }
-	/** Sample-rate of output vector.
-	 *  I.e.: inverse of distance between two output samples. (length_ / sampleRate_).
-	 */
-	f64 outputSampleRate() const { return length_ / sampleRate_; }
+  /** @return maximum input size for the number of FFT points.
+   */
+  virtual u32 maximalInputSize() const = 0;
+  /** Sets the number of FFT points necesseary for transforming
+   *  an input of length @param inputSize.
+   */
+  virtual void setInputSize(u32 inputSize) = 0;
+  virtual u32 outputSize() const = 0;
 
-	/** Returns the description of the last error. */
-	const std::string& lastError() const { return lastError_; }
-    };
+  /** Sample-rate of input vector. (@see outputSampleRate() too.)
+   */
+  void setInputSampleRate(f64 sampleRate) {
+    require(sampleRate > 0);
+    sampleRate_ = sampleRate;
+  }
+  /** Sample-rate of output vector.
+   *  I.e.: inverse of distance between two output samples. (length_ /
+   * sampleRate_).
+   */
+  f64 outputSampleRate() const { return length_ / sampleRate_; }
 
+  /** Returns the description of the last error. */
+  const std::string &lastError() const { return lastError_; }
+};
 
-    /** ComplexFastFourierTransform: performs complex fast fourier transform
-     * Algorithm taken from "Numerical Recepies in C++"
-     * Delivers N complex values real and imaginary part alternating,
-     * where N is number of FFT points.
-     */
-    class ComplexFastFourierTransform : public FastFourierTransform {
-	typedef FastFourierTransform Predecessor;
-    protected:
-	virtual bool applyAlgorithm(std::vector<Data> &data);
-    public:
-	static std::string name() { return "complex-fast-fourier-transform"; }
+/** ComplexFastFourierTransform: performs complex fast fourier transform
+ * Algorithm taken from "Numerical Recepies in C++"
+ * Delivers N complex values real and imaginary part alternating,
+ * where N is number of FFT points.
+ */
+class ComplexFastFourierTransform : public FastFourierTransform {
+  typedef FastFourierTransform Predecessor;
 
-	ComplexFastFourierTransform(u32 length = 0, Data sampleRate = 1) :
-	    Predecessor(length, sampleRate) {}
-	virtual ~ComplexFastFourierTransform() {}
+protected:
+  virtual bool applyAlgorithm(std::vector<Data> &data);
 
-	virtual u32 maximalInputSize() const { return 2 * length(); }
-	virtual void setInputSize(u32 inputSize) { setLength(inputSize / 2); }
-	virtual u32 outputSize() const { return 2 * length(); }
-    };
+public:
+  static std::string name() { return "complex-fast-fourier-transform"; }
 
+  ComplexFastFourierTransform(u32 length = 0, Data sampleRate = 1)
+      : Predecessor(length, sampleRate) {}
+  virtual ~ComplexFastFourierTransform() {}
 
-    /** ComplexInverseFastFourierTransform: performs complex inverse fast fourier transform
-     * Algorithm taken from "Numerical Recepies in C++"
-     * Delivers N complex values real and imaginary part alternating,
-     * where N is number of FFT points.
-     */
-    class ComplexInverseFastFourierTransform : public ComplexFastFourierTransform {
-	typedef ComplexFastFourierTransform Predecessor;
-    protected:
-	virtual bool applyAlgorithm(std::vector<Data> &data);
-    public:
-	static std::string name() { return "complex-inverse-fast-fourier-transform"; }
+  virtual u32 maximalInputSize() const { return 2 * length(); }
+  virtual void setInputSize(u32 inputSize) { setLength(inputSize / 2); }
+  virtual u32 outputSize() const { return 2 * length(); }
+};
 
-	ComplexInverseFastFourierTransform(u32 length = 0, Data sampleRate = 1) :
-	    Predecessor(length, sampleRate) {}
-	virtual ~ComplexInverseFastFourierTransform() {}
-    };
+/** ComplexInverseFastFourierTransform: performs complex inverse fast fourier
+ * transform Algorithm taken from "Numerical Recepies in C++" Delivers N complex
+ * values real and imaginary part alternating, where N is number of FFT points.
+ */
+class ComplexInverseFastFourierTransform : public ComplexFastFourierTransform {
+  typedef ComplexFastFourierTransform Predecessor;
 
+protected:
+  virtual bool applyAlgorithm(std::vector<Data> &data);
 
-    /** RealFastFourierTransform: performs fourier transform of real vector
-     * Algorithm taken from "Numerical Recepies in C++"
-     * Input: N real values;
-     * Output N / 2 + 1 complex values real and imaginary part alternating;
-     * where N is number of FFT points.
-     */
-    class RealFastFourierTransform : public FastFourierTransform {
-	typedef FastFourierTransform Predecessor;
-    protected:
-	void unpack(std::vector<f32> &data);
-	virtual bool applyAlgorithm(std::vector<Data> &data);
-    public:
-	static std::string name() { return "real-fast-fourier-transform"; }
+public:
+  static std::string name() { return "complex-inverse-fast-fourier-transform"; }
 
-	RealFastFourierTransform(u32 length = 0, Data sampleRate = 1):
-	    Predecessor(length, sampleRate) {}
-	virtual ~RealFastFourierTransform() {}
+  ComplexInverseFastFourierTransform(u32 length = 0, Data sampleRate = 1)
+      : Predecessor(length, sampleRate) {}
+  virtual ~ComplexInverseFastFourierTransform() {}
+};
 
-	virtual u32 maximalInputSize() const { return length(); }
-	virtual void setInputSize(u32 inputSize) { setLength(inputSize); }
-	virtual u32 outputSize() const { return length() + 2; }
-    };
+/** RealFastFourierTransform: performs fourier transform of real vector
+ * Algorithm taken from "Numerical Recepies in C++"
+ * Input: N real values;
+ * Output N / 2 + 1 complex values real and imaginary part alternating;
+ * where N is number of FFT points.
+ */
+class RealFastFourierTransform : public FastFourierTransform {
+  typedef FastFourierTransform Predecessor;
 
+protected:
+  void unpack(std::vector<f32> &data);
+  virtual bool applyAlgorithm(std::vector<Data> &data);
 
-    /** RealInverseFastFourierTransform: performs inverse fourier transform of real vector
-     * Algorithm taken from "Numerical Recepies in C++"
-     * Input: N / 2 + 1 complex values real and imaginary part alternating;
-     * Output N real values;
-     * where N is number of FFT points.
-     */
-    class RealInverseFastFourierTransform : public FastFourierTransform {
-	typedef FastFourierTransform Predecessor;
-    protected:
-	bool pack(std::vector<f32> &data);
-	virtual bool applyAlgorithm(std::vector<Data> &data);
-	virtual bool estimateContinuous(std::vector<Data> &data);
-    public:
-	static std::string name() { return "real-inverse-fast-fourier-transform"; }
+public:
+  static std::string name() { return "real-fast-fourier-transform"; }
 
-	RealInverseFastFourierTransform(u32 length = 0, Data sampleRate = 1) :
-	    Predecessor(length, sampleRate) {}
+  RealFastFourierTransform(u32 length = 0, Data sampleRate = 1)
+      : Predecessor(length, sampleRate) {}
+  virtual ~RealFastFourierTransform() {}
 
-	virtual u32 maximalInputSize() const { return length() + 2; }
-	virtual void setInputSize(u32 inputSize) { setLength(inputSize - 2); }
-	virtual u32 outputSize() const { return length(); }
-    };
+  virtual u32 maximalInputSize() const { return length(); }
+  virtual void setInputSize(u32 inputSize) { setLength(inputSize); }
+  virtual u32 outputSize() const { return length() + 2; }
+};
 
-    extern const Core::ParameterInt paramFftLength;
-    extern const Core::ParameterFloat paramFftMaximumInputSize;
+/** RealInverseFastFourierTransform: performs inverse fourier transform of real
+ * vector Algorithm taken from "Numerical Recepies in C++" Input: N / 2 + 1
+ * complex values real and imaginary part alternating; Output N real values;
+ * where N is number of FFT points.
+ */
+class RealInverseFastFourierTransform : public FastFourierTransform {
+  typedef FastFourierTransform Predecessor;
 
-    /** FastFourierTransformNode
-     */
-    template<class Algorithm>
-    class FastFourierTransformNode : public SleeveNode {
-    private:
-	Algorithm algorithm_;
+protected:
+  bool pack(std::vector<f32> &data);
+  virtual bool applyAlgorithm(std::vector<Data> &data);
+  virtual bool estimateContinuous(std::vector<Data> &data);
 
-	u32 length_;
-	f64 maximumInputSize_;
-	u32 length(f64 sampleRate) const;
-    public:
-	static std::string filterName() { return "signal-" + Algorithm::name(); }
+public:
+  static std::string name() { return "real-inverse-fast-fourier-transform"; }
 
-	FastFourierTransformNode(const Core::Configuration &c);
-	virtual ~FastFourierTransformNode() {}
+  RealInverseFastFourierTransform(u32 length = 0, Data sampleRate = 1)
+      : Predecessor(length, sampleRate) {}
 
-	virtual bool setParameter(const std::string &name, const std::string &value);
-	virtual bool configure();
-	virtual bool work(Flow::PortId p);
-    };
+  virtual u32 maximalInputSize() const { return length() + 2; }
+  virtual void setInputSize(u32 inputSize) { setLength(inputSize - 2); }
+  virtual u32 outputSize() const { return length(); }
+};
 
-    template<class Algorithm>
-    FastFourierTransformNode<Algorithm>::FastFourierTransformNode(const Core::Configuration &c) :
-	Component(c),
-	SleeveNode(c),
-	length_(paramFftLength(c)),
-	maximumInputSize_(paramFftMaximumInputSize(c))
-    {}
+extern const Core::ParameterInt paramFftLength;
+extern const Core::ParameterFloat paramFftMaximumInputSize;
 
-    template<class Algorithm>
-    bool FastFourierTransformNode<Algorithm>::setParameter(
-	const std::string &name, const std::string &value)
-    {
-	if (paramFftLength.match(name))
-	    length_ = paramFftLength(value);
-	else if (paramFftMaximumInputSize.match(name))
-	    maximumInputSize_ = paramFftMaximumInputSize(value);
-	else
-	    return false;
-	return true;
-    }
+/** FastFourierTransformNode
+ */
+template <class Algorithm> class FastFourierTransformNode : public SleeveNode {
+private:
+  Algorithm algorithm_;
 
-    template<class Algorithm>
-    bool FastFourierTransformNode<Algorithm>::configure()
-    {
-	Core::Ref<Flow::Attributes> a(new Flow::Attributes());
-	getInputAttributes(0, *a);
-	if (!configureDatatype(a, Flow::Vector<f32>::type()))
-	    return false;
+  u32 length_;
+  f64 maximumInputSize_;
+  u32 length(f64 sampleRate) const;
 
-	f64 sampleRate = atof(a->get("sample-rate").c_str());
-	if (sampleRate <= 0)
-	    criticalError("Sample rate (%f) is smaller or equal to 0.", sampleRate);
+public:
+  static std::string filterName() { return "signal-" + Algorithm::name(); }
 
-	algorithm_.setInputSampleRate(sampleRate);
-	algorithm_.setLength(length(sampleRate));
-	a->set("sample-rate", algorithm_.outputSampleRate());
+  FastFourierTransformNode(const Core::Configuration &c);
+  virtual ~FastFourierTransformNode() {}
 
-	return putOutputAttributes(0, a);
-    }
+  virtual bool setParameter(const std::string &name, const std::string &value);
+  virtual bool configure();
+  virtual bool work(Flow::PortId p);
+};
 
-    template<class Algorithm>
-    u32 FastFourierTransformNode<Algorithm>::length(f64 sampleRate) const
-    {
-	u32 maximumLength = (u32)ceil(maximumInputSize_ * sampleRate);
-	if (length_ == 0)
-	    return maximumLength;
-	else if (maximumLength != 0) {
-	    warning("FFT length given by maximum-input-size (%d) will be overwitten by parameter length (%d).",
-		    maximumLength, length_);
-	}
-	return length_;
-    }
+template <class Algorithm>
+FastFourierTransformNode<Algorithm>::FastFourierTransformNode(
+    const Core::Configuration &c)
+    : Component(c), SleeveNode(c), length_(paramFftLength(c)),
+      maximumInputSize_(paramFftMaximumInputSize(c)) {}
 
-    template<class Algorithm>
-    bool FastFourierTransformNode<Algorithm>::work(Flow::PortId p)
-    {
-	Flow::DataPtr<Flow::Vector<f32> > in;
-	if (!getData(0, in))
-	    return putData(0, in.get());
-
-	in.makePrivate();
-	if (!algorithm_.transform(*in))
-	    criticalError(algorithm_.lastError().c_str());
-	return putData(0, in.get());
-    }
+template <class Algorithm>
+bool FastFourierTransformNode<Algorithm>::setParameter(
+    const std::string &name, const std::string &value) {
+  if (paramFftLength.match(name))
+    length_ = paramFftLength(value);
+  else if (paramFftMaximumInputSize.match(name))
+    maximumInputSize_ = paramFftMaximumInputSize(value);
+  else
+    return false;
+  return true;
 }
 
+template <class Algorithm>
+bool FastFourierTransformNode<Algorithm>::configure() {
+  Core::Ref<Flow::Attributes> a(new Flow::Attributes());
+  getInputAttributes(0, *a);
+  if (!configureDatatype(a, Flow::Vector<f32>::type()))
+    return false;
+
+  f64 sampleRate = atof(a->get("sample-rate").c_str());
+  if (sampleRate <= 0)
+    criticalError("Sample rate (%f) is smaller or equal to 0.", sampleRate);
+
+  algorithm_.setInputSampleRate(sampleRate);
+  algorithm_.setLength(length(sampleRate));
+  a->set("sample-rate", algorithm_.outputSampleRate());
+
+  return putOutputAttributes(0, a);
+}
+
+template <class Algorithm>
+u32 FastFourierTransformNode<Algorithm>::length(f64 sampleRate) const {
+  u32 maximumLength = (u32)ceil(maximumInputSize_ * sampleRate);
+  if (length_ == 0)
+    return maximumLength;
+  else if (maximumLength != 0) {
+    warning("FFT length given by maximum-input-size (%d) will be overwitten by "
+            "parameter length (%d).",
+            maximumLength, length_);
+  }
+  return length_;
+}
+
+template <class Algorithm>
+bool FastFourierTransformNode<Algorithm>::work(Flow::PortId p) {
+  Flow::DataPtr<Flow::Vector<f32> > in;
+  if (!getData(0, in))
+    return putData(0, in.get());
+
+  in.makePrivate();
+  if (!algorithm_.transform(*in))
+    criticalError(algorithm_.lastError().c_str());
+  return putData(0, in.get());
+}
+} // namespace Signal
+
 #endif // _SIGNAL_FAST_FOURIER_TRANSFORM_HH
-
-

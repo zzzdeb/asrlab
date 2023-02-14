@@ -16,25 +16,22 @@
 using namespace Lm;
 
 //============================================================================================
-void ScaledLanguageModel::getDependencies(Core::DependencySet &dependencies) const
-{
-    LanguageModel::getDependencies(dependencies);
-    Mc::Component::getDependencies(dependencies);
+void ScaledLanguageModel::getDependencies(
+    Core::DependencySet &dependencies) const {
+  LanguageModel::getDependencies(dependencies);
+  Mc::Component::getDependencies(dependencies);
 }
 
 //============================================================================================
 LanguageModelScaling::LanguageModelScaling(
-    const Core::Configuration &c, Core::Ref<LanguageModel> languageModel) :
-    Core::Component(c),
-    Precursor(c, languageModel->lexicon()),
-    languageModel_(languageModel)
-{}
+    const Core::Configuration &c, Core::Ref<LanguageModel> languageModel)
+    : Core::Component(c), Precursor(c, languageModel->lexicon()),
+      languageModel_(languageModel) {}
 
-LanguageModelScaling::~LanguageModelScaling()
-{}
+LanguageModelScaling::~LanguageModelScaling() {}
 
-void LanguageModelScaling::getDependencies(Core::DependencySet &dependencies) const
-{
-    languageModel_->getDependencies(dependencies);
-    Mc::Component::getDependencies(dependencies);
+void LanguageModelScaling::getDependencies(
+    Core::DependencySet &dependencies) const {
+  languageModel_->getDependencies(dependencies);
+  Mc::Component::getDependencies(dependencies);
 }

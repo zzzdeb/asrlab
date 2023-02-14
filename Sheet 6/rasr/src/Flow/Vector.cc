@@ -17,7 +17,6 @@
 
 using namespace Flow;
 
-
 template class Vector<s8>;
 template class Vector<s16>;
 template class Vector<s32>;

@@ -22,15 +22,22 @@
 #define _T_FSA_SSSP4SPECIALSYMBOLS_HH
 
 namespace Ftl {
-	template<class _Automaton>
-	typename _Automaton::ConstRef posterior4SpecialSymbols(typename _Automaton::ConstRef f);
-	template<class _Automaton> typename _Automaton::ConstRef posterior4SpecialSymbols(typename _Automaton::ConstRef f, typename _Automaton::Weight &totalInv, s32 tol);
+template <class _Automaton>
+typename _Automaton::ConstRef
+posterior4SpecialSymbols(typename _Automaton::ConstRef f);
+template <class _Automaton>
+typename _Automaton::ConstRef
+posterior4SpecialSymbols(typename _Automaton::ConstRef f,
+                         typename _Automaton::Weight &totalInv, s32 tol);
 
-	template<class _Automaton, class _Semiring, class _Weight>
-	typename _Automaton::ConstRef posterior4SpecialSymbols(typename _Automaton::ConstRef f, typename _Automaton::Weight &totalInv, s32 tol);
+template <class _Automaton, class _Semiring, class _Weight>
+typename _Automaton::ConstRef
+posterior4SpecialSymbols(typename _Automaton::ConstRef f,
+                         typename _Automaton::Weight &totalInv, s32 tol);
 
-	template<class _Automaton>
-	typename _Automaton::ConstRef best4SpecialSymbols(typename _Automaton::ConstRef f);
+template <class _Automaton>
+typename _Automaton::ConstRef
+best4SpecialSymbols(typename _Automaton::ConstRef f);
 } // namespace Ftl
 
 #include "tSssp4SpecialSymbols.cc"

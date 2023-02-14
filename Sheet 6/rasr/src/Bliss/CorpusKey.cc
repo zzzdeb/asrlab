@@ -15,27 +15,23 @@
 
 using namespace Bliss;
 
-
 const Core::ParameterString CorpusKey::paramTemplate(
     "template", "template expression e.g. \"<corpus-0>_<speaker>\"");
 
 const std::string CorpusKey::openTag = "<";
 const std::string CorpusKey::closeTag = ">";
 
-CorpusKey::CorpusKey(const Core::Configuration &configuration) :
-    Component(configuration) {
+CorpusKey::CorpusKey(const Core::Configuration &configuration)
+    : Component(configuration) {
 
-    if (paramTemplate(configuration).empty())
-	criticalError("Template expression is empty or not given.");
+  if (paramTemplate(configuration).empty())
+    criticalError("Template expression is empty or not given.");
 
-    Core::StringExpressionParser parser(*this, openTag, closeTag);
-    parser.accept(paramTemplate(configuration));
+  Core::StringExpressionParser parser(*this, openTag, closeTag);
+  parser.accept(paramTemplate(configuration));
 }
-
 
 void CorpusKey::resolve(std::string &result) {
-    if (!value(result))
-	criticalError("Could not resolve corpus key %s.", name().c_str());
+  if (!value(result))
+    criticalError("Could not resolve corpus key %s.", name().c_str());
 }
-
-

@@ -24,307 +24,304 @@
 
 namespace Bliss {
 
-    /**
-     * Symbols are character strings which are collected in a
-     * SymbolSet.  Copying and equality test is very efficient.  Two
-     * Symbols from different SymbolSets are un-equal, even if their
-     * strings are the same (This is a feature, not a bug!).  A
-     * special void symbol is created by the default constructor, any
-     * other symbol can only be created by a SymbolSet or by copying.
-     *
-     * Implementation: A Symbol is just a char pointer into the
-     * SymbolSet.  Since a SymbolSet contains each character string at
-     * most once, Symbols can be compared and hashed very efficiently
-     * by looking at the pointers only.
-     */
+/**
+ * Symbols are character strings which are collected in a
+ * SymbolSet.  Copying and equality test is very efficient.  Two
+ * Symbols from different SymbolSets are un-equal, even if their
+ * strings are the same (This is a feature, not a bug!).  A
+ * special void symbol is created by the default constructor, any
+ * other symbol can only be created by a SymbolSet or by copying.
+ *
+ * Implementation: A Symbol is just a char pointer into the
+ * SymbolSet.  Since a SymbolSet contains each character string at
+ * most once, Symbols can be compared and hashed very efficiently
+ * by looking at the pointers only.
+ */
 
-    class Symbol {
-    public:
-	typedef char Char;
-	typedef std::string String;
-    private:
-	const Char *s;
-    protected:
-	friend class SymbolSet;
-	explicit Symbol(const Char *_s) : s(_s) {}
-    public:
-	Symbol() : s(0) {}
-	Symbol(const Symbol &_s) : s(_s.s) {}
+class Symbol {
+public:
+  typedef char Char;
+  typedef std::string String;
 
-	bool operator==(const Symbol &rhs) const { return s == rhs.s; }
-	bool operator!=(const Symbol &rhs) const { return s != rhs.s; }
-	size_t length() const { return strlen(s); }
+private:
+  const Char *s;
 
-	/** Test if symbol is not void. */
-	operator bool () const { return s != 0; }
-	/** Test if symbol is void. */
-	bool operator!() const { return s == 0; }
+protected:
+  friend class SymbolSet;
+  explicit Symbol(const Char *_s) : s(_s) {}
 
-	/** C string (zero-terminated character pointer) */
-	const Char* str() const { return s; }
+public:
+  Symbol() : s(0) {}
+  Symbol(const Symbol &_s) : s(_s.s) {}
 
-	/** C++ string */
-	operator const String () const { return String(s); }
+  bool operator==(const Symbol &rhs) const { return s == rhs.s; }
+  bool operator!=(const Symbol &rhs) const { return s != rhs.s; }
+  size_t length() const { return strlen(s); }
 
-	static Symbol cast(void *p) {
-	    return Symbol(reinterpret_cast<char*>(p));
-	}
+  /** Test if symbol is not void. */
+  operator bool() const { return s != 0; }
+  /** Test if symbol is void. */
+  bool operator!() const { return s == 0; }
 
-	friend std::ostream &operator<< (std::ostream &os, const Bliss::Symbol &s) {
-	    if (s)
-		os.write(s.str(), s.length());
-	    else
-		os.write("(null)", 6);
-	    return os;
-	}
-	friend Core::XmlWriter &operator<< (Core::XmlWriter &xw, const Bliss::Symbol &s) {
-	    std::ostream &os(xw);
-	    if (s)
-		os.write(s.str(), s.length());
-	    else
-		os.write("(null)", 6);
-	    return xw;
-	}
+  /** C string (zero-terminated character pointer) */
+  const Char *str() const { return s; }
 
-	struct Hash {
-	    size_t operator() (Symbol s) const {
-		return size_t(s.s);
-	    }
-	};
-	struct Equality {
-	    bool operator() (Symbol s1, Symbol s2) const {
-		return s1.s == s2.s;
-	    }
-	};
-    };
+  /** C++ string */
+  operator const String() const { return String(s); }
 
-    /**
-     * A pool of Symbols.  A SymbolSet owns the memory of all its
-     * symbols.  CAVEAT: When the SymbolSet is deleted, all derived
-     * Symbols become invalid.
-     */
-    class SymbolSet {
-    private:
-	Core::Obstack<Symbol::Char> strings_;
-	typedef Core::hash_set<const Symbol::Char*, Core::StringHash, Core::StringEquality> Map;
-	Map map_;
-    public:
-	SymbolSet();
-	/** Convert char pointer to Symbol.
-	 * Symbol is added if not already present. */
-	Symbol operator[] (const Symbol::Char*);
-	/** Convert string to Symbol.
-	 * Symbol is added if not already present. */
-	Symbol operator[] (const Symbol::String&);
+  static Symbol cast(void *p) { return Symbol(reinterpret_cast<char *>(p)); }
 
-	/** return void symbol if not present */
-	Symbol get(const Symbol::Char*) const;
-	Symbol get(const Symbol::String&) const;
+  friend std::ostream &operator<<(std::ostream &os, const Bliss::Symbol &s) {
+    if (s)
+      os.write(s.str(), s.length());
+    else
+      os.write("(null)", 6);
+    return os;
+  }
+  friend Core::XmlWriter &operator<<(Core::XmlWriter &xw,
+                                     const Bliss::Symbol &s) {
+    std::ostream &os(xw);
+    if (s)
+      os.write(s.str(), s.length());
+    else
+      os.write("(null)", 6);
+    return xw;
+  }
 
-	bool contains(const Symbol::Char*) const;
-	bool contains(const Symbol::String&) const;
-    };
+  struct Hash {
+    size_t operator()(Symbol s) const { return size_t(s.s); }
+  };
+  struct Equality {
+    bool operator()(Symbol s1, Symbol s2) const { return s1.s == s2.s; }
+  };
+};
 
-    template <typename T_Value>
-    class SymbolHashMap :
-	public Core::hash_map<Symbol, T_Value, Symbol::Hash, Symbol::Equality>
-    {};
+/**
+ * A pool of Symbols.  A SymbolSet owns the memory of all its
+ * symbols.  CAVEAT: When the SymbolSet is deleted, all derived
+ * Symbols become invalid.
+ */
+class SymbolSet {
+private:
+  Core::Obstack<Symbol::Char> strings_;
+  typedef Core::hash_set<const Symbol::Char *, Core::StringHash,
+                         Core::StringEquality>
+      Map;
+  Map map_;
 
-    class Token {
-    public:
-	typedef s32 Id;
-	static const Id invalidId = -1;
-    private:
-	Id id_;
-	Symbol symbol_;
-    protected:
-	Token(Id _id, Bliss::Symbol _symbol) : id_(_id), symbol_(_symbol) {}
-	Token(Id _id) : id_(_id) {}
-	Token(Bliss::Symbol _symbol) : id_(invalidId), symbol_(_symbol) {}
-	Token() : id_(invalidId) {}
-	friend class TokenInventory;
-	void setId(Id id) { id_ = id; }
-	void setSymbol(Symbol s) { symbol_ = s; }
-    public:
-	virtual ~Token() {}
+public:
+  SymbolSet();
+  /** Convert char pointer to Symbol.
+   * Symbol is added if not already present. */
+  Symbol operator[](const Symbol::Char *);
+  /** Convert string to Symbol.
+   * Symbol is added if not already present. */
+  Symbol operator[](const Symbol::String &);
 
-	/** A unique string identifier for the token. */
-	Symbol symbol() const { return symbol_; }
+  /** return void symbol if not present */
+  Symbol get(const Symbol::Char *) const;
+  Symbol get(const Symbol::String &) const;
 
-	/** The numerical ID of the token. */
-	Id id() const { return id_; }
-    };
+  bool contains(const Symbol::Char *) const;
+  bool contains(const Symbol::String &) const;
+};
 
-    class TokenInventory {
-	typedef std::vector<Token*> List;
-	List list_;
-	typedef Core::hash_map<const Symbol::Char*, Token*, Core::StringHash, Core::StringEquality> Map;
-	Map map_;
-    public:
-	~TokenInventory() {
-	    for (List::const_iterator tt = list_.begin() ; tt != list_.end() ; ++tt)
-		delete *tt;
-	}
+template <typename T_Value>
+class SymbolHashMap
+    : public Core::hash_map<Symbol, T_Value, Symbol::Hash, Symbol::Equality> {};
 
-	void insert(Token *token) {
-	    token->setId(list_.size());
-	    list_.push_back(token);
-	}
-	void link(Symbol symbol, Token *token) {
-	    require_(token == list_[token->id()]);
-	    map_[symbol.str()] = token;
-	}
-	void add(Token *token) {
-	    insert(token);
-	    link(token->symbol(), token);
-	}
+class Token {
+public:
+  typedef s32 Id;
+  static const Id invalidId = -1;
 
-	Token *operator[] (Token::Id id) const {
-	    require(0 <= id && id < Token::Id(list_.size()));
-	    Token * result = list_[id];
-	    ensure_(result->id() == id);
-	    return result;
-	}
-	Token *operator[] (const std::string &sym) const {
-	    Map::const_iterator i = map_.find(sym.c_str());
-	    return (i != map_.end()) ? i->second : 0;
-	}
-	Token *operator[] (Symbol sym) const {
-	    Map::const_iterator i = map_.find(sym.str());
-	    return (i != map_.end()) ? i->second : 0;
-	}
+private:
+  Id id_;
+  Symbol symbol_;
 
-	u32 size() const {
-	    return list_.size();
-	}
+protected:
+  Token(Id _id, Bliss::Symbol _symbol) : id_(_id), symbol_(_symbol) {}
+  Token(Id _id) : id_(_id) {}
+  Token(Bliss::Symbol _symbol) : id_(invalidId), symbol_(_symbol) {}
+  Token() : id_(invalidId) {}
+  friend class TokenInventory;
+  void setId(Id id) { id_ = id; }
+  void setSymbol(Symbol s) { symbol_ = s; }
 
-	typedef Token *const *Iterator;
-	Iterator begin() const { return &(*list_.begin()); }
+public:
+  virtual ~Token() {}
 
-	// Note: Eliminating the "-1"..."+1" construct causes Sprint to fail in debug mode.
-	Iterator end()   const { return (&(*(list_.end()-1)) +1);   }
-    };
+  /** A unique string identifier for the token. */
+  Symbol symbol() const { return symbol_; }
 
-    template <typename T>
-    class TokenMap {
-    public:
-	typedef T Value;
-	typedef typename std::vector<Value>::iterator iterator;
-    private:
-	std::vector<Value> store_;
-    public:
-	TokenMap(const TokenInventory &ti) :
-	    store_(ti.size() + 1) {}
+  /** The numerical ID of the token. */
+  Id id() const { return id_; }
+};
 
-	void fill(const Value &v) {
-	    std::fill(store_.begin(), store_.end(), v);
-	}
+class TokenInventory {
+  typedef std::vector<Token *> List;
+  List list_;
+  typedef Core::hash_map<const Symbol::Char *, Token *, Core::StringHash,
+                         Core::StringEquality>
+      Map;
+  Map map_;
 
-	iterator begin() {
-	    return store_.begin();
-	}
+public:
+  ~TokenInventory() {
+    for (List::const_iterator tt = list_.begin(); tt != list_.end(); ++tt)
+      delete *tt;
+  }
 
-	iterator end() {
-	    return store_.end();
-	}
+  void insert(Token *token) {
+    token->setId(list_.size());
+    list_.push_back(token);
+  }
+  void link(Symbol symbol, Token *token) {
+    require_(token == list_[token->id()]);
+    map_[symbol.str()] = token;
+  }
+  void add(Token *token) {
+    insert(token);
+    link(token->symbol(), token);
+  }
 
-	void operator= (const TokenMap<T> &map) {
-	    require_(store_.size() == map.store_.size());
-	    store_ = map.store_;
-	}
+  Token *operator[](Token::Id id) const {
+    require(0 <= id && id < Token::Id(list_.size()));
+    Token *result = list_[id];
+    ensure_(result->id() == id);
+    return result;
+  }
+  Token *operator[](const std::string &sym) const {
+    Map::const_iterator i = map_.find(sym.c_str());
+    return (i != map_.end()) ? i->second : 0;
+  }
+  Token *operator[](Symbol sym) const {
+    Map::const_iterator i = map_.find(sym.str());
+    return (i != map_.end()) ? i->second : 0;
+  }
 
-	Value &operator[](const Token *t) {
-	    require_(t);
-	    verify_(t->id() < store_.size());
-	    return store_[t->id()];
-	}
+  u32 size() const { return list_.size(); }
 
-	const Value &operator[](const Token *t) const {
-	    require_(t);
-	    verify_(t->id() < store_.size());
-	    return store_[t->id()];
-	}
-    };
+  typedef Token *const *Iterator;
+  Iterator begin() const { return &(*list_.begin()); }
 
-    template <class Symbol> class SymbolSequenceSet;
+  // Note: Eliminating the "-1"..."+1" construct causes Sprint to fail in debug
+  // mode.
+  Iterator end() const { return (&(*(list_.end() - 1)) + 1); }
+};
 
-    template <class S = Symbol>
-    class SymbolSequence {
-    public:
-	typedef S Symbol;
-	typedef const Symbol *Iterator;
-	typedef size_t Size;
-    private:
-	const Symbol *begin_, *end_;
-    protected:
-	friend class SymbolSequenceSet<Symbol>;
-    public: // FIXME
-	SymbolSequence(
-	    const Symbol *_begin,
-	    const Symbol *_end):
-	    begin_(_begin), end_(_end) {}
+template <typename T> class TokenMap {
+public:
+  typedef T Value;
+  typedef typename std::vector<Value>::iterator iterator;
 
-    public:
-	SymbolSequence() : begin_(0), end_(0) {}
-	SymbolSequence(const SymbolSequence &o) : begin_(o.begin_), end_(o.end_) {}
+private:
+  std::vector<Value> store_;
 
-	bool valid() const {
-	    return begin_ != 0;
-	}
+public:
+  TokenMap(const TokenInventory &ti) : store_(ti.size() + 1) {}
 
-	Size size() const {
-	    return end_ - begin_;
-	}
+  void fill(const Value &v) { std::fill(store_.begin(), store_.end(), v); }
 
-	Size length() const { return size(); }
+  iterator begin() { return store_.begin(); }
 
-	bool isEpsilon() const {
-	    return length() == 0;
-	}
+  iterator end() { return store_.end(); }
 
-	const Symbol &operator[](Size i) const {
-	    require_(valid());
-	    require_(0 <= i && i < size());
-	    return begin_[i];
-	}
+  void operator=(const TokenMap<T> &map) {
+    require_(store_.size() == map.store_.size());
+    store_ = map.store_;
+  }
 
-	const Symbol &front() const { require_(begin_ < end_); return *begin_; }
-	const Iterator begin() const { return begin_; }
-	const Iterator end()   const { return end_;   }
-    };
+  Value &operator[](const Token *t) {
+    require_(t);
+    verify_(t->id() < store_.size());
+    return store_[t->id()];
+  }
 
-    template <class S = Symbol>
-    class SymbolSequenceSet {
-    public:
-	typedef S Symbol;
-	typedef typename Symbol::String String;
-	typedef SymbolSequence<Symbol> Sequence;
-    private:
-	SymbolSet &symbolSet_;
-	Core::Obstack<Symbol> sequences_;
-    public:
-	SymbolSequenceSet(SymbolSet &ss) : symbolSet_(ss) {}
+  const Value &operator[](const Token *t) const {
+    require_(t);
+    verify_(t->id() < store_.size());
+    return store_[t->id()];
+  }
+};
 
-	Sequence add(const std::vector<String> &seq) {
-	    sequences_.start();
-	    for (std::vector<std::string>::const_iterator i = seq.begin(); i != seq.end(); ++i)
-		sequences_.grow(symbolSet_[*i]);
-	    Sequence result(sequences_.currentBegin(), sequences_.currentEnd());
-	    sequences_.finish();
-	    return result;
-	}
+template <class Symbol> class SymbolSequenceSet;
 
-	Sequence add(const String &sym) {
-	    Symbol *s = sequences_.add(symbolSet_[sym]);
-	    return Sequence(s, s+1);
-	}
+template <class S = Symbol> class SymbolSequence {
+public:
+  typedef S Symbol;
+  typedef const Symbol *Iterator;
+  typedef size_t Size;
 
-	Sequence add(Symbol sym) {
-	    Symbol *s = sequences_.add(sym);
-	    return Sequence(s, s+1);
-	}
-    };
+private:
+  const Symbol *begin_, *end_;
 
+protected:
+  friend class SymbolSequenceSet<Symbol>;
+
+public: // FIXME
+  SymbolSequence(const Symbol *_begin, const Symbol *_end)
+      : begin_(_begin), end_(_end) {}
+
+public:
+  SymbolSequence() : begin_(0), end_(0) {}
+  SymbolSequence(const SymbolSequence &o) : begin_(o.begin_), end_(o.end_) {}
+
+  bool valid() const { return begin_ != 0; }
+
+  Size size() const { return end_ - begin_; }
+
+  Size length() const { return size(); }
+
+  bool isEpsilon() const { return length() == 0; }
+
+  const Symbol &operator[](Size i) const {
+    require_(valid());
+    require_(0 <= i && i < size());
+    return begin_[i];
+  }
+
+  const Symbol &front() const {
+    require_(begin_ < end_);
+    return *begin_;
+  }
+  const Iterator begin() const { return begin_; }
+  const Iterator end() const { return end_; }
+};
+
+template <class S = Symbol> class SymbolSequenceSet {
+public:
+  typedef S Symbol;
+  typedef typename Symbol::String String;
+  typedef SymbolSequence<Symbol> Sequence;
+
+private:
+  SymbolSet &symbolSet_;
+  Core::Obstack<Symbol> sequences_;
+
+public:
+  SymbolSequenceSet(SymbolSet &ss) : symbolSet_(ss) {}
+
+  Sequence add(const std::vector<String> &seq) {
+    sequences_.start();
+    for (std::vector<std::string>::const_iterator i = seq.begin();
+         i != seq.end(); ++i)
+      sequences_.grow(symbolSet_[*i]);
+    Sequence result(sequences_.currentBegin(), sequences_.currentEnd());
+    sequences_.finish();
+    return result;
+  }
+
+  Sequence add(const String &sym) {
+    Symbol *s = sequences_.add(symbolSet_[sym]);
+    return Sequence(s, s + 1);
+  }
+
+  Sequence add(Symbol sym) {
+    Symbol *s = sequences_.add(sym);
+    return Sequence(s, s + 1);
+  }
+};
 
 } // namespace Bliss
 

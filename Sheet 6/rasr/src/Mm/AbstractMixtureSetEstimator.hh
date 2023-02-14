@@ -14,206 +14,214 @@
 #ifndef _MM_ABSTRACT_MIXTURE_SET_ESTIMATOR_HH
 #define _MM_ABSTRACT_MIXTURE_SET_ESTIMATOR_HH
 
-#include "MixtureEstimator.hh"
-#include "FeatureScorer.hh"
-#include "MixtureSet.hh"
 #include "AssigningFeatureScorer.hh"
+#include "FeatureScorer.hh"
+#include "MixtureEstimator.hh"
+#include "MixtureSet.hh"
+#include <Core/Channel.hh>
 #include <Core/Component.hh>
 #include <Core/Statistics.hh>
-#include <Core/Channel.hh>
 
 namespace Mm {
 
-    /** Base Class for accumulator and estimator class for mixture sets
-     *
-     *  Override the component creation functions to create concrete density,
-     *  mean and covariance objects.
-     *
-     *  Data structure:
-     *    -Graph represenation: objects reference each other by smart-pointers (Core::Reference)
-     *    -Root elements of the graph (MixtureEstimator) are stored in a list
-     *    Advantage of smart-pointers:
-     *      -object types can be extended be deriving from the base types and
-     *       without changing (much :-) ) in other parts of this library
-     *    Advantages of graph representation:
-     *      -easy to remove elements from the structure
-     *      -fast access of child elements thus suitable for fast computations
-     *    Disadvantages:
-     *      -no direct access to set of elements (e.g.: list of all covariances)
-     *      -storing and load is not straight forward
-     *      To overcome these disadvatages MixtureSetEstimatorIndexMap class converts the graph
-     *      representation into a reference-table representation.
-     */
-    class AbstractMixtureSetEstimator :
-		public Core::ReferenceCounted,
-		public virtual Core::Component
-    {
-		typedef Core::Component Precursor;
-		friend class MixtureSetEstimatorIndexMap;
-		friend class MixtureSetEstimator;
-    public:
-		typedef std::vector<Core::Ref<AbstractMixtureEstimator> > MixtureEstimators;
-    public:
-		enum Mode {
-			modeViterbi,
-			modeBaumWelch
-		};
-		static const Core::Choice          choiceMode;
-		static const Core::ParameterChoice paramMode;
-		static const Core::ParameterFloat  paramMinObservationWeight;
-		static const Core::ParameterFloat  paramMinRelativeWeight;
-		static const Core::ParameterFloat  paramMinVariance;
-		static const Core::ParameterBool   paramAllowZeroWeights;
-		static const Core::ParameterBool   paramNormalizeMixtureWeights;
+/** Base Class for accumulator and estimator class for mixture sets
+ *
+ *  Override the component creation functions to create concrete density,
+ *  mean and covariance objects.
+ *
+ *  Data structure:
+ *    -Graph represenation: objects reference each other by smart-pointers
+ * (Core::Reference) -Root elements of the graph (MixtureEstimator) are stored
+ * in a list Advantage of smart-pointers: -object types can be extended be
+ * deriving from the base types and without changing (much :-) ) in other parts
+ * of this library Advantages of graph representation: -easy to remove elements
+ * from the structure -fast access of child elements thus suitable for fast
+ * computations Disadvantages: -no direct access to set of elements (e.g.: list
+ * of all covariances) -storing and load is not straight forward To overcome
+ * these disadvatages MixtureSetEstimatorIndexMap class converts the graph
+ *      representation into a reference-table representation.
+ */
+class AbstractMixtureSetEstimator : public Core::ReferenceCounted,
+                                    public virtual Core::Component {
+  typedef Core::Component Precursor;
+  friend class MixtureSetEstimatorIndexMap;
+  friend class MixtureSetEstimator;
 
-    protected:
-		Core::Ref<const AssigningFeatureScorer> assigningFeatureScorer_;
-		bool viterbi_;
-		Weight weightThreshold_;
-		Weight minObservationWeight_;
-		Weight minRelativeWeight_;
-		VarianceType minVariance_;
-		bool allowZeroWeights_;
-		bool normalizeMixtureWeights_;
-		Core::Statistics<f64> scoreStatistics_;
-		ProbabilityStatistics weightStats_, dnsPosteriorStats_, finalWeightStats_;
-		mutable Core::XmlChannel accumulationChannel_;
-		MixtureEstimators mixtureEstimators_;
-		ComponentIndex dimension_;
-		u32 version_;
-    protected:
-		void removeDensitiesWithZeroWeight();
-		void removeDensitiesWithLowWeight(
-										  Weight minObservationWeight, Weight minRelativeWeight);
-		DensityIndex densityIndex(MixtureIndex, Core::Ref<const Feature::Vector>);
-		void getDensityPosteriorProbabilities(MixtureIndex, Core::Ref<const Feature::Vector>,
-											  std::vector<Mm::Weight>&);
-		void readHeader(Core::BinaryInputStream &);
-		void writeHeader(Core::BinaryOutputStream &);
+public:
+  typedef std::vector<Core::Ref<AbstractMixtureEstimator> > MixtureEstimators;
 
-		virtual bool accumulateDensity(Core::BinaryInputStreams &is, Core::BinaryOutputStream &os);
-		virtual bool accumulateMixture(Core::BinaryInputStreams &is, Core::BinaryOutputStream &os);
-		virtual const std::string magic() const = 0;
-    protected:
-		virtual AbstractMixtureEstimator* createMixtureEstimator() = 0;
-		virtual GaussDensityEstimator* createDensityEstimator() = 0;
-		virtual GaussDensityEstimator* createDensityEstimator(const GaussDensity&) = 0;
-		virtual AbstractMeanEstimator* createMeanEstimator() = 0;
-		virtual AbstractMeanEstimator* createMeanEstimator(const Mean&) = 0;
-		virtual AbstractCovarianceEstimator* createCovarianceEstimator() = 0;
-		virtual AbstractCovarianceEstimator* createCovarianceEstimator(const Covariance&) = 0;
+public:
+  enum Mode { modeViterbi, modeBaumWelch };
+  static const Core::Choice choiceMode;
+  static const Core::ParameterChoice paramMode;
+  static const Core::ParameterFloat paramMinObservationWeight;
+  static const Core::ParameterFloat paramMinRelativeWeight;
+  static const Core::ParameterFloat paramMinVariance;
+  static const Core::ParameterBool paramAllowZeroWeights;
+  static const Core::ParameterBool paramNormalizeMixtureWeights;
 
-		virtual AbstractMixtureEstimator& mixtureEstimator(MixtureIndex mixture) {
-			return *mixtureEstimators_[mixture];
-		}
-    public:
-		AbstractMixtureSetEstimator(const Core::Configuration&);
-		virtual ~AbstractMixtureSetEstimator() {}
+protected:
+  Core::Ref<const AssigningFeatureScorer> assigningFeatureScorer_;
+  bool viterbi_;
+  Weight weightThreshold_;
+  Weight minObservationWeight_;
+  Weight minRelativeWeight_;
+  VarianceType minVariance_;
+  bool allowZeroWeights_;
+  bool normalizeMixtureWeights_;
+  Core::Statistics<f64> scoreStatistics_;
+  ProbabilityStatistics weightStats_, dnsPosteriorStats_, finalWeightStats_;
+  mutable Core::XmlChannel accumulationChannel_;
+  MixtureEstimators mixtureEstimators_;
+  ComponentIndex dimension_;
+  u32 version_;
 
-		void setTopology(Core::Ref<const MixtureSet>);
-		MixtureIndex nMixtures() const { return mixtureEstimators_.size(); }
-		ComponentIndex dimension() const { return dimension_; }
+protected:
+  void removeDensitiesWithZeroWeight();
+  void removeDensitiesWithLowWeight(Weight minObservationWeight,
+                                    Weight minRelativeWeight);
+  DensityIndex densityIndex(MixtureIndex, Core::Ref<const Feature::Vector>);
+  void getDensityPosteriorProbabilities(MixtureIndex,
+                                        Core::Ref<const Feature::Vector>,
+                                        std::vector<Mm::Weight> &);
+  void readHeader(Core::BinaryInputStream &);
+  void writeHeader(Core::BinaryOutputStream &);
 
-		MixtureEstimators* getMixtureEstimators(){ return &mixtureEstimators_; }
+  virtual bool accumulateDensity(Core::BinaryInputStreams &is,
+                                 Core::BinaryOutputStream &os);
+  virtual bool accumulateMixture(Core::BinaryInputStreams &is,
+                                 Core::BinaryOutputStream &os);
+  virtual const std::string magic() const = 0;
 
-		Weight minObservationWeight() const { return minObservationWeight_; }
-		Weight minRelativeWeight() const { return minRelativeWeight_; }
+protected:
+  virtual AbstractMixtureEstimator *createMixtureEstimator() = 0;
+  virtual GaussDensityEstimator *createDensityEstimator() = 0;
+  virtual GaussDensityEstimator *
+  createDensityEstimator(const GaussDensity &) = 0;
+  virtual AbstractMeanEstimator *createMeanEstimator() = 0;
+  virtual AbstractMeanEstimator *createMeanEstimator(const Mean &) = 0;
+  virtual AbstractCovarianceEstimator *createCovarianceEstimator() = 0;
+  virtual AbstractCovarianceEstimator *
+  createCovarianceEstimator(const Covariance &) = 0;
 
-		void checkEventsWithZeroWeight();
+  virtual AbstractMixtureEstimator &mixtureEstimator(MixtureIndex mixture) {
+    return *mixtureEstimators_[mixture];
+  }
 
-		void setAssigningFeatureScorer(
-									   Core::Ref<const AssigningFeatureScorer > assigningFeatureScorer) {
-			assigningFeatureScorer_ = assigningFeatureScorer;
-		}
-		void accumulate(MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector>);
-		void accumulate(MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector>, Weight);
-		virtual bool accumulate(const AbstractMixtureSetEstimator&);
-		virtual bool accumulate(Core::BinaryInputStreams &is, Core::BinaryOutputStream &os);
-		virtual void reset();
+public:
+  AbstractMixtureSetEstimator(const Core::Configuration &);
+  virtual ~AbstractMixtureSetEstimator() {}
 
-		/**
-		 * add new mixture estimators
-		 */
-		bool addMixtureEstimators(const AbstractMixtureSetEstimator &estimator);
+  void setTopology(Core::Ref<const MixtureSet>);
+  MixtureIndex nMixtures() const { return mixtureEstimators_.size(); }
+  ComponentIndex dimension() const { return dimension_; }
 
-		/**
-		 * accumulate a single covariance estimator from all estimators.
-		 * update all density estimators to use this covariance.
-		 */
-		bool createPooledCovarianceEstimator();
-		/**
-		 * create a copy of a pooled covariance estimator
-		 * and set it as mixture specific covariance estimator
-		 * in all densities
-		 */
-		bool createMixtureSpecificCovarianceEstimator();
+  MixtureEstimators *getMixtureEstimators() { return &mixtureEstimators_; }
 
-		Core::Ref<MixtureSet> estimate();
-		virtual void estimate(MixtureSet&);
-		void estimate(MixtureSet&,
-					  std::vector<Weight> &meanObservationWeights,
-					  std::vector<Weight> &covarianceObservationWeights);
+  Weight minObservationWeight() const { return minObservationWeight_; }
+  Weight minRelativeWeight() const { return minRelativeWeight_; }
 
-		virtual void read(Core::BinaryInputStream&) = 0;
-		virtual void write(Core::BinaryOutputStream&) = 0;
-		virtual void write(Core::XmlWriter&) = 0;
+  void checkEventsWithZeroWeight();
 
-		bool equalTopology(const AbstractMixtureSetEstimator&) const;
-		virtual bool operator==(const AbstractMixtureSetEstimator&) const;
+  void setAssigningFeatureScorer(
+      Core::Ref<const AssigningFeatureScorer> assigningFeatureScorer) {
+    assigningFeatureScorer_ = assigningFeatureScorer;
+  }
+  void accumulate(MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector>);
+  void accumulate(MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector>,
+                  Weight);
+  virtual bool accumulate(const AbstractMixtureSetEstimator &);
+  virtual bool accumulate(Core::BinaryInputStreams &is,
+                          Core::BinaryOutputStream &os);
+  virtual void reset();
 
-		void writeStatistics() const;
+  /**
+   * add new mixture estimators
+   */
+  bool addMixtureEstimators(const AbstractMixtureSetEstimator &estimator);
 
-		bool map(const std::string &mapping);
-		bool changeDensityMixtureAssignment(std::vector< std::vector<DensityIndex> > stateDensityTable);
+  /**
+   * accumulate a single covariance estimator from all estimators.
+   * update all density estimators to use this covariance.
+   */
+  bool createPooledCovarianceEstimator();
+  /**
+   * create a copy of a pooled covariance estimator
+   * and set it as mixture specific covariance estimator
+   * in all densities
+   */
+  bool createMixtureSpecificCovarianceEstimator();
 
-		void setWeightThreshold(Weight weightThreshold) {
-			weightThreshold_ = weightThreshold;
-		}
-    };
+  Core::Ref<MixtureSet> estimate();
+  virtual void estimate(MixtureSet &);
+  void estimate(MixtureSet &, std::vector<Weight> &meanObservationWeights,
+                std::vector<Weight> &covarianceObservationWeights);
 
-    /** Reference table representation of AbstractMixtureSetEstimator
-     *
-     *  Density object are collected in densityMap_, mean objects in meanMap_,
-     *  and covariance objects in covarianceMap_.
-     *  Each map supports following to operations:
-     *    -reference->index: map[Core::Ref<..> object] -> size_t index
-     *    -index->reference: map[size_t index]->size_t -> Core::Ref<..> object
-     */
-    class MixtureSetEstimatorIndexMap
-    {
-    private:
-		ReferenceIndexMap<GaussDensityEstimator> densityMap_;
-		ReferenceIndexMap<AbstractMeanEstimator> meanMap_;
-		ReferenceIndexMap<AbstractCovarianceEstimator> covarianceMap_;
-    public:
-		MixtureSetEstimatorIndexMap(const AbstractMixtureSetEstimator&);
+  virtual void read(Core::BinaryInputStream &) = 0;
+  virtual void write(Core::BinaryOutputStream &) = 0;
+  virtual void write(Core::XmlWriter &) = 0;
 
-		const ReferenceIndexMap<GaussDensityEstimator>& densityMap() const { return densityMap_; }
-		const ReferenceIndexMap<AbstractMeanEstimator>& meanMap() const { return meanMap_; }
-		const ReferenceIndexMap<AbstractCovarianceEstimator>& covarianceMap() const { return covarianceMap_; }
-    };
+  bool equalTopology(const AbstractMixtureSetEstimator &) const;
+  virtual bool operator==(const AbstractMixtureSetEstimator &) const;
 
+  void writeStatistics() const;
 
-	/** defines a mixture-to-mixture id mapping based on a mapping file */
-	class MixtureToMixtureMap :
-		public std::vector< Core::hash_set<MixtureIndex> >
-	{
-	public:
-		typedef Core::hash_set<MixtureIndex> MixtureSet;
-		typedef std::vector< MixtureSet > MixtureMap;
-	private:
-		u32 nOfMappedMixtures_;
-	public:
-		MixtureSet& mixtureSet(size_t m);
+  bool map(const std::string &mapping);
+  bool changeDensityMixtureAssignment(
+      std::vector<std::vector<DensityIndex> > stateDensityTable);
 
-		/** loads a white-space separated mixture-to-mixture id mapping file */
-		bool load(const std::string &filename);
+  void setWeightThreshold(Weight weightThreshold) {
+    weightThreshold_ = weightThreshold;
+  }
+};
 
-		u32 nMixtures() const { return size() ;}
-		u32 nMappedMixtures() const { return nOfMappedMixtures_ ;}
-	};
+/** Reference table representation of AbstractMixtureSetEstimator
+ *
+ *  Density object are collected in densityMap_, mean objects in meanMap_,
+ *  and covariance objects in covarianceMap_.
+ *  Each map supports following to operations:
+ *    -reference->index: map[Core::Ref<..> object] -> size_t index
+ *    -index->reference: map[size_t index]->size_t -> Core::Ref<..> object
+ */
+class MixtureSetEstimatorIndexMap {
+private:
+  ReferenceIndexMap<GaussDensityEstimator> densityMap_;
+  ReferenceIndexMap<AbstractMeanEstimator> meanMap_;
+  ReferenceIndexMap<AbstractCovarianceEstimator> covarianceMap_;
 
+public:
+  MixtureSetEstimatorIndexMap(const AbstractMixtureSetEstimator &);
 
-} //namespace Mm
+  const ReferenceIndexMap<GaussDensityEstimator> &densityMap() const {
+    return densityMap_;
+  }
+  const ReferenceIndexMap<AbstractMeanEstimator> &meanMap() const {
+    return meanMap_;
+  }
+  const ReferenceIndexMap<AbstractCovarianceEstimator> &covarianceMap() const {
+    return covarianceMap_;
+  }
+};
+
+/** defines a mixture-to-mixture id mapping based on a mapping file */
+class MixtureToMixtureMap : public std::vector<Core::hash_set<MixtureIndex> > {
+public:
+  typedef Core::hash_set<MixtureIndex> MixtureSet;
+  typedef std::vector<MixtureSet> MixtureMap;
+
+private:
+  u32 nOfMappedMixtures_;
+
+public:
+  MixtureSet &mixtureSet(size_t m);
+
+  /** loads a white-space separated mixture-to-mixture id mapping file */
+  bool load(const std::string &filename);
+
+  u32 nMixtures() const { return size(); }
+  u32 nMappedMixtures() const { return nOfMappedMixtures_; }
+};
+
+} // namespace Mm
 
 #endif //_MM_ABSTRACT_MIXTURE_SET_ESTIMATOR_HH

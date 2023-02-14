@@ -11,40 +11,41 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Core/StringUtilities.hh>
 #include "Synchronization.hh"
+#include <Core/StringUtilities.hh>
 
 using namespace Flow;
 
-
 bool Synchronization::work(const Timestamp &time, DataPointer &dataPointer) {
 
-    DataPointer in;
-    Time startTime = time.startTime();
-    do {
-	if (!nextData(in)) {
-	    lastError_ = Core::form("Input stream ended before the start-time %f.", startTime);
-	    return false;
-	}
-    } while(Core::isSignificantlyGreater(startTime, in->startTime(), timeTolerance));
-
-
-    if (!Core::isAlmostEqual(startTime, in->startTime(), timeTolerance)) {
-	lastError_ = Core::form("Input stream has no element with the start-time %f.", startTime);
-	return false;
+  DataPointer in;
+  Time startTime = time.startTime();
+  do {
+    if (!nextData(in)) {
+      lastError_ =
+          Core::form("Input stream ended before the start-time %f.", startTime);
+      return false;
     }
+  } while (
+      Core::isSignificantlyGreater(startTime, in->startTime(), timeTolerance));
 
-    dataPointer = in;
-    return true;
+  if (!Core::isAlmostEqual(startTime, in->startTime(), timeTolerance)) {
+    lastError_ = Core::form(
+        "Input stream has no element with the start-time %f.", startTime);
+    return false;
+  }
+
+  dataPointer = in;
+  return true;
 }
 
 bool TimestampCopy::work(const Timestamp &time, DataPointer &dataPointer) {
-    if (!nextData(dataPointer)) {
-	lastError_ = "input stream endet before target stream";
-	return false;
-    }
-    dataPointer->setTimestamp(time);
-    return true;
+  if (!nextData(dataPointer)) {
+    lastError_ = "input stream endet before target stream";
+    return false;
+  }
+  dataPointer->setTimestamp(time);
+  return true;
 }
 
 // SynchronizationNode
@@ -52,8 +53,7 @@ bool TimestampCopy::work(const Timestamp &time, DataPointer &dataPointer) {
 
 namespace Flow {
 
-    Core::ParameterBool paramSynchronizationIgnoreErrors
-    ("ignore-errors", "ignore if the synchronization algorithm fails", false);
+Core::ParameterBool paramSynchronizationIgnoreErrors(
+    "ignore-errors", "ignore if the synchronization algorithm fails", false);
 
 } // namespace Flow
-

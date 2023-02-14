@@ -15,66 +15,60 @@
 
 using namespace Speech;
 
-
-Core::Ref<const Mm::Feature::Vector> Feature::convert(Flow::DataPtr<FlowVector> &v)
-{
-    v.makePrivate();
-    Vector *r = new Mm::Feature::Vector;
-    std::swap(*r, *v.get());
-    delete v.release();
-    return Core::ref(r);
+Core::Ref<const Mm::Feature::Vector>
+Feature::convert(Flow::DataPtr<FlowVector> &v) {
+  v.makePrivate();
+  Vector *r = new Mm::Feature::Vector;
+  std::swap(*r, *v.get());
+  delete v.release();
+  return Core::ref(r);
 }
 
-void Feature::take(Flow::DataPtr<FlowVector> &v)
-{
-    require_(v);
+void Feature::take(Flow::DataPtr<FlowVector> &v) {
+  require_(v);
 
-    clear();
-    setTimestamp(*v);
-    add(convert(v));
+  clear();
+  setTimestamp(*v);
+  add(convert(v));
 }
 
+void Feature::take(Flow::DataPtr<FlowFeature> &f) {
+  require_(f);
 
-void Feature::take(Flow::DataPtr<FlowFeature> &f)
-{
-    require_(f);
+  /*
+   * Note: FlowFeature object might reference FlowVectors alone (strong
+   * indication for an optimized covertion of them) but the FlowFeature can be
+   * referenced more times. Thus, optimized conversion is only possible if
+   * FlowFeature is referenced only once.
+   */
+  f.makePrivate();
 
-    /*
-     * Note: FlowFeature object might reference FlowVectors alone (strong indication
-     * for an optimized covertion of them) but the FlowFeature can be referenced more times.
-     * Thus, optimized conversion is only possible if FlowFeature is referenced only once.
-     */
-    f.makePrivate();
-
-    clear();
-    setTimestamp(*f);
-    for(size_t i = 0; i < f->size(); ++i)
-	add(i, convert((*f)[i]));
+  clear();
+  setTimestamp(*f);
+  for (size_t i = 0; i < f->size(); ++i)
+    add(i, convert((*f)[i]));
 }
 
-
-bool Feature::take(Flow::DataPtr<Flow::Timestamp> &t)
-{
-    if (t) {
-	Flow::DataPtr<FlowVector> f(t);
-	if (f) {
-	    t.reset();
-	    take(f);
-	    return true;
-	} else {
-	    Flow::DataPtr<FlowFeature> f(t);
-	    if (f) {
-		t.reset();
-		take(f);
-		return true;
-	    }
-	}
+bool Feature::take(Flow::DataPtr<Flow::Timestamp> &t) {
+  if (t) {
+    Flow::DataPtr<FlowVector> f(t);
+    if (f) {
+      t.reset();
+      take(f);
+      return true;
+    } else {
+      Flow::DataPtr<FlowFeature> f(t);
+      if (f) {
+        t.reset();
+        take(f);
+        return true;
+      }
     }
-    return false;
+  }
+  return false;
 }
 
-
-Mm::FeatureDescription* Feature::getDescription(const Core::Configurable &parent) const
-{
-    return new Mm::FeatureDescription(parent, *this);
+Mm::FeatureDescription *
+Feature::getDescription(const Core::Configurable &parent) const {
+  return new Mm::FeatureDescription(parent, *this);
 }

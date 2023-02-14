@@ -14,8 +14,8 @@
 #ifndef _BLISS_CORPUS_PARSER_HH
 #define _BLISS_CORPUS_PARSER_HH
 
-#include <Core/XmlBuilder.hh>
 #include "CorpusDescription.hh"
+#include <Core/XmlBuilder.hh>
 
 namespace Bliss {
 
@@ -31,70 +31,69 @@ class OrthographyElement;
  * CorpusDescription.
  */
 
-class CorpusDescriptionParser :
-    public Core::XmlSchemaParser
-{
+class CorpusDescriptionParser : public Core::XmlSchemaParser {
 private:
-    typedef CorpusDescriptionParser Self;
+  typedef CorpusDescriptionParser Self;
 
-    CorpusVisitor *corpusVisitor_ ;
+  CorpusVisitor *corpusVisitor_;
 
-    std::string   corpusDir_;
-    std::string   audioDir_;
-    std::string   videoDir_;
-    bool          shallCaptializeTranscriptions_;
-    bool          shallGemenizeTranscriptions_;
-    bool          isSubParser_ ;
-    Corpus        *superCorpus_, *corpus_ ;
-    Recording     *recording_ ;
-    SpeechSegment *segment_ ;
-    int           segmentNum_;      // counter for enumeration of unnamed segments
-    CorpusSection *currentSection_; // current innermost corpus, subcorpus or recording
+  std::string corpusDir_;
+  std::string audioDir_;
+  std::string videoDir_;
+  bool shallCaptializeTranscriptions_;
+  bool shallGemenizeTranscriptions_;
+  bool isSubParser_;
+  Corpus *superCorpus_, *corpus_;
+  Recording *recording_;
+  SpeechSegment *segment_;
+  int segmentNum_; // counter for enumeration of unnamed segments
+  CorpusSection
+      *currentSection_; // current innermost corpus, subcorpus or recording
 
-    const Speaker *getSpeaker(const std::string &name) const;
-    const AcousticCondition *getCondition(const std::string &name) const;
+  const Speaker *getSpeaker(const std::string &name) const;
+  const AcousticCondition *getCondition(const std::string &name) const;
 
-    void startCorpus(const Core::XmlAttributes atts) ;
-    void endCorpus() ;
-    void startSubcorpus(const Core::XmlAttributes atts) ;
-    void endSubcorpus() ;
-    void include(const Core::XmlAttributes atts) ;
-    void startRecording(const Core::XmlAttributes atts) ;
-    void endRecording() ;
-    void startSegment(const Core::XmlAttributes atts) ;
-    void endSegment() ;
+  void startCorpus(const Core::XmlAttributes atts);
+  void endCorpus();
+  void startSubcorpus(const Core::XmlAttributes atts);
+  void endSubcorpus();
+  void include(const Core::XmlAttributes atts);
+  void startRecording(const Core::XmlAttributes atts);
+  void endRecording();
+  void startSegment(const Core::XmlAttributes atts);
+  void endSegment();
 
-    void defineSpeaker(std::auto_ptr<Speaker>&);
-    void selectDefaultSpeaker(const Core::XmlAttributes atts);
-    void defineSegmentSpeaker(std::auto_ptr<Speaker>&);
-    void selectSegmentSpeaker(const Core::XmlAttributes atts);
+  void defineSpeaker(std::auto_ptr<Speaker> &);
+  void selectDefaultSpeaker(const Core::XmlAttributes atts);
+  void defineSegmentSpeaker(std::auto_ptr<Speaker> &);
+  void selectSegmentSpeaker(const Core::XmlAttributes atts);
 
-    void defineCondition(std::auto_ptr<AcousticCondition>&);
-    void selectDefaultCondition(const Core::XmlAttributes atts);
-    void defineSegmentCondition(std::auto_ptr<AcousticCondition>&);
-    void selectSegmentCondition(const Core::XmlAttributes atts);
+  void defineCondition(std::auto_ptr<AcousticCondition> &);
+  void selectDefaultCondition(const Core::XmlAttributes atts);
+  void defineSegmentCondition(std::auto_ptr<AcousticCondition> &);
+  void selectSegmentCondition(const Core::XmlAttributes atts);
 
-    void setOrth(const std::string&);
+  void setOrth(const std::string &);
 
-    /**
-     * Include another corpus file at current (logical) position.
-     * @param relativeFilename path of the corpus file to be included.
-     * @c filename is resolved against the configuration and treated
-     * as a path relative to the current file. */
-    void includeFile(const std::string &relativeFilename) ;
+  /**
+   * Include another corpus file at current (logical) position.
+   * @param relativeFilename path of the corpus file to be included.
+   * @c filename is resolved against the configuration and treated
+   * as a path relative to the current file. */
+  void includeFile(const std::string &relativeFilename);
 
-    void initSchema() ;
-    CorpusDescriptionParser(const Core::Configuration&, Corpus*) ;
+  void initSchema();
+  CorpusDescriptionParser(const Core::Configuration &, Corpus *);
 
 public:
-    static const Core::ParameterString paramAudioDir;
-    static const Core::ParameterString paramVideoDir;
-    static const Core::ParameterBool paramCaptializeTranscriptions;
-    static const Core::ParameterBool paramGemenizeTranscriptions;
+  static const Core::ParameterString paramAudioDir;
+  static const Core::ParameterString paramVideoDir;
+  static const Core::ParameterBool paramCaptializeTranscriptions;
+  static const Core::ParameterBool paramGemenizeTranscriptions;
 
-    CorpusDescriptionParser(const Core::Configuration&) ;
+  CorpusDescriptionParser(const Core::Configuration &);
 
-    int accept(const std::string &filename, CorpusVisitor*);
+  int accept(const std::string &filename, CorpusVisitor *);
 };
 
 } // namespace Bliss

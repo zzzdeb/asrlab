@@ -20,134 +20,140 @@
 
 #include "Types.hh"
 
-
 namespace Core {
 
-    /**
-     * Choice class
-     *
-     * A choice is the symbolic mapping between enumerations and strings.
-     * Choices are used to specify enumerative parameters.
-     **/
+/**
+ * Choice class
+ *
+ * A choice is the symbolic mapping between enumerations and strings.
+ * Choices are used to specify enumerative parameters.
+ **/
 
-    class Choice {
-    public:
-	typedef s32 Value;
-	typedef std::pair<std::string, Value> IdentifierValuePair;
-	typedef std::vector<IdentifierValuePair> IdentifierValuePairList;
+class Choice {
+public:
+  typedef s32 Value;
+  typedef std::pair<std::string, Value> IdentifierValuePair;
+  typedef std::vector<IdentifierValuePair> IdentifierValuePairList;
 
-	static const Value IllegalValue;
-	static const char* const IllegalIdentifier;
-	static const char* endMark();
-    private:
-	class Item {
-	private:
-	    const std::string ident_;
-	    Value value_;
-	public:
-	    Item(const char * ident, const Value value) : ident_(ident), value_(value) {}
-	    const std::string & ident() const { return ident_; }
-	    Value value() const { return value_; }
-	    bool operator < (const Item& item) const { return ident_.compare(item.ident_) < 0; }
-	    bool operator == (const Item& item) const { return (value_ == item.value_) && (ident_ == item.ident_); }
-	};
+  static const Value IllegalValue;
+  static const char *const IllegalIdentifier;
+  static const char *endMark();
 
-	struct comp_by_value {
-	    bool operator () (const Item& item1, const Item& item2) const { return (item1.value() < item2.value()); }
-	};
+private:
+  class Item {
+  private:
+    const std::string ident_;
+    Value value_;
 
-    private:
-	const std::string illegalIdentifier;
-	std::set<Item> items_by_ident;
-	std::set<Item, comp_by_value> items_by_value;
+  public:
+    Item(const char *ident, const Value value) : ident_(ident), value_(value) {}
+    const std::string &ident() const { return ident_; }
+    Value value() const { return value_; }
+    bool operator<(const Item &item) const {
+      return ident_.compare(item.ident_) < 0;
+    }
+    bool operator==(const Item &item) const {
+      return (value_ == item.value_) && (ident_ == item.ident_);
+    }
+  };
 
-    public:
-	Choice();
+  struct comp_by_value {
+    bool operator()(const Item &item1, const Item &item2) const {
+      return (item1.value() < item2.value());
+    }
+  };
 
-	/**
-	 * Constructs the choice.
-	 * The parameters are specified as a list of pairs of strings and
-	 * enumeration (integer) values. varargs are used to allow for an
-	 * arbitrary number of different choices. The last identifier must
-	 * be 0 to mark the end of the list.
-	 **/
-	Choice(const char* ident, const Value value, ...);
+private:
+  const std::string illegalIdentifier;
+  std::set<Item> items_by_ident;
+  std::set<Item, comp_by_value> items_by_value;
 
-	/**
-	 * Constructs the choice.
-	 **/
-	Choice(const IdentifierValuePairList &);
+public:
+  Choice();
 
-	/**
-	 * Constructs the choice.
-	 * The vector of strings is mapped to a consecutive list of numbers
-	 * starting with 0, i.e. the identifier is the string and the value
-	 * equals the index.
-	 **/
-	Choice(const std::vector<std::string> &);
+  /**
+   * Constructs the choice.
+   * The parameters are specified as a list of pairs of strings and
+   * enumeration (integer) values. varargs are used to allow for an
+   * arbitrary number of different choices. The last identifier must
+   * be 0 to mark the end of the list.
+   **/
+  Choice(const char *ident, const Value value, ...);
 
-	void addChoice(const char*, Value);
+  /**
+   * Constructs the choice.
+   **/
+  Choice(const IdentifierValuePairList &);
 
-	/** Add identifier for smalles unused value. */
-	Value addChoice(const char*);
+  /**
+   * Constructs the choice.
+   * The vector of strings is mapped to a consecutive list of numbers
+   * starting with 0, i.e. the identifier is the string and the value
+   * equals the index.
+   **/
+  Choice(const std::vector<std::string> &);
 
-	/**
-	 * Returns the number of different choices.
-	 **/
-	u32 nChoices() const { return items_by_ident.size(); }
+  void addChoice(const char *, Value);
 
-	/**
-	 * Get a list of possible values (may contain duplicates)
-	 **/
-	void getValues(std::vector<Value> &) const;
+  /** Add identifier for smalles unused value. */
+  Value addChoice(const char *);
 
-	/**
-	 * Get a list of possible identifiers (may contain duplicates)
-	 **/
-	void getIdentifiers(std::vector<std::string> &) const;
+  /**
+   * Returns the number of different choices.
+   **/
+  u32 nChoices() const { return items_by_ident.size(); }
 
-	/**
-	 * Returns the enumeration value of a choice or Choice::Illegal
-	 * if ident is not a valid identifier.
-	 * @param ident choice identifier
-	 **/
-	Value operator[] (const std::string& ident) const;
+  /**
+   * Get a list of possible values (may contain duplicates)
+   **/
+  void getValues(std::vector<Value> &) const;
 
-	/**
-	 * Returns the identifier of a choice or an empty string
-	 * if ident is not a valid identifier.
-	 * @param value enumeration value
-	 **/
-	const std::string & operator[] (const Value& value) const;
+  /**
+   * Get a list of possible identifiers (may contain duplicates)
+   **/
+  void getIdentifiers(std::vector<std::string> &) const;
 
+  /**
+   * Returns the enumeration value of a choice or Choice::Illegal
+   * if ident is not a valid identifier.
+   * @param ident choice identifier
+   **/
+  Value operator[](const std::string &ident) const;
 
-	/**
-	 * Returns true, iff both choices define
-	 * exactly the same mapping.
-	 * @param choice instance of Choice
-	 **/
-	bool operator==(const Choice & choice) const;
+  /**
+   * Returns the identifier of a choice or an empty string
+   * if ident is not a valid identifier.
+   * @param value enumeration value
+   **/
+  const std::string &operator[](const Value &value) const;
 
-	/**
-	 * Print a comma separated list of all identifiers.
-	 **/
-	void printIdentifiers(std::ostream&) const;
+  /**
+   * Returns true, iff both choices define
+   * exactly the same mapping.
+   * @param choice instance of Choice
+   **/
+  bool operator==(const Choice &choice) const;
 
-	/**
-	 * Iterator
-	 **/
-	typedef std::set<Item>::const_iterator const_iterator;
-	const_iterator begin() const { return items_by_ident.begin(); }
-	const_iterator end() const { return items_by_ident.end(); }
-    };
+  /**
+   * Print a comma separated list of all identifiers.
+   **/
+  void printIdentifiers(std::ostream &) const;
 
-    /** Predefined Choice for boolean values.
-     * (e.g. "true", "false, "yes", "no" ...). */
-    extern const Choice boolChoice;
+  /**
+   * Iterator
+   **/
+  typedef std::set<Item>::const_iterator const_iterator;
+  const_iterator begin() const { return items_by_ident.begin(); }
+  const_iterator end() const { return items_by_ident.end(); }
+};
 
-    /** Predefined Choice for "inifinite" numbers.
-     * (e.g. "infinite", "-infinity", "unlimited" ...) */
-    extern const Choice infinityChoice;
+/** Predefined Choice for boolean values.
+ * (e.g. "true", "false, "yes", "no" ...). */
+extern const Choice boolChoice;
+
+/** Predefined Choice for "inifinite" numbers.
+ * (e.g. "infinite", "-infinity", "unlimited" ...) */
+extern const Choice infinityChoice;
 
 } // namespace Core
 

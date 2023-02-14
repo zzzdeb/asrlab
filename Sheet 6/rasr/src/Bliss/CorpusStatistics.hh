@@ -19,121 +19,117 @@
 #include <Core/ReferenceCounting.hh>
 #include <list>
 namespace Bliss {
-    class Lexicon;
-    class OrthographicParser;
-}
+class Lexicon;
+class OrthographicParser;
+} // namespace Bliss
 
 namespace Bliss {
 
-    class CorpusStatisticsVisitor :
-	public Core::Component,
-	public CorpusVisitor
-    {
-    public:
-	CorpusStatisticsVisitor(const Core::Configuration &c) : Component(c) {};
-	virtual void reset() = 0;
-	virtual void writeReport(Core::XmlWriter&) const = 0;
-    };
+class CorpusStatisticsVisitor : public Core::Component, public CorpusVisitor {
+public:
+  CorpusStatisticsVisitor(const Core::Configuration &c) : Component(c){};
+  virtual void reset() = 0;
+  virtual void writeReport(Core::XmlWriter &) const = 0;
+};
 
-    class CorpusSizeStatisticsVisitor :
-	public CorpusStatisticsVisitor
-    {
-    private:
-	unsigned int nRecordings_, nSpeechSegments_, nOtherSegments_;
-	Time totalNetDuration_, totalGrossDuration_;
-	unsigned int nNetTimeFrames_;
+class CorpusSizeStatisticsVisitor : public CorpusStatisticsVisitor {
+private:
+  unsigned int nRecordings_, nSpeechSegments_, nOtherSegments_;
+  Time totalNetDuration_, totalGrossDuration_;
+  unsigned int nNetTimeFrames_;
 
-    public:
-	CorpusSizeStatisticsVisitor(const Core::Configuration &c) : CorpusStatisticsVisitor(c) {};
-	virtual void enterRecording(Recording*);
-	virtual void visitSegment(Segment*);
-	virtual void visitSpeechSegment(SpeechSegment*);
+public:
+  CorpusSizeStatisticsVisitor(const Core::Configuration &c)
+      : CorpusStatisticsVisitor(c){};
+  virtual void enterRecording(Recording *);
+  virtual void visitSegment(Segment *);
+  virtual void visitSpeechSegment(SpeechSegment *);
 
-	virtual void reset();
-	virtual void writeReport(Core::XmlWriter&) const;
-    };
+  virtual void reset();
+  virtual void writeReport(Core::XmlWriter &) const;
+};
 
-    class CorpusSpeakerStatisticsVisitor :
-	public CorpusStatisticsVisitor
-    {
-    private:
-	struct SpeakerStatistics {
-	    unsigned int nSegments;
-	    Time totalDuration;
-	    SpeakerStatistics() : nSegments(0), totalDuration(0.0) {}
-	};
-	void writeSpeakerStatistics(const SpeakerStatistics&, Core::XmlWriter&) const;
-	typedef Core::StringHashMap<SpeakerStatistics> SpeakerStatisticsMap;
-	SpeakerStatisticsMap speakerStatistics_;
-	SpeakerStatistics noSpeaker_;
-	SpeakerStatistics genderStatistics_[Speaker::nGenders];
-	typedef Core::StringHashSet SpeakerSet;
-	SpeakerSet genderSpeakers_[Speaker::nGenders];
-	void accu(SpeakerStatistics&, const SpeechSegment*);
-    public:
-	CorpusSpeakerStatisticsVisitor(const Core::Configuration &c) : CorpusStatisticsVisitor(c) {};
-	virtual void visitSpeechSegment(SpeechSegment*);
-	virtual void reset();
-	virtual void writeReport(Core::XmlWriter&) const;
-    };
+class CorpusSpeakerStatisticsVisitor : public CorpusStatisticsVisitor {
+private:
+  struct SpeakerStatistics {
+    unsigned int nSegments;
+    Time totalDuration;
+    SpeakerStatistics() : nSegments(0), totalDuration(0.0) {}
+  };
+  void writeSpeakerStatistics(const SpeakerStatistics &,
+                              Core::XmlWriter &) const;
+  typedef Core::StringHashMap<SpeakerStatistics> SpeakerStatisticsMap;
+  SpeakerStatisticsMap speakerStatistics_;
+  SpeakerStatistics noSpeaker_;
+  SpeakerStatistics genderStatistics_[Speaker::nGenders];
+  typedef Core::StringHashSet SpeakerSet;
+  SpeakerSet genderSpeakers_[Speaker::nGenders];
+  void accu(SpeakerStatistics &, const SpeechSegment *);
 
-    class CorpusConditionStatisticsVisitor :
-	public CorpusStatisticsVisitor
-    {
-    private:
-	struct ConditionStatistics {
-	    unsigned int nSegments;
-	    Time totalDuration;
-	    ConditionStatistics() : nSegments(0), totalDuration(0.0) {}
-	};
-	void writeConditionStatistics(const ConditionStatistics&, Core::XmlWriter&) const;
-	typedef Core::StringHashMap<ConditionStatistics> ConditionStatisticsMap;
-	ConditionStatisticsMap conditionStatistics_;
-	ConditionStatistics noCondition_;
-	typedef Core::StringHashSet ConditionSet;
-	void accu(ConditionStatistics&, const Segment*);
-    public:
-	CorpusConditionStatisticsVisitor(const Core::Configuration &c) : CorpusStatisticsVisitor(c) {};
-	virtual void visitSegment(Segment*);
-	virtual void reset();
-	virtual void writeReport(Core::XmlWriter&) const;
-    };
+public:
+  CorpusSpeakerStatisticsVisitor(const Core::Configuration &c)
+      : CorpusStatisticsVisitor(c){};
+  virtual void visitSpeechSegment(SpeechSegment *);
+  virtual void reset();
+  virtual void writeReport(Core::XmlWriter &) const;
+};
 
-    class CorpusLexicalStatisticsVisitor :
-	public CorpusStatisticsVisitor
-    {
-    private:
-	Core::Ref<const Lexicon> lexicon_;
-	OrthographicParser *orthographicParser_;
-	class Internal;
-	Internal *internal_;
+class CorpusConditionStatisticsVisitor : public CorpusStatisticsVisitor {
+private:
+  struct ConditionStatistics {
+    unsigned int nSegments;
+    Time totalDuration;
+    ConditionStatistics() : nSegments(0), totalDuration(0.0) {}
+  };
+  void writeConditionStatistics(const ConditionStatistics &,
+                                Core::XmlWriter &) const;
+  typedef Core::StringHashMap<ConditionStatistics> ConditionStatisticsMap;
+  ConditionStatisticsMap conditionStatistics_;
+  ConditionStatistics noCondition_;
+  typedef Core::StringHashSet ConditionSet;
+  void accu(ConditionStatistics &, const Segment *);
 
-    public:
-	CorpusLexicalStatisticsVisitor(const Core::Configuration&, Core::Ref<const Lexicon>);
-	virtual ~CorpusLexicalStatisticsVisitor();
-	virtual void visitSpeechSegment(SpeechSegment*);
-	virtual void reset();
-	virtual void writeReport(Core::XmlWriter&) const;
-    };
+public:
+  CorpusConditionStatisticsVisitor(const Core::Configuration &c)
+      : CorpusStatisticsVisitor(c){};
+  virtual void visitSegment(Segment *);
+  virtual void reset();
+  virtual void writeReport(Core::XmlWriter &) const;
+};
 
-    class CompositeCorpusStatisticsVisitor :
-	public CorpusStatisticsVisitor
-    {
-    private:
-	typedef std::list<CorpusStatisticsVisitor*> ComponentList;
-	ComponentList components_;
-    public:
-	CompositeCorpusStatisticsVisitor(const Core::Configuration&);
-	void add(CorpusStatisticsVisitor*);
+class CorpusLexicalStatisticsVisitor : public CorpusStatisticsVisitor {
+private:
+  Core::Ref<const Lexicon> lexicon_;
+  OrthographicParser *orthographicParser_;
+  class Internal;
+  Internal *internal_;
 
-	virtual void enterRecording(Recording*);
-	virtual void leaveRecording(Recording*);
-	virtual void visitSegment(Segment*);
-	virtual void visitSpeechSegment(SpeechSegment*);
+public:
+  CorpusLexicalStatisticsVisitor(const Core::Configuration &,
+                                 Core::Ref<const Lexicon>);
+  virtual ~CorpusLexicalStatisticsVisitor();
+  virtual void visitSpeechSegment(SpeechSegment *);
+  virtual void reset();
+  virtual void writeReport(Core::XmlWriter &) const;
+};
 
-	virtual void reset();
-	virtual void writeReport(Core::XmlWriter&) const;
-    };
+class CompositeCorpusStatisticsVisitor : public CorpusStatisticsVisitor {
+private:
+  typedef std::list<CorpusStatisticsVisitor *> ComponentList;
+  ComponentList components_;
+
+public:
+  CompositeCorpusStatisticsVisitor(const Core::Configuration &);
+  void add(CorpusStatisticsVisitor *);
+
+  virtual void enterRecording(Recording *);
+  virtual void leaveRecording(Recording *);
+  virtual void visitSegment(Segment *);
+  virtual void visitSpeechSegment(SpeechSegment *);
+
+  virtual void reset();
+  virtual void writeReport(Core::XmlWriter &) const;
+};
 
 } // namespace Bliss
 

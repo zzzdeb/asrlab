@@ -19,161 +19,162 @@
 #ifdef OS_linux
 #include <execinfo.h>
 #endif
-#include <signal.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <cstdio>
-#include <iostream>
-#include <fstream>
 #include <Application.hh>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 namespace AssertionsPrivate {
 
 void stackTrace(std::ostream &os, int cutoff) {
 #ifdef OS_linux
 #ifdef DEBUG
-    static const size_t maxTraces = 100;
+  static const size_t maxTraces = 100;
 
-    // Get backtrace lines
-    void *array[maxTraces];
-    size_t nTraces = backtrace(array, maxTraces);
-    char **strings = backtrace_symbols(array, nTraces);
+  // Get backtrace lines
+  void *array[maxTraces];
+  size_t nTraces = backtrace(array, maxTraces);
+  char **strings = backtrace_symbols(array, nTraces);
 
-    // Extract addresses
-    char *tmpNamBuf1 = "./bt-addresses.tmp";
-    char *tmpNamBuf2 = "./bt-results.tmp";
+  // Extract addresses
+  char *tmpNamBuf1 = "./bt-addresses.tmp";
+  char *tmpNamBuf2 = "./bt-results.tmp";
 
-    std::ofstream out(tmpNamBuf1);
-    for (size_t i=cutoff+1; i<nTraces; ++i) {
-	std::string line(strings[i]);
-	size_t firstAddrPos = line.find("[")+1;
-	size_t addrLength   = line.find("]" - firstAddrPos);
-	out << line.substr(firstAddrPos, addrLength) << std::endl;
-    }
-    out.close();
+  std::ofstream out(tmpNamBuf1);
+  for (size_t i = cutoff + 1; i < nTraces; ++i) {
+    std::string line(strings[i]);
+    size_t firstAddrPos = line.find("[") + 1;
+    size_t addrLength = line.find("]" - firstAddrPos);
+    out << line.substr(firstAddrPos, addrLength) << std::endl;
+  }
+  out.close();
 
-    // Run addr2line to get usable stack trace information
-    Core::Application *thisApp = Core::Application::us();
-    std::string addr2lineCmd = "addr2line -C -f -e " + thisApp->getPath() + "/" + thisApp->getBaseName() + " < " + tmpNamBuf1 + " > " + tmpNamBuf2;
+  // Run addr2line to get usable stack trace information
+  Core::Application *thisApp = Core::Application::us();
+  std::string addr2lineCmd = "addr2line -C -f -e " + thisApp->getPath() + "/" +
+                             thisApp->getBaseName() + " < " + tmpNamBuf1 +
+                             " > " + tmpNamBuf2;
 
-    os << std::endl << "Analyzing stack trace with command " << addr2lineCmd << std::endl;
-    os << "Please be patient (approx. 30 s)..." << std::endl;
-    system(addr2lineCmd.c_str());
+  os << std::endl
+     << "Analyzing stack trace with command " << addr2lineCmd << std::endl;
+  os << "Please be patient (approx. 30 s)..." << std::endl;
+  system(addr2lineCmd.c_str());
 
-    // Evaluate addr2line output
-    os << "Stack trace (innermost first):" << std::endl;
-    std::ifstream in(tmpNamBuf2);
-    for (size_t i=cutoff+1; i<nTraces; ++i){
-	std::string line1; getline(in, line1);
-	std::string line2; getline(in, line2);
-	std::string line(strings[i]);
-	size_t firstAddrPos = line.find("[");
-	size_t addrLength  = line.find("]") - firstAddrPos + 2;
-	os << "#" << i << ":\t" << line1 << std::endl;
-	os << "\t   at: " << line2 << " " << line.substr(firstAddrPos, addrLength) << std::endl;
-    }
+  // Evaluate addr2line output
+  os << "Stack trace (innermost first):" << std::endl;
+  std::ifstream in(tmpNamBuf2);
+  for (size_t i = cutoff + 1; i < nTraces; ++i) {
+    std::string line1;
+    getline(in, line1);
+    std::string line2;
+    getline(in, line2);
+    std::string line(strings[i]);
+    size_t firstAddrPos = line.find("[");
+    size_t addrLength = line.find("]") - firstAddrPos + 2;
+    os << "#" << i << ":\t" << line1 << std::endl;
+    os << "\t   at: " << line2 << " " << line.substr(firstAddrPos, addrLength)
+       << std::endl;
+  }
 
-    // Clean up.
-    free(strings);
-    unlink(tmpNamBuf1);
-    unlink(tmpNamBuf2);
+  // Clean up.
+  free(strings);
+  unlink(tmpNamBuf1);
+  unlink(tmpNamBuf2);
 
 #else
-    os << "Creating stack trace (innermost first):" << std::endl;
-    static const size_t maxTraces = 100;
-    void *array[maxTraces];
-    size_t nTraces = backtrace(array, maxTraces);
-    char **strings = backtrace_symbols(array, nTraces);
-    for (size_t i = cutoff+1; i < nTraces; i++)
-	os << '#' << i << "  " << strings[i] << std::endl;
-    free(strings);
+  os << "Creating stack trace (innermost first):" << std::endl;
+  static const size_t maxTraces = 100;
+  void *array[maxTraces];
+  size_t nTraces = backtrace(array, maxTraces);
+  char **strings = backtrace_symbols(array, nTraces);
+  for (size_t i = cutoff + 1; i < nTraces; i++)
+    os << '#' << i << "  " << strings[i] << std::endl;
+  free(strings);
 #endif // DEBUG
 #endif // OS_LINUX
 }
 
-void abort() __attribute__ ((noreturn));
+void abort() __attribute__((noreturn));
 
-
-void assertionFailed(const char *type,
-		     const char *expr,
-		     const char *function,
-		     const char *filename,
-		     unsigned int line) {
-    std::cerr << std::endl << std::endl
-	      << "PROGRAM DEFECTIVE:"
-	      << std::endl
-	      << type << ' ' << expr << " violated" << std::endl
-	      << "in " << function
-	      << " file " << filename << " line " << line << std::endl
-	      << std::endl;
-    stackTrace(std::cerr, 1);
-    std::cerr << std::endl << std::flush;
-    abort() ;
+void assertionFailed(const char *type, const char *expr, const char *function,
+                     const char *filename, unsigned int line) {
+  std::cerr << std::endl
+            << std::endl
+            << "PROGRAM DEFECTIVE:" << std::endl
+            << type << ' ' << expr << " violated" << std::endl
+            << "in " << function << " file " << filename << " line " << line
+            << std::endl
+            << std::endl;
+  stackTrace(std::cerr, 1);
+  std::cerr << std::endl << std::flush;
+  abort();
 }
 
-void hopeDisappointed(const char *expr,
-		      const char *function,
-		      const char *filename,
-		      unsigned int line) {
-    std::cerr << std::endl << std::endl
-	      << "RUNTIME ERROR:"
-	      << std::endl
-	      << "hope " << expr << " disappointed" << std::endl
-	      << "in " << function
-	      << " file " << filename << " line " << line;
-    if (errno) std::cerr << ": " << strerror(errno);
-    std::cerr << std::endl << std::endl;
-    stackTrace(std::cerr, 1);
-    std::cerr << std::endl
-	      << "PLEASE CONSIDER ADDING PROPER ERROR HANDLING !!!" << std::endl
-	      << std::endl << std::flush;
-    abort() ;
+void hopeDisappointed(const char *expr, const char *function,
+                      const char *filename, unsigned int line) {
+  std::cerr << std::endl
+            << std::endl
+            << "RUNTIME ERROR:" << std::endl
+            << "hope " << expr << " disappointed" << std::endl
+            << "in " << function << " file " << filename << " line " << line;
+  if (errno)
+    std::cerr << ": " << strerror(errno);
+  std::cerr << std::endl << std::endl;
+  stackTrace(std::cerr, 1);
+  std::cerr << std::endl
+            << "PLEASE CONSIDER ADDING PROPER ERROR HANDLING !!!" << std::endl
+            << std::endl
+            << std::flush;
+  abort();
 }
 
 class ErrorSignalHandler {
-    static volatile sig_atomic_t isHandlerActive;
-    static void handler(int);
+  static volatile sig_atomic_t isHandlerActive;
+  static void handler(int);
+
 public:
-    ErrorSignalHandler();
-    void abort();
+  ErrorSignalHandler();
+  void abort();
 };
 
 volatile sig_atomic_t ErrorSignalHandler::isHandlerActive = 0;
 
 void ErrorSignalHandler::handler(int sig) {
-    if (!isHandlerActive) {
-	isHandlerActive = 1;
-	std::cerr << std::endl << std::endl
-		  << "PROGRAM DEFECTIVE (TERMINATED BY SIGNAL):" << std::endl
-		  << strsignal(sig) << std::endl
-		  << std::endl;
-	stackTrace(std::cerr, 1);
-	std::cerr << std::endl << std::flush;
-    }
-    signal(sig, SIG_DFL);
-    raise(sig);
+  if (!isHandlerActive) {
+    isHandlerActive = 1;
+    std::cerr << std::endl
+              << std::endl
+              << "PROGRAM DEFECTIVE (TERMINATED BY SIGNAL):" << std::endl
+              << strsignal(sig) << std::endl
+              << std::endl;
+    stackTrace(std::cerr, 1);
+    std::cerr << std::endl << std::flush;
+  }
+  signal(sig, SIG_DFL);
+  raise(sig);
 }
 
 ErrorSignalHandler::ErrorSignalHandler() {
-    signal(SIGBUS,  handler);
-    signal(SIGFPE,  handler);
-    signal(SIGILL,  handler);
-    signal(SIGABRT, handler);
-    signal(SIGSEGV, handler);
-    signal(SIGSYS,  handler);
+  signal(SIGBUS, handler);
+  signal(SIGFPE, handler);
+  signal(SIGILL, handler);
+  signal(SIGABRT, handler);
+  signal(SIGSEGV, handler);
+  signal(SIGSYS, handler);
 }
 
 void ErrorSignalHandler::abort() {
-    signal(SIGABRT,  SIG_DFL);
-    ::abort();
-    signal(SIGABRT,  handler);
+  signal(SIGABRT, SIG_DFL);
+  ::abort();
+  signal(SIGABRT, handler);
 }
 
 static ErrorSignalHandler errorSignalHandler;
 
-void abort() {
-    errorSignalHandler.abort();
-}
+void abort() { errorSignalHandler.abort(); }
 
 } // namespace AssertionsPrivate

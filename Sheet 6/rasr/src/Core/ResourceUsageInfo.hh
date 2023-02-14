@@ -21,81 +21,83 @@ namespace Core {
 /**
  * process resource usage information
  */
-class ResourceUsageInfo
-{
+class ResourceUsageInfo {
 public:
-    typedef u64 SizeType;
-    typedef f64 TimeType;
+  typedef u64 SizeType;
+  typedef f64 TimeType;
 
-    ResourceUsageInfo();
+  ResourceUsageInfo();
 
-    /**
-     * update information
-     */
-    void update();
+  /**
+   * update information
+   */
+  void update();
 
-    /**
-     * user time used (in seconds).
-     * This is the total amount of time spent executing in user mode.
-     */
-    TimeType userTime() const { return utime_; }
-    /**
-     * System time used (in seconds).
-     * This is the total amount of time spent executing in kernel mode.
-     */
-    TimeType systemTime() const { return stime_; }
-    /**
-     * total time used.
-     * user time plus system time.
-     */
-    TimeType totalTime() const { return utime_+ stime_; }
-    /**
-     * Maximum resident set size used (in kilobytes).
-     */
-    SizeType maxResidentSetSize() const { return maxrss_; }
-    /**
-     * page reclaims.
-     * The number of page faults serviced without any I/O activity.
-     */
-    SizeType pageReclaims() const { return minflt_; }
-    /**
-     * page faults.
-     * The number of page faults serviced that required I/O activity.
-     */
-    SizeType pageFaults() const { return majflt_; }
-    /**
-     * block input operations.
-     * The number of times the file system had to perform input.
-     */
-    SizeType blockInputOps() const { return inblock_; }
-    /**
-     * block output operations.
-     * The number of times the file system had to perform output.
-     */
-    SizeType blockOutputOps() const { return outblock_; }
-    /**
-     * voluntary context switches.
-     * The number of times a context switch resulted due to a process
-     * voluntarily giving up the processor before its time slice was completed
-     */
-    SizeType voluntaryContextSwitches() const { return nvcsw_; }
-    /**
-     * involuntary context switches.
-     * The number of times a context switch resulted due to a higher priority
-     * process becoming runnable or because the current process exceeded its
-     * time slice.
-     */
-    SizeType involuntaryContextSwitches() const { return nicsw_; }
+  /**
+   * user time used (in seconds).
+   * This is the total amount of time spent executing in user mode.
+   */
+  TimeType userTime() const { return utime_; }
+  /**
+   * System time used (in seconds).
+   * This is the total amount of time spent executing in kernel mode.
+   */
+  TimeType systemTime() const { return stime_; }
+  /**
+   * total time used.
+   * user time plus system time.
+   */
+  TimeType totalTime() const { return utime_ + stime_; }
+  /**
+   * Maximum resident set size used (in kilobytes).
+   */
+  SizeType maxResidentSetSize() const { return maxrss_; }
+  /**
+   * page reclaims.
+   * The number of page faults serviced without any I/O activity.
+   */
+  SizeType pageReclaims() const { return minflt_; }
+  /**
+   * page faults.
+   * The number of page faults serviced that required I/O activity.
+   */
+  SizeType pageFaults() const { return majflt_; }
+  /**
+   * block input operations.
+   * The number of times the file system had to perform input.
+   */
+  SizeType blockInputOps() const { return inblock_; }
+  /**
+   * block output operations.
+   * The number of times the file system had to perform output.
+   */
+  SizeType blockOutputOps() const { return outblock_; }
+  /**
+   * voluntary context switches.
+   * The number of times a context switch resulted due to a process
+   * voluntarily giving up the processor before its time slice was completed
+   */
+  SizeType voluntaryContextSwitches() const { return nvcsw_; }
+  /**
+   * involuntary context switches.
+   * The number of times a context switch resulted due to a higher priority
+   * process becoming runnable or because the current process exceeded its
+   * time slice.
+   */
+  SizeType involuntaryContextSwitches() const { return nicsw_; }
 
-    void write(XmlWriter &os) const;
+  void write(XmlWriter &os) const;
 
 private:
-    SizeType maxrss_, minflt_, majflt_;
-    SizeType inblock_, outblock_, nvcsw_, nicsw_;
-    TimeType utime_, stime_;
+  SizeType maxrss_, minflt_, majflt_;
+  SizeType inblock_, outblock_, nvcsw_, nicsw_;
+  TimeType utime_, stime_;
 };
 
-inline XmlWriter &operator<<(XmlWriter &os, const ResourceUsageInfo &i) { i.write(os); return os; }
+inline XmlWriter &operator<<(XmlWriter &os, const ResourceUsageInfo &i) {
+  i.write(os);
+  return os;
+}
 
 } // namespace Core
 

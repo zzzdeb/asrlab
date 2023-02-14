@@ -17,62 +17,59 @@
 
 using namespace Cart;
 
-
-void Cluster::write(std::ostream & out) const {
-    out << "cluster " << node->id() << std::endl;
-    out << std::right;
-    u32 index = 1;
-    for (ConstExampleRefList::const_iterator it = exampleRefs->begin();
-	 it != exampleRefs->end(); ++it, ++index) {
-	out << std::setw(3) << std::right << index << ". ";
-	(*it)->write(out);
-	out << std::endl;
-    }
+void Cluster::write(std::ostream &out) const {
+  out << "cluster " << node->id() << std::endl;
+  out << std::right;
+  u32 index = 1;
+  for (ConstExampleRefList::const_iterator it = exampleRefs->begin();
+       it != exampleRefs->end(); ++it, ++index) {
+    out << std::setw(3) << std::right << index << ". ";
+    (*it)->write(out);
+    out << std::endl;
+  }
 }
 
-void Cluster::writeXml(Core::XmlWriter & xml) const {
-    xml << Core::XmlOpen("cluster")
-	+ Core::XmlAttribute("id", node->id());
-    for (ConstExampleRefList::const_iterator it = exampleRefs->begin();
-	 it != exampleRefs->end(); ++it)
-	(*it)->writeXml(xml);
-    xml << Core::XmlClose("cluster");
+void Cluster::writeXml(Core::XmlWriter &xml) const {
+  xml << Core::XmlOpen("cluster") + Core::XmlAttribute("id", node->id());
+  for (ConstExampleRefList::const_iterator it = exampleRefs->begin();
+       it != exampleRefs->end(); ++it)
+    (*it)->writeXml(xml);
+  xml << Core::XmlClose("cluster");
 }
 
 // ============================================================================
-const Core::ParameterString ClusterList::paramClusterFilename(
-    "cluster-file",
-    "name of cluster file");
+const Core::ParameterString
+    ClusterList::paramClusterFilename("cluster-file", "name of cluster file");
 
-void ClusterList::write(std::ostream & out) const {
-    out << "cluster-list:" << std::endl;
-    map_->write(out);
-    out << std::endl;
-    for (ClusterList::const_iterator it = clusterRefs_.begin();
-	 it != clusterRefs_.end(); ++it)
-	(*it)->write(out);
+void ClusterList::write(std::ostream &out) const {
+  out << "cluster-list:" << std::endl;
+  map_->write(out);
+  out << std::endl;
+  for (ClusterList::const_iterator it = clusterRefs_.begin();
+       it != clusterRefs_.end(); ++it)
+    (*it)->write(out);
 }
 
-void ClusterList::writeXml(Core::XmlWriter & xml) const {
-    xml << Core::XmlOpen("cluster-list");
-    map_->writeXml(xml);
-    for (ClusterList::const_iterator it = clusterRefs_.begin();
-	 it != clusterRefs_.end(); ++it)
-	(*it)->writeXml(xml);
-    xml << Core::XmlClose("cluster-list");
+void ClusterList::writeXml(Core::XmlWriter &xml) const {
+  xml << Core::XmlOpen("cluster-list");
+  map_->writeXml(xml);
+  for (ClusterList::const_iterator it = clusterRefs_.begin();
+       it != clusterRefs_.end(); ++it)
+    (*it)->writeXml(xml);
+  xml << Core::XmlClose("cluster-list");
 }
 
 void ClusterList::writeToFile() const {
-    std::string filename(paramClusterFilename(config));
-    if (!filename.empty()) {
-	log() << "write clusters to \"" << filename << "\"";
-	Core::XmlOutputStream xml(new Core::CompressedOutputStream(filename));
-	xml.generateFormattingHints(true);
-	xml.setIndentation(4);
-	xml.setMargin(78);
-	writeXml(xml);
-    } else {
-	warning("cannot store clusters, because no filename is given");
-    }
+  std::string filename(paramClusterFilename(config));
+  if (!filename.empty()) {
+    log() << "write clusters to \"" << filename << "\"";
+    Core::XmlOutputStream xml(new Core::CompressedOutputStream(filename));
+    xml.generateFormattingHints(true);
+    xml.setIndentation(4);
+    xml.setMargin(78);
+    writeXml(xml);
+  } else {
+    warning("cannot store clusters, because no filename is given");
+  }
 }
 // ============================================================================

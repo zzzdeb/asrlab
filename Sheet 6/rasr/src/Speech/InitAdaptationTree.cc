@@ -11,38 +11,36 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Core/Assertions.hh>
 #include "InitAdaptationTree.hh"
-
+#include <Core/Assertions.hh>
 
 using namespace Speech;
 
 InitAdaptationTree::InitAdaptationTree(
-    //    const Am::AllophoneStateAlphabet &allophoneStateAlphabet, const Core::Configuration& config ) :
-    Am::ClassicStateModelRef stateModel, const Core::Configuration& config ) :
-    mllrDectree_(0){
+    //    const Am::AllophoneStateAlphabet &allophoneStateAlphabet, const
+    //    Core::Configuration& config ) :
+    Am::ClassicStateModelRef stateModel, const Core::Configuration &config)
+    : mllrDectree_(0) {
 
-
-    mllrDectree_ = new Legacy::PhoneticDecisionTree(config, stateModel);
-    //    mllrDectree_ = new Legacy::PhoneticDecisionTree(config, allophoneStateAlphabet);
-    ensure(mllrDectree_);
+  mllrDectree_ = new Legacy::PhoneticDecisionTree(config, stateModel);
+  //    mllrDectree_ = new Legacy::PhoneticDecisionTree(config,
+  //    allophoneStateAlphabet);
+  ensure(mllrDectree_);
 }
 
-InitAdaptationTree::~InitAdaptationTree(){
-    delete mllrDectree_;
+InitAdaptationTree::~InitAdaptationTree() { delete mllrDectree_; }
+
+Core::Ref<Core::BinaryTree> InitAdaptationTree::adaptationTree() {
+  Core::Ref<Core::BinaryTree> tree(
+      new Core::BinaryTree(mllrDectree_->treeStructure()));
+  ensure(tree);
+  return tree;
 }
 
-Core::Ref<Core::BinaryTree> InitAdaptationTree::adaptationTree(){
-    Core::Ref<Core::BinaryTree>
-	tree(new Core::BinaryTree(mllrDectree_->treeStructure()));
-    ensure(tree);
-    return tree;
-}
+u32 InitAdaptationTree::classify(const Bliss::Phoneme::Id &p) const {
 
+  Am::Allophone ap(p,
+                   Am::Allophone::isInitialPhone | Am::Allophone::isFinalPhone);
 
-u32 InitAdaptationTree::classify(const Bliss::Phoneme::Id &p) const{
-
-    Am::Allophone ap(p, Am::Allophone::isInitialPhone | Am::Allophone::isFinalPhone);
-
-    return mllrDectree_->classify(Am::AllophoneState(ap, 0));
+  return mllrDectree_->classify(Am::AllophoneState(ap, 0));
 }

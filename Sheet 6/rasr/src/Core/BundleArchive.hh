@@ -14,49 +14,52 @@
 #ifndef _CORE_BUNDLE_ARCHIVE_HH
 #define _CORE_BUNDLE_ARCHIVE_HH
 
-#include <iostream>
 #include "Archive.hh"
 #include "Hash.hh"
+#include <iostream>
 
 namespace Core {
 
-    class BundleArchive : public virtual Archive {
-    private:
-	class FileInfo;
+class BundleArchive : public virtual Archive {
+private:
+  class FileInfo;
 
-	std::vector<std::string> archiveFiles_;
-	typedef Archive* ArchiveRef;
-	typedef std::map<u32, ArchiveRef> ArchiveCache;
-	mutable ArchiveCache archiveCache_;
-	StringHashMap<u32> fileMap_;
-	static const std::string suffix_;
+  std::vector<std::string> archiveFiles_;
+  typedef Archive *ArchiveRef;
+  typedef std::map<u32, ArchiveRef> ArchiveCache;
+  mutable ArchiveCache archiveCache_;
+  StringHashMap<u32> fileMap_;
+  static const std::string suffix_;
 
-	class _const_iterator;
-	friend class _const_iterator;
-    private:
-	bool readBundleContent(const std::string &filename);
-	bool readIndex(const std::string &filename);
-	bool writeIndex(const std::string &filename);
-	bool createIndex();
-	static std::string indexFile(const std::string &archiveFile);
-	ArchiveRef getArchive(const std::string &file) const;
+  class _const_iterator;
+  friend class _const_iterator;
 
-	friend class Archive;
-	static bool test(const std::string &path);
-    protected:
+private:
+  bool readBundleContent(const std::string &filename);
+  bool readIndex(const std::string &filename);
+  bool writeIndex(const std::string &filename);
+  bool createIndex();
+  static std::string indexFile(const std::string &archiveFile);
+  ArchiveRef getArchive(const std::string &file) const;
 
-	virtual bool discover(const std::string &name, Sizes &sizes) const;
-	virtual bool read(const std::string &name, std::string &b) const;
-	virtual bool write(const std::string &name, const std::string &b, const Sizes &sizes);
-	virtual bool remove(const std::string &name);
+  friend class Archive;
+  static bool test(const std::string &path);
 
-    public:
-	BundleArchive(const Configuration &config, const std::string &path = "", AccessMode access = AccessModeReadWrite);
-	virtual ~BundleArchive();
-	virtual const_iterator files() const;
-	virtual bool clear();
-	virtual bool recover();
-    };
+protected:
+  virtual bool discover(const std::string &name, Sizes &sizes) const;
+  virtual bool read(const std::string &name, std::string &b) const;
+  virtual bool write(const std::string &name, const std::string &b,
+                     const Sizes &sizes);
+  virtual bool remove(const std::string &name);
+
+public:
+  BundleArchive(const Configuration &config, const std::string &path = "",
+                AccessMode access = AccessModeReadWrite);
+  virtual ~BundleArchive();
+  virtual const_iterator files() const;
+  virtual bool clear();
+  virtual bool recover();
+};
 
 } // namespace Core
 

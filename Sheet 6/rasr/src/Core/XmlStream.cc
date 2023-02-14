@@ -17,200 +17,209 @@
 
 using namespace Core;
 
-class XmlWriter::Buffer :
-    public std::streambuf
-{
+class XmlWriter::Buffer : public std::streambuf {
 private:
-    XmlWriter *output_;
+  XmlWriter *output_;
+
 public:
-    Buffer(XmlWriter *xw) : output_(xw) {}
-    virtual int overflow(int c) {
-	if (c != EOF) output_->put(std::string(1, char(c)));
-	return c;
-    }
-    virtual std::streamsize xsputn(const char *u, std::streamsize n) {
-	output_->put(std::string(u, n));
-	return n;
-    }
+  Buffer(XmlWriter *xw) : output_(xw) {}
+  virtual int overflow(int c) {
+    if (c != EOF)
+      output_->put(std::string(1, char(c)));
+    return c;
+  }
+  virtual std::streamsize xsputn(const char *u, std::streamsize n) {
+    output_->put(std::string(u, n));
+    return n;
+  }
 };
 
-XmlWriter::XmlWriter(std::ostream &os) :
-    std::ostream(new Buffer(this)),
-    os_(os), inComment_(0), formattingHints_(false)
-{}
+XmlWriter::XmlWriter(std::ostream &os)
+    : std::ostream(new Buffer(this)), os_(os), inComment_(0),
+      formattingHints_(false) {}
 
 inline void XmlWriter::formattingHint(TextOutputStream::FormattingHint hint) {
-    if (shouldGenerateFormattingHints())
-	os_.put(hint);
+  if (shouldGenerateFormattingHints())
+    os_.put(hint);
 }
 
 void XmlWriter::putEscaped(const std::string &s, const char *escape) {
-    std::string::size_type i, j;
-    for (i = 0; i < s.size(); i = j+1) {
-	j = s.find_first_of(escape, i);
-	if (j == std::string::npos) j = s.size();
-	os_.write(s.data() + i, j - i);
-	if (j >= s.size()) break;
-	switch (s[j]) {
-	case '&':  os_ << "&amp;"; break;
-	case '<':  os_ << "&lt;";  break;
-	case '>':  os_ << "&gt;";  break;
-	case '"':  os_ << "&quot;"; break;
-	case '\'': os_ << "&apos;"; break;
-	default:
-	    require(utf8::byteType(s[j]) == utf8::singleByte);
-	    os_ << "&#" << u32(s[j]) << ";";
-	    break;
-	}
+  std::string::size_type i, j;
+  for (i = 0; i < s.size(); i = j + 1) {
+    j = s.find_first_of(escape, i);
+    if (j == std::string::npos)
+      j = s.size();
+    os_.write(s.data() + i, j - i);
+    if (j >= s.size())
+      break;
+    switch (s[j]) {
+    case '&':
+      os_ << "&amp;";
+      break;
+    case '<':
+      os_ << "&lt;";
+      break;
+    case '>':
+      os_ << "&gt;";
+      break;
+    case '"':
+      os_ << "&quot;";
+      break;
+    case '\'':
+      os_ << "&apos;";
+      break;
+    default:
+      require(utf8::byteType(s[j]) == utf8::singleByte);
+      os_ << "&#" << u32(s[j]) << ";";
+      break;
     }
+  }
 }
 
 void XmlWriter::put(const std::string &s) {
-    if (inComment_) {
-	// comment must not contain double-hyphens
-	std::string::size_type i, j;
-	for (i = 0; i < s.size(); i = j+2) {
-	    j = s.find("--",i);
-	    if (j == std::string::npos) j = s.size();
-	    os_.write(s.data() + i, j - i);
-	    if (j >= s.size()) break;
-	    os_ << "=";
-	}
-    } else {
-	putEscaped(s, "&<>");
+  if (inComment_) {
+    // comment must not contain double-hyphens
+    std::string::size_type i, j;
+    for (i = 0; i < s.size(); i = j + 2) {
+      j = s.find("--", i);
+      if (j == std::string::npos)
+        j = s.size();
+      os_.write(s.data() + i, j - i);
+      if (j >= s.size())
+        break;
+      os_ << "=";
     }
+  } else {
+    putEscaped(s, "&<>");
+  }
 }
 
 void XmlWriter::putDeclaration(const std::string &encoding) {
-    os_ << "<?xml version=\"1.0\"";
-    if (shouldGenerateFormattingHints() || encoding.size()) {
-	os_ << " encoding=\"";
-	if (shouldGenerateFormattingHints())
-	    os_.put(TextOutputStream::describeEncoding);
-	else if (encoding.size())
-	    os_ << encoding;
-	os_ << "\"";
-    }
-    os_ << "?>";
-    formattingHint(TextOutputStream::newLine);
+  os_ << "<?xml version=\"1.0\"";
+  if (shouldGenerateFormattingHints() || encoding.size()) {
+    os_ << " encoding=\"";
+    if (shouldGenerateFormattingHints())
+      os_.put(TextOutputStream::describeEncoding);
+    else if (encoding.size())
+      os_ << encoding;
+    os_ << "\"";
+  }
+  os_ << "?>";
+  formattingHint(TextOutputStream::newLine);
 }
 
 void XmlWriter::putTag(const XmlOpen &open, bool isEmpty) {
-    os_ << "<" << open.element_;
-    for (std::vector<XmlAttribute>::const_iterator a = open.attributes_.begin(); a != open.attributes_.end(); ++a) {
-	os_ << " ";
-	formattingHint(TextOutputStream::protect);
-	os_ << a->name_ << "=\"";
-	putEscaped(a->value_, "&<>\"'");
-	os_ << "\"";
-	formattingHint(TextOutputStream::unprotect);
-    }
-    if (isEmpty) os_ << "/";
-    os_ << ">";
+  os_ << "<" << open.element_;
+  for (std::vector<XmlAttribute>::const_iterator a = open.attributes_.begin();
+       a != open.attributes_.end(); ++a) {
+    os_ << " ";
+    formattingHint(TextOutputStream::protect);
+    os_ << a->name_ << "=\"";
+    putEscaped(a->value_, "&<>\"'");
+    os_ << "\"";
+    formattingHint(TextOutputStream::unprotect);
+  }
+  if (isEmpty)
+    os_ << "/";
+  os_ << ">";
 }
 
 void XmlWriter::putClosingTag(const XmlClose &close) {
-    os_ << "</" << close.element_ << ">";
+  os_ << "</" << close.element_ << ">";
 }
 
 void XmlWriter::put(const XmlOpen &open) {
-    formattingHint(TextOutputStream::newLine);
-    putTag(open, false);
-    formattingHint(TextOutputStream::newWord);
-    formattingHint(TextOutputStream::indentPlus);
-    formattingHint(TextOutputStream::newLine);
+  formattingHint(TextOutputStream::newLine);
+  putTag(open, false);
+  formattingHint(TextOutputStream::newWord);
+  formattingHint(TextOutputStream::indentPlus);
+  formattingHint(TextOutputStream::newLine);
 }
 
 void XmlWriter::put(const XmlClose &close) {
-    formattingHint(TextOutputStream::newWord);
-    formattingHint(TextOutputStream::indentMinus);
-    formattingHint(TextOutputStream::newLine);
-    putClosingTag(close);
-    formattingHint(TextOutputStream::newLine);
+  formattingHint(TextOutputStream::newWord);
+  formattingHint(TextOutputStream::indentMinus);
+  formattingHint(TextOutputStream::newLine);
+  putClosingTag(close);
+  formattingHint(TextOutputStream::newLine);
 }
 
 void XmlWriter::put(const XmlEmpty &empty) {
-    formattingHint(TextOutputStream::newLine);
-    putTag(empty, true);
-    formattingHint(TextOutputStream::newLine);
+  formattingHint(TextOutputStream::newLine);
+  putTag(empty, true);
+  formattingHint(TextOutputStream::newLine);
 }
 
 void XmlWriter::put(const XmlFull &element) {
-    formattingHint(TextOutputStream::newLine);
-    putTag(element, false);
-    formattingHint(TextOutputStream::newWord);
-    formattingHint(TextOutputStream::indentPlus);
-    put(element.content_);
-    formattingHint(TextOutputStream::newWord);
-    formattingHint(TextOutputStream::indentMinus);
-    putClosingTag(element);
-    formattingHint(TextOutputStream::newLine);
+  formattingHint(TextOutputStream::newLine);
+  putTag(element, false);
+  formattingHint(TextOutputStream::newWord);
+  formattingHint(TextOutputStream::indentPlus);
+  put(element.content_);
+  formattingHint(TextOutputStream::newWord);
+  formattingHint(TextOutputStream::indentMinus);
+  putClosingTag(element);
+  formattingHint(TextOutputStream::newLine);
 }
 
 void XmlWriter::put(const XmlComment &comment) {
-    if (inComment_) {
-	put(comment.text_);
-    } else {
-	++inComment_;
-	os_ << "<!-- ";
-	put(comment.text_);
-	os_ << " -->";
-	--inComment_;
-    }
-}
-
-void XmlWriter::put(const XmlOpenComment&) {
-    if (!inComment_) os_ << "<!-- ";
+  if (inComment_) {
+    put(comment.text_);
+  } else {
     ++inComment_;
-}
-
-void XmlWriter::put(const XmlCloseComment&) {
-    require(inComment_ >= 1);
+    os_ << "<!-- ";
+    put(comment.text_);
+    os_ << " -->";
     --inComment_;
-    if (!inComment_) os_ << " -->";
+  }
 }
 
-void XmlWriter::put(const XmlBlank&) {
-    if (shouldGenerateFormattingHints())
-	os_.put(TextOutputStream::softBlank);
-    else
-	os_.put(utf8::blank);
+void XmlWriter::put(const XmlOpenComment &) {
+  if (!inComment_)
+    os_ << "<!-- ";
+  ++inComment_;
 }
 
-XmlWriter::~XmlWriter() {
-    delete rdbuf(0);
+void XmlWriter::put(const XmlCloseComment &) {
+  require(inComment_ >= 1);
+  --inComment_;
+  if (!inComment_)
+    os_ << " -->";
 }
+
+void XmlWriter::put(const XmlBlank &) {
+  if (shouldGenerateFormattingHints())
+    os_.put(TextOutputStream::softBlank);
+  else
+    os_.put(utf8::blank);
+}
+
+XmlWriter::~XmlWriter() { delete rdbuf(0); }
 
 // ===========================================================================
-XmlOutputStream::XmlOutputStream() :
-    XmlWriter(textOutputStream_)
-{
-    generateFormattingHints(true);
+XmlOutputStream::XmlOutputStream() : XmlWriter(textOutputStream_) {
+  generateFormattingHints(true);
 }
 
-XmlOutputStream::XmlOutputStream(std::ostream *os) :
-    XmlWriter(textOutputStream_),
-    textOutputStream_(os)
-{
-    generateFormattingHints(true);
-    putDeclaration();
+XmlOutputStream::XmlOutputStream(std::ostream *os)
+    : XmlWriter(textOutputStream_), textOutputStream_(os) {
+  generateFormattingHints(true);
+  putDeclaration();
 }
 
-XmlOutputStream::XmlOutputStream(const std::string &filename, int mode) :
-    XmlWriter(textOutputStream_),
-    textOutputStream_(filename, mode)
-{
-    generateFormattingHints(true);
-    putDeclaration();
+XmlOutputStream::XmlOutputStream(const std::string &filename, int mode)
+    : XmlWriter(textOutputStream_), textOutputStream_(filename, mode) {
+  generateFormattingHints(true);
+  putDeclaration();
 }
 
 XmlOutputStream::~XmlOutputStream() {}
 
 void XmlOutputStream::open(const std::string &filename, int mode) {
-    textOutputStream_.open(filename, mode);
-    putDeclaration();
+  textOutputStream_.open(filename, mode);
+  putDeclaration();
 }
 
 void XmlOutputStream::putDeclaration() {
-    XmlWriter::putDeclaration(encoding());
+  XmlWriter::putDeclaration(encoding());
 }

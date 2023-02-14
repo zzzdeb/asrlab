@@ -11,38 +11,37 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "Directory.hh"
 #include "FormatSet.hh"
+#include "Directory.hh"
 
 using namespace Core;
 
 const std::string FormatSet::defaultQualifier("_default_");
 const std::string FormatSet::qualifierDelimiter(":");
 
-bool FormatSet::checkFile(const std::string &filename, AccessMode mode) const
-{
-    if (filename.empty()) {
-	error("Failed to open file because filename is empty.");
-	return false;
-    } else if (mode == modeRead) {
-	if (!isValidPath(filename)) {
-	    error("File '%s' does not exist.", filename.c_str());
-	    return false;
-	}
+bool FormatSet::checkFile(const std::string &filename, AccessMode mode) const {
+  if (filename.empty()) {
+    error("Failed to open file because filename is empty.");
+    return false;
+  } else if (mode == modeRead) {
+    if (!isValidPath(filename)) {
+      error("File '%s' does not exist.", filename.c_str());
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
-std::string FormatSet::getQualifier(const std::string &filename)
-{
-    std::string::size_type delimiterPos = filename.find(qualifierDelimiter);
-    if (delimiterPos == std::string::npos) return "";
-    return filename.substr(0, delimiterPos);
+std::string FormatSet::getQualifier(const std::string &filename) {
+  std::string::size_type delimiterPos = filename.find(qualifierDelimiter);
+  if (delimiterPos == std::string::npos)
+    return "";
+  return filename.substr(0, delimiterPos);
 }
 
-std::string FormatSet::stripQualifier(const std::string &filename)
-{
-    std::string::size_type delimiterPos = filename.find(qualifierDelimiter);
-    if (delimiterPos == std::string::npos) return filename;
-    return filename.substr(delimiterPos + qualifierDelimiter.size());
+std::string FormatSet::stripQualifier(const std::string &filename) {
+  std::string::size_type delimiterPos = filename.find(qualifierDelimiter);
+  if (delimiterPos == std::string::npos)
+    return filename;
+  return filename.substr(delimiterPos + qualifierDelimiter.size());
 }

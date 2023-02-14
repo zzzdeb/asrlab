@@ -18,67 +18,58 @@ using namespace Core;
 /**
  * Start the thread
  */
-bool Thread::start()
-{
-    int retval = pthread_create(&thread_, 0, Thread::startRun, static_cast<void*>(this));
-    if (retval != 0)
-	return false;
-    running_ = true;
-    return true;
+bool Thread::start() {
+  int retval =
+      pthread_create(&thread_, 0, Thread::startRun, static_cast<void *>(this));
+  if (retval != 0)
+    return false;
+  running_ = true;
+  return true;
 }
 
 /**
  * Wait for thread to exit
  */
-void Thread::wait()
-{
-    if(this->running_) {
-	pthread_join(thread_, 0);
-    }
+void Thread::wait() {
+  if (this->running_) {
+    pthread_join(thread_, 0);
+  }
 }
 
 /**
  * Exit from Thread
  */
-void Thread::exitThread()
-{
-    if(this->running_)
-	pthread_exit(0);
-    running_ = false;
+void Thread::exitThread() {
+  if (this->running_)
+    pthread_exit(0);
+  running_ = false;
 }
 
-inline void Thread::enableCancel()
-{
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+inline void Thread::enableCancel() {
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
 }
 
-inline void Thread::disableCancel()
-{
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+inline void Thread::disableCancel() {
+  pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
 }
 
-inline void Thread::setCancelDeferred()
-{
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
+inline void Thread::setCancelDeferred() {
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
 }
 
-inline void Thread::setCancelAsync()
-{
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+inline void Thread::setCancelAsync() {
+  pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 }
 
-
-void Thread::startCleanup(void *obj)
-{
-    Thread *curObj = static_cast<Thread *>(obj);
-    curObj->cleanup();
+void Thread::startCleanup(void *obj) {
+  Thread *curObj = static_cast<Thread *>(obj);
+  curObj->cleanup();
 }
 
-void* Thread::startRun(void *obj)
-{
-    Thread *curObj = static_cast<Thread *>(obj);
-    pthread_cleanup_push(Thread::startCleanup, obj);
-    curObj->run();
-    pthread_cleanup_pop(0);
-    return 0;
+void *Thread::startRun(void *obj) {
+  Thread *curObj = static_cast<Thread *>(obj);
+  pthread_cleanup_push(Thread::startCleanup, obj);
+  curObj->run();
+  pthread_cleanup_pop(0);
+  return 0;
 }

@@ -14,140 +14,131 @@
 #ifndef _MM_DENSITY_CLUSTERING_HH
 #define _MM_DENSITY_CLUSTERING_HH
 
-#include <vector>
 #include <Core/Component.hh>
+#include <vector>
 
 namespace Core {
 class BinaryInputStream;
 class BinaryOutputStream;
-}
+} // namespace Core
 
 namespace Mm {
 
-class DensityClusteringBase : public Core::Component
-{
+class DensityClusteringBase : public Core::Component {
 public:
-    typedef u8 ClusterIndex;
-    typedef std::vector<ClusterIndex>::const_iterator ClusterIndexIterator;
+  typedef u8 ClusterIndex;
+  typedef std::vector<ClusterIndex>::const_iterator ClusterIndexIterator;
 
-    static const Core::ParameterInt paramClusteringIterations;
-    static const Core::ParameterInt paramNumClusters;
-    static const Core::ParameterInt paramSelectClusters;
-    static const Core::ParameterString paramFile;
-    static const Core::ParameterFloat paramBackoffScore;
+  static const Core::ParameterInt paramClusteringIterations;
+  static const Core::ParameterInt paramNumClusters;
+  static const Core::ParameterInt paramSelectClusters;
+  static const Core::ParameterString paramFile;
+  static const Core::ParameterFloat paramBackoffScore;
 
-    DensityClusteringBase(const Core::Configuration &config);
-    virtual ~DensityClusteringBase() {}
+  DensityClusteringBase(const Core::Configuration &config);
+  virtual ~DensityClusteringBase() {}
 
-    /** Initialize the Clustering for the given feature dimension
-     * and number of densities.
-     * Must be called before build().
-     */
-    void init(u32 dimension, u32 nDensities);
+  /** Initialize the Clustering for the given feature dimension
+   * and number of densities.
+   * Must be called before build().
+   */
+  void init(u32 dimension, u32 nDensities);
 
-    /** Maps densities to the assigned cluster index.
-     */
-    ClusterIndex clusterIndexForDensity(size_t density) const {
-      return clusterIndexForDensity_[density];
-    }
-    /** Iterator over density to cluster index assignment.
-     * Iterator starts at the given density index.
-     */
-    ClusterIndexIterator clusterIndexIterator(size_t density) const {
-	return clusterIndexForDensity_.begin() + density;
-    }
+  /** Maps densities to the assigned cluster index.
+   */
+  ClusterIndex clusterIndexForDensity(size_t density) const {
+    return clusterIndexForDensity_[density];
+  }
+  /** Iterator over density to cluster index assignment.
+   * Iterator starts at the given density index.
+   */
+  ClusterIndexIterator clusterIndexIterator(size_t density) const {
+    return clusterIndexForDensity_.begin() + density;
+  }
 
-    u32 nClusters() const { return nClusters_; }
+  u32 nClusters() const { return nClusters_; }
 
 protected:
-    /** Save the clustering to the given file.
-     * Returns whether writing was successful.
-     */
-    bool write(const std::string &filename) const;
+  /** Save the clustering to the given file.
+   * Returns whether writing was successful.
+   */
+  bool write(const std::string &filename) const;
 
-    /** Load the clustering from the given file.
-     * Returns false on failure, true on success.
-     */
-    bool load(const std::string &filename);
+  /** Load the clustering from the given file.
+   * Returns false on failure, true on success.
+   */
+  bool load(const std::string &filename);
 
-    virtual bool writeMeans(Core::BinaryOutputStream&) const = 0;
-    virtual bool readMeans(Core::BinaryInputStream&) = 0;
-    virtual bool writeTypes(Core::BinaryOutputStream&) const = 0;
-    virtual bool readTypes(Core::BinaryInputStream&) const = 0;
-    std::vector<ClusterIndex> clusterIndexForDensity_;
-    const u32 nClusters_, nSelected_;
-    u32 dimension_, nDensities_;
-    const float backoffScore_;
+  virtual bool writeMeans(Core::BinaryOutputStream &) const = 0;
+  virtual bool readMeans(Core::BinaryInputStream &) = 0;
+  virtual bool writeTypes(Core::BinaryOutputStream &) const = 0;
+  virtual bool readTypes(Core::BinaryInputStream &) const = 0;
+  std::vector<ClusterIndex> clusterIndexForDensity_;
+  const u32 nClusters_, nSelected_;
+  u32 dimension_, nDensities_;
+  const float backoffScore_;
 
-    static const std::string FileMagic;
-    static const u32 FileFormatVersion;
+  static const std::string FileMagic;
+  static const u32 FileFormatVersion;
 };
 
-
-template<class F, class D>
-class DensityClustering : public DensityClusteringBase
-{
+template <class F, class D>
+class DensityClustering : public DensityClusteringBase {
 public:
-    typedef F FeatureType;
-    typedef D DistanceType;
+  typedef F FeatureType;
+  typedef D DistanceType;
 
-    DensityClustering(const Core::Configuration &c) :
-	DensityClusteringBase(c),
-	clusterMeans_(0) {}
+  DensityClustering(const Core::Configuration &c)
+      : DensityClusteringBase(c), clusterMeans_(0) {}
 
-    ~DensityClustering() {
-	delete[] clusterMeans_;
-    }
+  ~DensityClustering() { delete[] clusterMeans_; }
 
-    /**
-     * Build the density clustering.
-     * If paramFile is not empty, the clustering is read from the given file
-     * if possible. If the clustering cannot be read from file it is build and
-     * written to the file.
-     */
-    void build(const FeatureType *densityMeans);
+  /**
+   * Build the density clustering.
+   * If paramFile is not empty, the clustering is read from the given file
+   * if possible. If the clustering cannot be read from file it is build and
+   * written to the file.
+   */
+  void build(const FeatureType *densityMeans);
 
-    /**
-     * @param selection A boolean array where for each selected cluster 'true' will be stored,
-     *                  for all unselected 'false'. Must be as large as the number of clusters.
-     *                  Using a bitvector would be more memory efficient, but introduces additional
-     *                  computations.
-     * @param select Number of clusters to select.
-     * @param feature The feature, must have the size paddedDimension.
-     * */
-    void selectClusters(bool *selection, FeatureType* feature) const;
+  /**
+   * @param selection A boolean array where for each selected cluster 'true'
+   * will be stored, for all unselected 'false'. Must be as large as the number
+   * of clusters. Using a bitvector would be more memory efficient, but
+   * introduces additional computations.
+   * @param select Number of clusters to select.
+   * @param feature The feature, must have the size paddedDimension.
+   * */
+  void selectClusters(bool *selection, FeatureType *feature) const;
 
-    DistanceType backoffScore() const {
-	return backoffScore_;
-    }
+  DistanceType backoffScore() const { return backoffScore_; }
 
 private:
-    bool writeMeans(Core::BinaryOutputStream&) const;
-    bool readMeans(Core::BinaryInputStream&);
-    bool writeTypes(Core::BinaryOutputStream&) const;
-    bool readTypes(Core::BinaryInputStream&) const;
+  bool writeMeans(Core::BinaryOutputStream &) const;
+  bool readMeans(Core::BinaryInputStream &);
+  bool writeTypes(Core::BinaryOutputStream &) const;
+  bool readTypes(Core::BinaryInputStream &) const;
 
+  FeatureType *meanForCluster(ClusterIndex cluster) {
+    return clusterMeans_ + cluster * dimension_;
+  }
+  const FeatureType *meanForCluster(ClusterIndex cluster) const {
+    return clusterMeans_ + cluster * dimension_;
+  }
 
-    FeatureType* meanForCluster(ClusterIndex cluster)
-    {
-	return clusterMeans_ + cluster * dimension_;
-    }
-    const FeatureType* meanForCluster(ClusterIndex cluster) const
-    {
-	return clusterMeans_ + cluster * dimension_;
-    }
+  const FeatureType *meanForDensity(const FeatureType *means,
+                                    u32 density) const {
+    return means + density * dimension_;
+  }
 
-    const FeatureType* meanForDensity(const FeatureType *means, u32 density) const
-    {
-	return means + density * dimension_;
-    }
+  typedef std::vector<std::vector<u32> > DensityAssignment;
+  void initializeClusters(const FeatureType *densities);
+  void assignDensities(const FeatureType *densities,
+                       DensityAssignment &densityAssignment);
+  f64 updateClusterMeans(const FeatureType *densities,
+                         DensityAssignment &densityAssignment);
 
-    typedef std::vector< std::vector<u32> > DensityAssignment;
-    void initializeClusters(const FeatureType *densities);
-    void assignDensities(const FeatureType *densities, DensityAssignment &densityAssignment);
-    f64 updateClusterMeans(const FeatureType *densities, DensityAssignment &densityAssignment);
-
-    FeatureType* clusterMeans_;
+  FeatureType *clusterMeans_;
 };
 
 } // namespace Mm

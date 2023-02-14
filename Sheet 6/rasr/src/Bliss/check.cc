@@ -13,13 +13,13 @@
 // limitations under the License.
 // $Id: check.cc 8249 2011-05-06 11:57:02Z rybach $
 
-#include <fstream>
-#include <Core/Application.hh>
-#include <Fsa/Output.hh>
 #include "CorpusDescription.hh"
 #include "EditDistance.hh"
 #include "Lexicon.hh"
 #include "Phonology.hh"
+#include <Core/Application.hh>
+#include <Fsa/Output.hh>
+#include <fstream>
 
 /*
 class MyCorpusVisitor:
@@ -33,7 +33,7 @@ class MyCorpusVisitor:
     Core::Channel dc;
 public:
     MyCorpusVisitor(const Core::Configuration&,
-		    const Bliss::LexiconRef);
+                    const Bliss::LexiconRef);
 
     virtual void visitSegment(Bliss::Segment*) ;
     virtual void visitSpeechSegment(Bliss::SpeechSegment*) ;
@@ -54,9 +54,9 @@ MyCorpusVisitor::MyCorpusVisitor(
 
 void MyCorpusVisitor::visitSegment(Bliss::Segment *segment) {
     clog() << "segment: " << segment->fullName() << "\n"
-	   << "audio:   " << segment->recording()->audio() << "\n"
-	   << "range:   " << segment->start() << " - " << segment->end() << "\n"
-	   << "\n";
+           << "audio:   " << segment->recording()->audio() << "\n"
+           << "range:   " << segment->start() << " - " << segment->end() << "\n"
+           << "\n";
 }
 
 void MyCorpusVisitor::visitSpeechSegment(Bliss::SpeechSegment *segment) {
@@ -65,30 +65,35 @@ void MyCorpusVisitor::visitSpeechSegment(Bliss::SpeechSegment *segment) {
 
 class TestApplication : public Core::Application {
 public:
-    virtual std::string getUsage() const { return "short program to test Bliss features\n"; }
-    TestApplication() : Core::Application() { setTitle("check"); }
+  virtual std::string getUsage() const {
+    return "short program to test Bliss features\n";
+  }
+  TestApplication() : Core::Application() { setTitle("check"); }
 
-    int main(const std::vector<std::string> &arguments) {
-	Bliss::LexiconRef lex = Bliss::Lexicon::create(select("lexicon"));
+  int main(const std::vector<std::string> &arguments) {
+    Bliss::LexiconRef lex = Bliss::Lexicon::create(select("lexicon"));
 
-	//Bliss::PhonemeToLemmaTransducer *t = lex->createPhonemeToLemmaTransducer(true); // ok
-	//Bliss::LemmaToSyntacticTokenTransducer *t = lex->createLemmaToSyntacticTokenTransducer(); // ok
-	//Bliss::LemmaToEvaluationTokenTransducer *t = lex->createLemmaToEvaluationTokenTransducer(); // ok
-	//Fsa::write(Fsa::ConstAutomatonRef(t), "xxx.fsa.gz");
+    // Bliss::PhonemeToLemmaTransducer *t =
+    // lex->createPhonemeToLemmaTransducer(true); // ok
+    // Bliss::LemmaToSyntacticTokenTransducer *t =
+    // lex->createLemmaToSyntacticTokenTransducer(); // ok
+    // Bliss::LemmaToEvaluationTokenTransducer *t =
+    // lex->createLemmaToEvaluationTokenTransducer(); // ok
+    // Fsa::write(Fsa::ConstAutomatonRef(t), "xxx.fsa.gz");
 
-	{
-	    Core::XmlChannel ch(config, "dump-lexicon");
-	    if (ch.isOpen()) lex->writeXml(ch);
-	}
-	/*
-	Bliss::CorpusDescription corpus(select("corpus"));
-
-	MyCorpusVisitor visitor(select("visitor"), lex);
-	corpus.accept(&visitor);
-	*/
-	return 0;
+    {
+      Core::XmlChannel ch(config, "dump-lexicon");
+      if (ch.isOpen())
+        lex->writeXml(ch);
     }
+    /*
+    Bliss::CorpusDescription corpus(select("corpus"));
+
+    MyCorpusVisitor visitor(select("visitor"), lex);
+    corpus.accept(&visitor);
+    */
+    return 0;
+  }
 };
 
 APPLICATION(TestApplication)
-

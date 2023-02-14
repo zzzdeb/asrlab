@@ -11,31 +11,34 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Core/Application.hh>
 #include "ClassicAcousticModel.hh"
 #include "ClassicStateModel.hh"
 #include "ClassicTransducerBuilder.hh"
 #include "Module.hh"
+#include <Core/Application.hh>
+#include <Fsa/Basic.hh>
 #include <Fsa/Input.hh>
 #include <Fsa/Output.hh>
-#include <Fsa/Basic.hh>
 #include <Fsa/Static.hh>
 
 class TestApplication : public Core::Application {
 public:
-    TestApplication() : Core::Application() { setTitle("check"); }
-    virtual std::string getUsage() const { return "short program to test Am features\n"; }
-    int main(const std::vector<std::string> &arguments);
+  TestApplication() : Core::Application() { setTitle("check"); }
+  virtual std::string getUsage() const {
+    return "short program to test Am features\n";
+  }
+  int main(const std::vector<std::string> &arguments);
 };
 
 int TestApplication::main(const std::vector<std::string> &arguments) {
-    INIT_MODULE(Am)
+  INIT_MODULE(Am)
 
-    Bliss::LexiconRef lexicon = Bliss::Lexicon::create(select("lexicon"));
-    Core::Ref<Am::ClassicAcousticModel> am = Core::ref(new Am::ClassicAcousticModel(config, lexicon));
-    am->allophoneAlphabet()->dump(log());
+  Bliss::LexiconRef lexicon = Bliss::Lexicon::create(select("lexicon"));
+  Core::Ref<Am::ClassicAcousticModel> am =
+      Core::ref(new Am::ClassicAcousticModel(config, lexicon));
+  am->allophoneAlphabet()->dump(log());
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
 APPLICATION(TestApplication)

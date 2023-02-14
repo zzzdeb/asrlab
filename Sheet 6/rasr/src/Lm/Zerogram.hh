@@ -16,25 +16,23 @@
 #ifndef _LM_ZEROGRAM_HH
 #define _LM_ZEROGRAM_HH
 
-#include <Bliss/Lexicon.hh>
 #include "LanguageModel.hh"
+#include <Bliss/Lexicon.hh>
 
 namespace Lm {
 
-    class Zerogram :
-	public LanguageModel,
-	private SingletonHistoryManager
-    {
-    private:
-	Score score_;
-	virtual std::string format(HistoryHandle) const;
-    public:
-	Zerogram(const Core::Configuration &c, Bliss::LexiconRef);
-	virtual Fsa::ConstAutomatonRef getFsa() const;
-	virtual History startHistory() const { return history(0); }
-	virtual History extendedHistory(const History &h, Token) const { return h; }
-	virtual Score score(const History&, Token) const { return score_; }
-    };
+class Zerogram : public LanguageModel, private SingletonHistoryManager {
+private:
+  Score score_;
+  virtual std::string format(HistoryHandle) const;
+
+public:
+  Zerogram(const Core::Configuration &c, Bliss::LexiconRef);
+  virtual Fsa::ConstAutomatonRef getFsa() const;
+  virtual History startHistory() const { return history(0); }
+  virtual History extendedHistory(const History &h, Token) const { return h; }
+  virtual Score score(const History &, Token) const { return score_; }
+};
 
 } // namespace Lm
 

@@ -14,11 +14,11 @@
 #ifndef _CORE_UNICODE_HH
 #define _CORE_UNICODE_HH
 
-#include <functional>
-#include <string>
-#include <iconv.h>
-#include "TemporaryBuffer.hh"
 #include "Assertions.hh"
+#include "TemporaryBuffer.hh"
+#include <functional>
+#include <iconv.h>
+#include <string>
 
 /**
  * @page Unicode Unicode
@@ -73,62 +73,62 @@
  */
 
 namespace utf8 {
-    const char blank = ' ' ;
-    const char whitespace[] = " \t\n\r\f\v" ;
-    /**
-     * UTF-8 is based on bytes (8 bit).  Codepoints below 128
-     * (i.e. ASCII characters) are represented as a singleByte.  Other
-     * codepoints are encoded as multi-byte sequence, which consists
-     * of a multiByteHead followed by one up to five multiByteTail
-     * bytes.  The two byte values 0xfe and 0xff are illegal, they can
-     * never occur in a UTF-8 string.
-     */
-    enum ByteType { singleByte, multiByteHead, multiByteTail, illegal };
-    inline ByteType byteType(char u) {
-	if ((u & 0x80) == 0x00) return singleByte;
-	if ((u & 0xC0) == 0x80) return multiByteTail;
-	if ((u & 0xFE) == 0xFE) return illegal;
-	return multiByteHead;
-    }
-
-    /**
-     * Count unicode characters in a UTF-8 string.
-     * Unlike normal strlen(), this function handles multi-byte
-     * characters correctly.
-     */
-    size_t length(const char*);
-
+const char blank = ' ';
+const char whitespace[] = " \t\n\r\f\v";
+/**
+ * UTF-8 is based on bytes (8 bit).  Codepoints below 128
+ * (i.e. ASCII characters) are represented as a singleByte.  Other
+ * codepoints are encoded as multi-byte sequence, which consists
+ * of a multiByteHead followed by one up to five multiByteTail
+ * bytes.  The two byte values 0xfe and 0xff are illegal, they can
+ * never occur in a UTF-8 string.
+ */
+enum ByteType { singleByte, multiByteHead, multiByteTail, illegal };
+inline ByteType byteType(char u) {
+  if ((u & 0x80) == 0x00)
+    return singleByte;
+  if ((u & 0xC0) == 0x80)
+    return multiByteTail;
+  if ((u & 0xFE) == 0xFE)
+    return illegal;
+  return multiByteHead;
 }
 
+/**
+ * Count unicode characters in a UTF-8 string.
+ * Unlike normal strlen(), this function handles multi-byte
+ * characters correctly.
+ */
+size_t length(const char *);
+
+} // namespace utf8
+
 /** Convert UTF-8 Unicode string to wide character string (UCS-4) */
-std::wstring widen(const std::string&);
+std::wstring widen(const std::string &);
 
 /** Convert wide character (UCS-4) Unicode string to UTF-8. */
-std::string narrow(const std::wstring&);
-
+std::string narrow(const std::wstring &);
 
 namespace Core {
 
-    const char *const defaultEncoding = "ISO-8859-1";
-
+const char *const defaultEncoding = "ISO-8859-1";
 
 class CharsetConverter {
 protected:
-    iconv_t iconvHandle_;
-    size_t nErrors_;
-    void deactivate();
+  iconv_t iconvHandle_;
+  size_t nErrors_;
+  void deactivate();
+
 public:
-    CharsetConverter() {
-	iconvHandle_ = (iconv_t) -1;
-	nErrors_ = 0;
-    }
+  CharsetConverter() {
+    iconvHandle_ = (iconv_t)-1;
+    nErrors_ = 0;
+  }
 
-    ~CharsetConverter() {
-	deactivate();
-    }
+  ~CharsetConverter() { deactivate(); }
 
-    bool isConversionActive() const { return iconvHandle_ != (iconv_t) -1; }
-    size_t nErrors() const { return nErrors_; }
+  bool isConversionActive() const { return iconvHandle_ != (iconv_t)-1; }
+  size_t nErrors() const { return nErrors_; }
 };
 
 /**
@@ -140,23 +140,23 @@ public:
  * @see @ref Unicode
  */
 
-class UnicodeInputConverter :
-    public CharsetConverter
-{
+class UnicodeInputConverter : public CharsetConverter {
 public:
-    static const char *const defaultEncoding;
+  static const char *const defaultEncoding;
 
-    void setInputEncoding(const char *outputEncoding);
+  void setInputEncoding(const char *outputEncoding);
 
-    /** Convert a range of UTF-8 encoded characters of specified
-     * input encoding.
-     * @param begin characters from the range [begin .. end) are converted
-     * @param end see @c begin
-     * @param out ouput iterator to which converted character are stored
-     * @return @c out plus number of generated characters. */
-    template <typename InIterator, typename OutIterator>
-    //    size_t convert(const InIterator &begin, const InIterator &end, OutIterator &out);
-    OutIterator convert(const InIterator &begin, const InIterator &end, OutIterator out);
+  /** Convert a range of UTF-8 encoded characters of specified
+   * input encoding.
+   * @param begin characters from the range [begin .. end) are converted
+   * @param end see @c begin
+   * @param out ouput iterator to which converted character are stored
+   * @return @c out plus number of generated characters. */
+  template <typename InIterator, typename OutIterator>
+  //    size_t convert(const InIterator &begin, const InIterator &end,
+  //    OutIterator &out);
+  OutIterator convert(const InIterator &begin, const InIterator &end,
+                      OutIterator out);
 };
 
 /**
@@ -168,22 +168,21 @@ public:
  * @see @ref Unicode
  */
 
-class UnicodeOutputConverter :
-    public CharsetConverter
-{
+class UnicodeOutputConverter : public CharsetConverter {
 public:
-    static const char *const defaultEncoding;
+  static const char *const defaultEncoding;
 
-    void setOutputEncoding(const char *outputEncoding);
+  void setOutputEncoding(const char *outputEncoding);
 
-    /** Convert a range of UTF-8 encoded characters of specified
-     * output encoding.
-     * @param begin characters from the range [begin .. end) are converted
-     * @param end see @c begin
-     * @param out ouput iterator to which converted character are stored
-     * @return @c out plus number of generated characters. */
-    template <typename InIterator, typename OutIterator>
-    OutIterator convert(const InIterator &begin, const InIterator &end, OutIterator out);
+  /** Convert a range of UTF-8 encoded characters of specified
+   * output encoding.
+   * @param begin characters from the range [begin .. end) are converted
+   * @param end see @c begin
+   * @param out ouput iterator to which converted character are stored
+   * @return @c out plus number of generated characters. */
+  template <typename InIterator, typename OutIterator>
+  OutIterator convert(const InIterator &begin, const InIterator &end,
+                      OutIterator out);
 };
 
 } // namespace Core

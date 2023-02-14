@@ -16,9 +16,9 @@
 #ifndef _BLISS_LEMMAGRAPH_HH
 #define _BLISS_LEMMAGRAPH_HH
 
+#include "Orthography.hh"
 #include <Core/Component.hh>
 #include <Core/Graph.hh>
-#include "Orthography.hh"
 
 /**\file
  * \deprecated This file will soon become obsolete!
@@ -26,47 +26,53 @@
 
 namespace Bliss {
 
-    class LemmaGraphNode;
-    class LemmaGraphEdge;
+class LemmaGraphNode;
+class LemmaGraphEdge;
 
-    /**
-     * Lemma Graph (aka word graph).
-     *
-     * Each edge is labled with one lemma (or epsilon).
-     **/
+/**
+ * Lemma Graph (aka word graph).
+ *
+ * Each edge is labled with one lemma (or epsilon).
+ **/
 
-    class LemmaGraph : public Core::GraphWithInitialFinals<LemmaGraphNode, LemmaGraphEdge> {
-	typedef LemmaGraph Self;
-	typedef Core::Graph<LemmaGraphNode, LemmaGraphEdge> Precursor;
-    public:
-	void store(std::ostream&) const;
-	void load(std::ostream&);
+class LemmaGraph
+    : public Core::GraphWithInitialFinals<LemmaGraphNode, LemmaGraphEdge> {
+  typedef LemmaGraph Self;
+  typedef Core::Graph<LemmaGraphNode, LemmaGraphEdge> Precursor;
 
-	class Drawer : public Core::Drawer<LemmaGraph> {
-	public:
-	    virtual void drawEdge(const Edge&, std::ostream&) const;
-	};
-    };
+public:
+  void store(std::ostream &) const;
+  void load(std::ostream &);
 
-    class LemmaGraphNode : public LemmaGraph::NodeBase {};
+  class Drawer : public Core::Drawer<LemmaGraph> {
+  public:
+    virtual void drawEdge(const Edge &, std::ostream &) const;
+  };
+};
 
-    class LemmaGraphEdge : public LemmaGraph::EdgeBase {
-	const Lemma *lemma_;
-    public:
-	LemmaGraphEdge(const Lemma *lemma) : lemma_(lemma) {}
-	const Lemma *lemma() const { return lemma_; }
-    };
+class LemmaGraphNode : public LemmaGraph::NodeBase {};
 
-    class LemmaGraphBuilder : public OrthographicParser::Handler {
-    private:
-	LemmaGraph &net_;
-    public:
-	LemmaGraphBuilder(LemmaGraph&);
-	virtual void initialize(Core::Ref<const Lexicon>);
-	virtual OrthographicParser::Node newNode();
-	virtual void newEdge(OrthographicParser::Node from, OrthographicParser::Node to, const Lemma *lemma);
-	virtual void finalize(OrthographicParser::Node intial, OrthographicParser::Node final);
-    };
+class LemmaGraphEdge : public LemmaGraph::EdgeBase {
+  const Lemma *lemma_;
+
+public:
+  LemmaGraphEdge(const Lemma *lemma) : lemma_(lemma) {}
+  const Lemma *lemma() const { return lemma_; }
+};
+
+class LemmaGraphBuilder : public OrthographicParser::Handler {
+private:
+  LemmaGraph &net_;
+
+public:
+  LemmaGraphBuilder(LemmaGraph &);
+  virtual void initialize(Core::Ref<const Lexicon>);
+  virtual OrthographicParser::Node newNode();
+  virtual void newEdge(OrthographicParser::Node from,
+                       OrthographicParser::Node to, const Lemma *lemma);
+  virtual void finalize(OrthographicParser::Node intial,
+                        OrthographicParser::Node final);
+};
 
 } // namespace Bliss
 

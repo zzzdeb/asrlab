@@ -19,7 +19,8 @@
 
 namespace Flf {
 
-    NodeRef createDumpTracebackNode(const std::string &name, const Core::Configuration &config);
+NodeRef createDumpTracebackNode(const std::string &name,
+                                const Core::Configuration &config);
 
 } // namespace Flf
 

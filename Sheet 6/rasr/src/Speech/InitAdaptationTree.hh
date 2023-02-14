@@ -14,27 +14,26 @@
 #ifndef _SPEECH_INITADAPTATIONTREE_HH
 #define _SPEECH_INITADAPTATIONTREE_HH
 
-#include <Core/ReferenceCounting.hh>
-#include <Core/BinaryTree.hh>
-#include <Legacy/DecisionTree.hh>
 #include <Am/ClassicStateModel.hh>
+#include <Core/BinaryTree.hh>
+#include <Core/ReferenceCounting.hh>
+#include <Legacy/DecisionTree.hh>
 
-namespace Speech{
+namespace Speech {
 
-    class InitAdaptationTree{
+class InitAdaptationTree {
 
-    private:
-	const Legacy::PhoneticDecisionTree *mllrDectree_;
+private:
+  const Legacy::PhoneticDecisionTree *mllrDectree_;
 
-    public:
+public:
+  InitAdaptationTree(Am::ClassicStateModelRef, const Core::Configuration &);
+  //	InitAdaptationTree(const Am::AllophoneStateAlphabet &, const
+  //Core::Configuration&);
+  ~InitAdaptationTree();
 
-	InitAdaptationTree(Am::ClassicStateModelRef, const Core::Configuration&);
-	//	InitAdaptationTree(const Am::AllophoneStateAlphabet &, const Core::Configuration&);
-	~InitAdaptationTree();
-
-	Core::Ref<Core::BinaryTree> adaptationTree();
-	u32 classify(const Bliss::Phoneme::Id&) const;
-
-    };
-}
+  Core::Ref<Core::BinaryTree> adaptationTree();
+  u32 classify(const Bliss::Phoneme::Id &) const;
+};
+} // namespace Speech
 #endif // _SPEECH_INITADAPTATIONTREE_HH

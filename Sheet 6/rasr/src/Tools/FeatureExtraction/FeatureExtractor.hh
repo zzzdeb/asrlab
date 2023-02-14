@@ -20,20 +20,22 @@
  * FeatureExtractor: pulls all output out of the network
  */
 
-class FeatureExtractor :
-    public Speech::FeatureVectorExtractor
-{
-    typedef FeatureVectorExtractor Precursor;
+class FeatureExtractor : public Speech::FeatureVectorExtractor {
+  typedef FeatureVectorExtractor Precursor;
+
 protected:
-    Flow::Time frameShift_;
+  Flow::Time frameShift_;
+
 public:
-    FeatureExtractor(const Core::Configuration &c) :
-	Core::Component(c), Precursor(c), frameShift_(0) {}
-    virtual ~FeatureExtractor() {}
+  FeatureExtractor(const Core::Configuration &c)
+      : Core::Component(c), Precursor(c), frameShift_(0) {}
+  virtual ~FeatureExtractor() {}
 
-    Flow::Time frameShift() { return frameShift_; } // current frame-shift in seconds
+  Flow::Time frameShift() {
+    return frameShift_;
+  } // current frame-shift in seconds
 
-    virtual  void processSegment(Bliss::Segment *segment);
+  virtual void processSegment(Bliss::Segment *segment);
 };
 
 #endif // _TOOLS_FEATURE_EXTRACTION_FEATURE_EXTRACTOR_HH

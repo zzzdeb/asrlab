@@ -14,91 +14,96 @@
 #ifndef _SIGNAL_REPEATING_FRAME_PREDICTION_HH
 #define _SIGNAL_REPEATING_FRAME_PREDICTION_HH
 
+#include "SlidingWindow.hh"
 #include <Flow/Data.hh>
 #include <Flow/Synchronization.hh>
-#include "SlidingWindow.hh"
 
 namespace Signal {
 
-    /** RepeatingFramePrediction: predicts input at given target start-times by
-     *  copying the previous element.
-     */
-    class RepeatingFramePrediction {
-    public:
-    typedef Flow::Time Time;
-    typedef Flow::Timestamp Data;
-    typedef Flow::DataPtr<Data> DataPointer;
-    private:
-    /** Contains the two latest element of the input stream. */
-    SlidingWindow<DataPointer> slidingWindow_;
+/** RepeatingFramePrediction: predicts input at given target start-times by
+ *  copying the previous element.
+ */
+class RepeatingFramePrediction {
+public:
+  typedef Flow::Time Time;
+  typedef Flow::Timestamp Data;
+  typedef Flow::DataPtr<Data> DataPointer;
 
-    /** If true, prediction is only made for target times not found in the input stream.
-     *  If false, prediction is made for each target time.
-     */
-    bool predictOnlyMissing_;
+private:
+  /** Contains the two latest element of the input stream. */
+  SlidingWindow<DataPointer> slidingWindow_;
 
-    /** If false (default), the output stream has the same number of frames as the target streams,
-    *   but only start times are synchronized.
-    *   If true, start- and end-times are synchronized, so the frames of target and output-stream have the same length
-    */
-    bool syncEndTimes_;
+  /** If true, prediction is only made for target times not found in the input
+   * stream. If false, prediction is made for each target time.
+   */
+  bool predictOnlyMissing_;
 
-    private:
-    /** Seeks in the input stream until @param time is found.
-     *
-     *  At the beginning of the input stream, first element  is always added to the slidingWindow_.
-     *  After end-of-stream the last elements in the slidingWindow_ are kept until reset() is called.
-     *  After seeking start-time of the front element in the slidingWindow_
-     *    is greater or equal to @param time and back one is smaller then @param time
-     *    (except for the very first element, which can be larger or equal to @param time).
-     */
-    void seek(Time time);
+  /** If false (default), the output stream has the same number of frames as the
+   * target streams, but only start times are synchronized. If true, start- and
+   * end-times are synchronized, so the frames of target and output-stream have
+   * the same length
+   */
+  bool syncEndTimes_;
 
-    /** Copies the front element in the slidingWindow_ to @param out if
-     *    -if predictOnlyMissing_ is false and
-     *    start-time of front element is equal to @param time.
-     *
-     *  @return is false if the slidingWindow_ is empty.
-     */
-    bool copyLatest(Time time, DataPointer &out, Time endTime);
+private:
+  /** Seeks in the input stream until @param time is found.
+   *
+   *  At the beginning of the input stream, first element  is always added to
+   * the slidingWindow_. After end-of-stream the last elements in the
+   * slidingWindow_ are kept until reset() is called. After seeking start-time
+   * of the front element in the slidingWindow_ is greater or equal to @param
+   * time and back one is smaller then @param time (except for the very first
+   * element, which can be larger or equal to @param time).
+   */
+  void seek(Time time);
 
-    /** Factual predction: element at @param time is predicted by
-     *    the previous element of the input stream.
-     *
-     *  Caution: start and end-time of the predicted element is set to @param time
-     *
-     *  @return is false if the slidingWindow_ is empty.
-     */
-    bool copyPrevious(Time time, DataPointer &out, Time endTime);
-    protected:
-    /** override nextData to supply input data on demand */
-    virtual bool nextData(DataPointer &dataPointer) = 0;
-    public:
+  /** Copies the front element in the slidingWindow_ to @param out if
+   *    -if predictOnlyMissing_ is false and
+   *    start-time of front element is equal to @param time.
+   *
+   *  @return is false if the slidingWindow_ is empty.
+   */
+  bool copyLatest(Time time, DataPointer &out, Time endTime);
 
-    static std::string name() { return "signal-repeating-frame-prediction"; }
-    RepeatingFramePrediction();
-    virtual ~RepeatingFramePrediction() {}
+  /** Factual predction: element at @param time is predicted by
+   *    the previous element of the input stream.
+   *
+   *  Caution: start and end-time of the predicted element is set to @param time
+   *
+   *  @return is false if the slidingWindow_ is empty.
+   */
+  bool copyPrevious(Time time, DataPointer &out, Time endTime);
 
-    /** @return is the vector created by prediction at @param time
-     *
-     *  If @param time is found in the input stream and predictOnlyMissing_ is false:
-     *    start-time and end-time are delivered un-changed
-     *  Else:
-     *     start-time and end-time of a predicted output are both set to @param time.
-     *
-     *  If @return false call lastError() to get a explanation.
-     */
-    bool work(const Flow::Timestamp &time, DataPointer &out);
+protected:
+  /** override nextData to supply input data on demand */
+  virtual bool nextData(DataPointer &dataPointer) = 0;
 
-    /** @see predictOnlyMissing_ */
-    void setPredictOnlyMissing(bool predictOnlyMissing) { predictOnlyMissing_ = predictOnlyMissing; }
+public:
+  static std::string name() { return "signal-repeating-frame-prediction"; }
+  RepeatingFramePrediction();
+  virtual ~RepeatingFramePrediction() {}
 
-    void setSyncEndTimes(bool snycEndTimes) { syncEndTimes_ = snycEndTimes; }
+  /** @return is the vector created by prediction at @param time
+   *
+   *  If @param time is found in the input stream and predictOnlyMissing_ is
+   * false: start-time and end-time are delivered un-changed Else: start-time
+   * and end-time of a predicted output are both set to @param time.
+   *
+   *  If @return false call lastError() to get a explanation.
+   */
+  bool work(const Flow::Timestamp &time, DataPointer &out);
 
-    std::string lastError() const { defect(); }
+  /** @see predictOnlyMissing_ */
+  void setPredictOnlyMissing(bool predictOnlyMissing) {
+    predictOnlyMissing_ = predictOnlyMissing;
+  }
 
-    void reset() { slidingWindow_.clear(); }
-    };
+  void setSyncEndTimes(bool snycEndTimes) { syncEndTimes_ = snycEndTimes; }
+
+  std::string lastError() const { defect(); }
+
+  void reset() { slidingWindow_.clear(); }
+};
 
 } // namespace Signal
 

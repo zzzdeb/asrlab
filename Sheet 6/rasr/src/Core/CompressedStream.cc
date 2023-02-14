@@ -29,11 +29,10 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
 #include <Core/Assertions.hh>
 #include <Core/CompressedStream.hh>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <zlib.h>
 
 using namespace Core;
@@ -42,133 +41,133 @@ using namespace Core;
 // class CompressedStreamBuf
 
 namespace Core {
-    class CompressedStreamBuf : public std::streambuf {
-    private:
-	static const int bufferSize = 47+256;    // size of data buff
-	// totals 512 bytes under g++ for CompressedInputStream at the end.
+class CompressedStreamBuf : public std::streambuf {
+private:
+  static const int bufferSize = 47 + 256; // size of data buff
+  // totals 512 bytes under g++ for CompressedInputStream at the end.
 
-	gzFile           file;               // file handle for compressed file
-	char             buffer[bufferSize]; // data buffer
-	char             opened;             // open/close state of stream
-	int              mode_;              // I/O mode
+  gzFile file;             // file handle for compressed file
+  char buffer[bufferSize]; // data buffer
+  char opened;             // open/close state of stream
+  int mode_;               // I/O mode
 
-	int flush_buffer();
-    public:
-	CompressedStreamBuf() : opened(0) {
-	    setp( buffer, buffer + (bufferSize-1));
-	    setg( buffer + 4,     // beginning of putback area
-		  buffer + 4,     // read position
-		  buffer + 4);    // end position
-	    // ASSERT: both input & output capabilities will not be used together
-	}
-	int is_open() { return opened; }
-	bool open(const std::string &name, std::ios_base::openmode open_mode);
-	bool close();
-	virtual ~CompressedStreamBuf();
+  int flush_buffer();
 
-	virtual int overflow(int c = EOF);
-	virtual int underflow();
-	virtual int sync();
-    };
-}
+public:
+  CompressedStreamBuf() : opened(0) {
+    setp(buffer, buffer + (bufferSize - 1));
+    setg(buffer + 4,  // beginning of putback area
+         buffer + 4,  // read position
+         buffer + 4); // end position
+    // ASSERT: both input & output capabilities will not be used together
+  }
+  int is_open() { return opened; }
+  bool open(const std::string &name, std::ios_base::openmode open_mode);
+  bool close();
+  virtual ~CompressedStreamBuf();
 
-CompressedStreamBuf::~CompressedStreamBuf() {
-    close();
-}
+  virtual int overflow(int c = EOF);
+  virtual int underflow();
+  virtual int sync();
+};
+} // namespace Core
 
-bool CompressedStreamBuf::open(const std::string &name, std::ios_base::openmode mode) {
-    // no append nor read/write mode
-    require(!(mode & std::ios::ate));
-    require(!(mode & std::ios::app));
-    require(!((mode & std::ios::in) && (mode & std::ios::out)));
+CompressedStreamBuf::~CompressedStreamBuf() { close(); }
 
-    if (is_open())
-	return false;
+bool CompressedStreamBuf::open(const std::string &name,
+                               std::ios_base::openmode mode) {
+  // no append nor read/write mode
+  require(!(mode & std::ios::ate));
+  require(!(mode & std::ios::app));
+  require(!((mode & std::ios::in) && (mode & std::ios::out)));
 
-    char  fmode[10];
-    char* fmodeptr = fmode;
-    if (mode & std::ios::in)
-	*fmodeptr++ = 'r';
-    if (mode & std::ios::out)
-	*fmodeptr++ = 'w';
-    *fmodeptr++ = 'b';
-    *fmodeptr = '\0';
+  if (is_open())
+    return false;
 
-    file = gzopen(name.c_str(), fmode);
-    if (file == NULL)
-	return false;
+  char fmode[10];
+  char *fmodeptr = fmode;
+  if (mode & std::ios::in)
+    *fmodeptr++ = 'r';
+  if (mode & std::ios::out)
+    *fmodeptr++ = 'w';
+  *fmodeptr++ = 'b';
+  *fmodeptr = '\0';
 
-    opened = 1;
-    mode_ = mode;
-    return true;
+  file = gzopen(name.c_str(), fmode);
+  if (file == NULL)
+    return false;
+
+  opened = 1;
+  mode_ = mode;
+  return true;
 }
 
 bool CompressedStreamBuf::close() {
-    if (is_open()) {
-	sync();
-	opened = 0;
-	if (gzclose(file) == Z_OK)
-	    return true;
-    }
-    return false;
+  if (is_open()) {
+    sync();
+    opened = 0;
+    if (gzclose(file) == Z_OK)
+      return true;
+  }
+  return false;
 }
 
 int CompressedStreamBuf::underflow() { // used for input buffer only
-    if ( gptr() && ( gptr() < egptr()))
-	return * reinterpret_cast<unsigned char *>( gptr());
+  if (gptr() && (gptr() < egptr()))
+    return *reinterpret_cast<unsigned char *>(gptr());
 
-    if ( ! (mode_ & std::ios::in) || ! opened)
-	return EOF;
-    // Josuttis' implementation of inbuf
-    int n_putback = gptr() - eback();
-    if ( n_putback > 4)
-	n_putback = 4;
-    memcpy( buffer + (4 - n_putback), gptr() - n_putback, n_putback);
+  if (!(mode_ & std::ios::in) || !opened)
+    return EOF;
+  // Josuttis' implementation of inbuf
+  int n_putback = gptr() - eback();
+  if (n_putback > 4)
+    n_putback = 4;
+  memcpy(buffer + (4 - n_putback), gptr() - n_putback, n_putback);
 
-    int num = gzread( file, buffer+4, bufferSize-4);
-    if (num <= 0) // ERROR or EOF
-	return EOF;
+  int num = gzread(file, buffer + 4, bufferSize - 4);
+  if (num <= 0) // ERROR or EOF
+    return EOF;
 
-    // reset buffer pointers
-    setg( buffer + (4 - n_putback),   // beginning of putback area
-	  buffer + 4,                 // read position
-	  buffer + 4 + num);          // end of buffer
+  // reset buffer pointers
+  setg(buffer + (4 - n_putback), // beginning of putback area
+       buffer + 4,               // read position
+       buffer + 4 + num);        // end of buffer
 
-    // return next character
-    return * reinterpret_cast<unsigned char *>( gptr());
+  // return next character
+  return *reinterpret_cast<unsigned char *>(gptr());
 }
 
 int CompressedStreamBuf::flush_buffer() {
-    // Separate the writing of the buffer from overflow() and
-    // sync() operation.
-    int w = pptr() - pbase();
-    if ( gzwrite( file, pbase(), w) != w)
-	return EOF;
-    pbump( -w);
-    return w;
+  // Separate the writing of the buffer from overflow() and
+  // sync() operation.
+  int w = pptr() - pbase();
+  if (gzwrite(file, pbase(), w) != w)
+    return EOF;
+  pbump(-w);
+  return w;
 }
 
 int CompressedStreamBuf::overflow(int c) { // used for output buffer only
-    if ( ! ( mode_ & std::ios::out) || ! opened)
-	return EOF;
-    if (c != EOF) {
-	*pptr() = c;
-	pbump(1);
-    }
-    if ( flush_buffer() == EOF)
-	return EOF;
-    return c;
+  if (!(mode_ & std::ios::out) || !opened)
+    return EOF;
+  if (c != EOF) {
+    *pptr() = c;
+    pbump(1);
+  }
+  if (flush_buffer() == EOF)
+    return EOF;
+  return c;
 }
 
 int CompressedStreamBuf::sync() {
-    // Changed to use flush_buffer() instead of overflow( EOF)
-    // which caused improper behavior with std::endl and flush(),
-    // bug reported by Vincent Ricard.
-    if ( pptr() && pptr() > pbase()) {
-	if ( flush_buffer() == EOF)
-	    return -1;
-    }
-    return 0;
+  // Changed to use flush_buffer() instead of overflow( EOF)
+  // which caused improper behavior with std::endl and flush(),
+  // bug reported by Vincent Ricard.
+  if (pptr() && pptr() > pbase()) {
+    if (flush_buffer() == EOF)
+      return -1;
+  }
+  return 0;
 }
 
 // ===========================================================================
@@ -176,30 +175,32 @@ int CompressedStreamBuf::sync() {
 
 CompressedInputStream::CompressedInputStream() : std::istream(0), buf_(0) {}
 
-CompressedInputStream::CompressedInputStream(const std::string &name) :
-    std::istream(0), buf_(0)
-{
-    open(name);
+CompressedInputStream::CompressedInputStream(const std::string &name)
+    : std::istream(0), buf_(0) {
+  open(name);
 }
 
 void CompressedInputStream::open(const std::string &name) {
-    if (buf_) delete buf_;
-    if (name == "-") {
-	buf_ = std::cin.rdbuf();
-    } else {
-	CompressedStreamBuf *buf = new CompressedStreamBuf();
-	if (!buf->open(name, std::ios::in)) setstate(std::ios::failbit);
-	buf_ = buf;
-    }
-    rdbuf(buf_);
+  if (buf_)
+    delete buf_;
+  if (name == "-") {
+    buf_ = std::cin.rdbuf();
+  } else {
+    CompressedStreamBuf *buf = new CompressedStreamBuf();
+    if (!buf->open(name, std::ios::in))
+      setstate(std::ios::failbit);
+    buf_ = buf;
+  }
+  rdbuf(buf_);
 }
 
 void CompressedInputStream::close() {
-    if (buf_) {
-	if (buf_ != std::cin.rdbuf()) delete buf_;
-	buf_ = 0;
-	rdbuf(0);
-    }
+  if (buf_) {
+    if (buf_ != std::cin.rdbuf())
+      delete buf_;
+    buf_ = 0;
+    rdbuf(0);
+  }
 }
 
 // ===========================================================================
@@ -207,44 +208,52 @@ void CompressedInputStream::close() {
 
 CompressedOutputStream::CompressedOutputStream() : std::ostream(0), buf_(0) {}
 
-CompressedOutputStream::CompressedOutputStream(const std::string &name) :
-    std::ostream(0), buf_(0)
-{
-    open(name);
+CompressedOutputStream::CompressedOutputStream(const std::string &name)
+    : std::ostream(0), buf_(0) {
+  open(name);
 }
 
 void CompressedOutputStream::open(const std::string &name) {
-    if (buf_) delete buf_;
-    if ((name.rfind(".gz") == name.length() - 3) || (name.rfind(".Z") == name.length() - 3)) {
-	CompressedStreamBuf *buf = new CompressedStreamBuf();
-	if (!buf->open(name, std::ios::out)) setstate(std::ios::failbit);
-	buf_ = buf;
-    } else if (name == "-") {
-	buf_ = std::cout.rdbuf();
-    } else {
-	std::filebuf *buf = new std::filebuf();
-	if (!buf->open(name.c_str(), std::ios::out)) setstate(std::ios::failbit);
-	buf_ = buf;
-    }
-    rdbuf(buf_);
+  if (buf_)
+    delete buf_;
+  if ((name.rfind(".gz") == name.length() - 3) ||
+      (name.rfind(".Z") == name.length() - 3)) {
+    CompressedStreamBuf *buf = new CompressedStreamBuf();
+    if (!buf->open(name, std::ios::out))
+      setstate(std::ios::failbit);
+    buf_ = buf;
+  } else if (name == "-") {
+    buf_ = std::cout.rdbuf();
+  } else {
+    std::filebuf *buf = new std::filebuf();
+    if (!buf->open(name.c_str(), std::ios::out))
+      setstate(std::ios::failbit);
+    buf_ = buf;
+  }
+  rdbuf(buf_);
 }
 
 void CompressedOutputStream::close() {
-    if (buf_) {
-	if (buf_ != std::cout.rdbuf()) delete buf_;
-	buf_ = 0;
-	rdbuf(0);
-    }
+  if (buf_) {
+    if (buf_ != std::cout.rdbuf())
+      delete buf_;
+    buf_ = 0;
+    rdbuf(0);
+  }
 }
 
 // ===========================================================================
 
-std::string Core::extendCompressedFilename(const std::string &filename, const std::string &extension) {
-    std::string::size_type gzPos = filename.rfind(".gz");
-    std::string::size_type zPos = filename.rfind(".Z");
-    std::string::size_type bz2Pos = filename.rfind(".bz2");
-    if (gzPos == filename.length() - 3) return std::string(filename, 0, gzPos) + extension + ".gz";
-    else if (zPos == filename.length() - 2) return std::string(filename, 0, zPos) + extension + ".Z";
-    else if (bz2Pos == filename.length() - 3) return std::string(filename, 0, bz2Pos) + extension + ".bz2";
-    return filename + extension;
+std::string Core::extendCompressedFilename(const std::string &filename,
+                                           const std::string &extension) {
+  std::string::size_type gzPos = filename.rfind(".gz");
+  std::string::size_type zPos = filename.rfind(".Z");
+  std::string::size_type bz2Pos = filename.rfind(".bz2");
+  if (gzPos == filename.length() - 3)
+    return std::string(filename, 0, gzPos) + extension + ".gz";
+  else if (zPos == filename.length() - 2)
+    return std::string(filename, 0, zPos) + extension + ".Z";
+  else if (bz2Pos == filename.length() - 3)
+    return std::string(filename, 0, bz2Pos) + extension + ".bz2";
+  return filename + extension;
 }

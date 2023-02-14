@@ -15,57 +15,54 @@
 
 using namespace Speech;
 
-Flow::PortId SegmentwiseFeatureExtractor::addPort(const std::string &name)
-{
-    Flow::PortId portId = dataSource()->getOutput(name);
-    if (portId != Flow::IllegalPortId) {
-	log("Output named \"%s\" added to flow network", name.c_str());
-	featureStreams_.insert(std::make_pair(portId, SegmentwiseFeaturesRef(new SegmentwiseFeatures())));
-    } else {
-	error("Flow network does not have an output named \"%s\"", name.c_str());
-    }
-    return portId;
+Flow::PortId SegmentwiseFeatureExtractor::addPort(const std::string &name) {
+  Flow::PortId portId = dataSource()->getOutput(name);
+  if (portId != Flow::IllegalPortId) {
+    log("Output named \"%s\" added to flow network", name.c_str());
+    featureStreams_.insert(std::make_pair(
+        portId, SegmentwiseFeaturesRef(new SegmentwiseFeatures())));
+  } else {
+    error("Flow network does not have an output named \"%s\"", name.c_str());
+  }
+  return portId;
 }
 
 void SegmentwiseFeatureExtractor::checkCompatibility(
-    Flow::PortId port,
-    Core::Ref<const Am::AcousticModel> acousticModel) const
-{
-    if (!features(port)->empty() &&
-	!acousticModel->isCompatible(
-	    Mm::FeatureDescription(*this, *features(port)->front()))) {
-	acousticModel->respondToDelayedErrors();
-    }
+    Flow::PortId port, Core::Ref<const Am::AcousticModel> acousticModel) const {
+  if (!features(port)->empty() &&
+      !acousticModel->isCompatible(
+          Mm::FeatureDescription(*this, *features(port)->front()))) {
+    acousticModel->respondToDelayedErrors();
+  }
 }
 
-ConstSegmentwiseFeaturesRef SegmentwiseFeatureExtractor::features(
-    Flow::PortId port) const
-{
-    require(featureStreams_.find(port) != featureStreams_.end());
-    return featureStreams_.find(port)->second;
+ConstSegmentwiseFeaturesRef
+SegmentwiseFeatureExtractor::features(Flow::PortId port) const {
+  require(featureStreams_.find(port) != featureStreams_.end());
+  return featureStreams_.find(port)->second;
 }
 
-bool SegmentwiseFeatureExtractor::valid() const
-{
-    for (FeatureStreams::const_iterator i = featureStreams_.begin(); i != featureStreams_.end(); ++ i) {
-	if (!valid(i->first)) {
-	    return false;
-	}
+bool SegmentwiseFeatureExtractor::valid() const {
+  for (FeatureStreams::const_iterator i = featureStreams_.begin();
+       i != featureStreams_.end(); ++i) {
+    if (!valid(i->first)) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
-void SegmentwiseFeatureExtractor::processSegment(Bliss::Segment* segment)
-{
-    for (FeatureStreams::iterator i = featureStreams_.begin(); i != featureStreams_.end(); ++ i) {
-	if (!dataSource()->getData(i->first, *i->second))
-	    warning("Feature stream '%s' is empty.", dataSource()->outputName(i->first).c_str());
-    }
+void SegmentwiseFeatureExtractor::processSegment(Bliss::Segment *segment) {
+  for (FeatureStreams::iterator i = featureStreams_.begin();
+       i != featureStreams_.end(); ++i) {
+    if (!dataSource()->getData(i->first, *i->second))
+      warning("Feature stream '%s' is empty.",
+              dataSource()->outputName(i->first).c_str());
+  }
 }
 
-void SegmentwiseFeatureExtractor::signOn(CorpusVisitor &corpusVisitor)
-{
-    if (!corpusVisitor.isSignedOn(dataSource())) {
-	Precursor::signOn(corpusVisitor);
-    }
+void SegmentwiseFeatureExtractor::signOn(CorpusVisitor &corpusVisitor) {
+  if (!corpusVisitor.isSignedOn(dataSource())) {
+    Precursor::signOn(corpusVisitor);
+  }
 }

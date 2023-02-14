@@ -31,50 +31,45 @@
 
 using namespace Core;
 
-
 // ===========================================================================
 // Application
 
-class TestApplication :
-    public Application
-{
+class TestApplication : public Application {
 public:
-    std::string getUsage() const {
-	return "short program";
+  std::string getUsage() const { return "short program"; }
+
+  int main(const std::vector<std::string> &arguments) {
+    Speech::ModelCombination modelCombination(
+        select("model-combination"), Speech::ModelCombination::useLexicon);
+    modelCombination.load();
+
+    Lattice::ArchiveReader *archiveReader = Lattice::Archive::openForReading(
+        select("lattice-archive"), modelCombination.lexicon());
+    verify(archiveReader);
+
+    for (Lattice::ArchiveReader::const_iterator it = archiveReader->files(); it;
+         ++it) {
+      if ((it.name().at(it.name().size() - 1) == '~'))
+        continue;
+      if (it.name() == Lattice::Archive::latticeConfigFilename)
+        continue;
+      if (it.name() == Fsa::ArchiveReader::alphabetFilename)
+        continue;
+      log("read \"%s\"", it.name().c_str());
+      Fsa::ConstAutomatonRef f = archiveReader->get(it.name())->part(
+          Lattice::WordLattice::acousticFsa);
+
+      // DEBUG
+      //  Fsa::drawDot(Fsa::projectOutput(f), log());
+
+      Fsa::ConstAutomatonRef best = Fsa::projectOutput(Fsa::best(f));
+      Fsa::writeLinear(
+          best, (XmlWriter &)log("score: %f\n", f32(Fsa::bestscore(best))));
     }
 
-    int main(const std::vector<std::string> &arguments) {
-	Speech::ModelCombination modelCombination(
-	    select("model-combination"), Speech::ModelCombination::useLexicon);
-	modelCombination.load();
-
-	Lattice::ArchiveReader * archiveReader = Lattice::Archive::openForReading(
-	    select("lattice-archive"),
-	    modelCombination.lexicon());
-	verify(archiveReader);
-
-	for (Lattice::ArchiveReader::const_iterator it = archiveReader->files();
-	     it; ++it) {
-	    if ((it.name().at(it.name().size()-1) == '~'))
-		continue;
-	    if (it.name() == Lattice::Archive::latticeConfigFilename)
-		continue;
-	    if (it.name() == Fsa::ArchiveReader::alphabetFilename)
-		continue;
-	    log("read \"%s\"", it.name().c_str());
-	    Fsa::ConstAutomatonRef f =
-		archiveReader->get(it.name())->part(Lattice::WordLattice::acousticFsa);
-
-	    //DEBUG
-	    // Fsa::drawDot(Fsa::projectOutput(f), log());
-
-	    Fsa::ConstAutomatonRef best = Fsa::projectOutput(Fsa::best(f));
-	    Fsa::writeLinear(best, (XmlWriter&)log("score: %f\n", f32(Fsa::bestscore(best))));
-	}
-
-	delete archiveReader;
-	return 0;
-    }
+    delete archiveReader;
+    return 0;
+  }
 } app; // <- You have to create ONE instance of the application
 
 APPLICATION

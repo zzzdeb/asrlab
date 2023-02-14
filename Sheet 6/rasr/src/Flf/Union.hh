@@ -19,36 +19,36 @@
 #include "FlfCore/Lattice.hh"
 #include "Network.hh"
 
-
 namespace Flf {
 
-    /**
-     * union
-     **/
-    ConstLatticeRef unite(ConstLatticeRef l1, ConstLatticeRef l2,
-			  ConstSemiringRef semiring = ConstSemiringRef());
-    ConstLatticeRef unite(const ConstLatticeRefList &lats,
-			  ConstSemiringRef semiring = ConstSemiringRef());
+/**
+ * union
+ **/
+ConstLatticeRef unite(ConstLatticeRef l1, ConstLatticeRef l2,
+                      ConstSemiringRef semiring = ConstSemiringRef());
+ConstLatticeRef unite(const ConstLatticeRefList &lats,
+                      ConstSemiringRef semiring = ConstSemiringRef());
 
-    NodeRef createUnionNode(const std::string &name, const Core::Configuration &config);
+NodeRef createUnionNode(const std::string &name,
+                        const Core::Configuration &config);
 
-    /**
-     * time or boundary conditioned lattice;
-     * join either all states having identical boundaries(boundary information includes time) or having identical time
-     **/
-    typedef enum {
-	MeshTypeFullBoundary,
-	MeshTypeTimeBoundary
-    } MeshType;
-    ConstLatticeRef mesh(const ConstLatticeRefList &lats,
-			 ConstSemiringRef semiring = ConstSemiringRef(),
-			 MeshType meshType = MeshTypeFullBoundary);
-    ConstLatticeRef mesh(ConstLatticeRef l1, ConstLatticeRef l2,
-			 ConstSemiringRef semiring = ConstSemiringRef(),
-			 MeshType meshType = MeshTypeFullBoundary);
-    ConstLatticeRef mesh(ConstLatticeRef l, MeshType meshType = MeshTypeFullBoundary);
+/**
+ * time or boundary conditioned lattice;
+ * join either all states having identical boundaries(boundary information
+ *includes time) or having identical time
+ **/
+typedef enum { MeshTypeFullBoundary, MeshTypeTimeBoundary } MeshType;
+ConstLatticeRef mesh(const ConstLatticeRefList &lats,
+                     ConstSemiringRef semiring = ConstSemiringRef(),
+                     MeshType meshType = MeshTypeFullBoundary);
+ConstLatticeRef mesh(ConstLatticeRef l1, ConstLatticeRef l2,
+                     ConstSemiringRef semiring = ConstSemiringRef(),
+                     MeshType meshType = MeshTypeFullBoundary);
+ConstLatticeRef mesh(ConstLatticeRef l,
+                     MeshType meshType = MeshTypeFullBoundary);
 
-    NodeRef createMeshNode(const std::string &name, const Core::Configuration &config);
+NodeRef createMeshNode(const std::string &name,
+                       const Core::Configuration &config);
 
 } // namespace Flf
 

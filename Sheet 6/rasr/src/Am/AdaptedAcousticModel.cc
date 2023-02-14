@@ -18,135 +18,134 @@
 
 using namespace Am;
 
-const Core::ParameterString AdaptedAcousticModel::paramCorpusKeyMap(
-    "corpus-key-map",
-    "path of corpus-key-map file");
+const Core::ParameterString
+    AdaptedAcousticModel::paramCorpusKeyMap("corpus-key-map",
+                                            "path of corpus-key-map file");
 
 const Core::ParameterBool AdaptedAcousticModel::paramReuseAdaptors(
-    "reuse-adaptors",
-    "reuse adaptors instead of estimating them new",
-    false);
+    "reuse-adaptors", "reuse adaptors instead of estimating them new", false);
 
-AdaptedAcousticModel::AdaptedAcousticModel(const Core::Configuration &configuration,
-					   Bliss::LexiconRef lexiconRef) :
-    Core::Component(configuration),
-    Precursor(config, lexiconRef),
-    adaptationConfiguration_(config, "adaptation"),
-    adaptorCache_(Core::Configuration(adaptationConfiguration_, "adaptor-cache"),
-				  paramReuseAdaptors(adaptationConfiguration_) ? Core::reuseObjectCacheMode : Core::createObjectCacheMode),
-    adaptorEstimatorCache_(Core::Configuration(adaptationConfiguration_, "accumulator-cache"),
-						   Core::reuseObjectCacheMode),
-    useCorpusKey_(false),
-    corpusKey_(new Bliss::CorpusKey(Core::Configuration(adaptationConfiguration_, "corpus-key")))
-{
-    loadCorpusKeyMap();
+AdaptedAcousticModel::AdaptedAcousticModel(
+    const Core::Configuration &configuration, Bliss::LexiconRef lexiconRef)
+    : Core::Component(configuration), Precursor(config, lexiconRef),
+      adaptationConfiguration_(config, "adaptation"),
+      adaptorCache_(
+          Core::Configuration(adaptationConfiguration_, "adaptor-cache"),
+          paramReuseAdaptors(adaptationConfiguration_)
+              ? Core::reuseObjectCacheMode
+              : Core::createObjectCacheMode),
+      adaptorEstimatorCache_(
+          Core::Configuration(adaptationConfiguration_, "accumulator-cache"),
+          Core::reuseObjectCacheMode),
+      useCorpusKey_(false), corpusKey_(new Bliss::CorpusKey(Core::Configuration(
+                                adaptationConfiguration_, "corpus-key"))) {
+  loadCorpusKeyMap();
 
-    adaptationTree_= Core::ref(new Am::AdaptationTree(
-	    Core::Configuration(adaptationConfiguration_, "mllr-tree"), stateModel(), silence() ));
+  adaptationTree_ = Core::ref(new Am::AdaptationTree(
+      Core::Configuration(adaptationConfiguration_, "mllr-tree"), stateModel(),
+      silence()));
 
-    Core::IoRef<Mm::AdaptorEstimator>::registerClass<Mm::FullAdaptorViterbiEstimator>(
-	    adaptationConfiguration_, adaptationTree_);
-    Core::IoRef<Mm::AdaptorEstimator>::registerClass<Mm::ShiftAdaptorViterbiEstimator>(
-	    adaptationConfiguration_, adaptationTree_);
+  Core::IoRef<Mm::AdaptorEstimator>::registerClass<
+      Mm::FullAdaptorViterbiEstimator>(adaptationConfiguration_,
+                                       adaptationTree_);
+  Core::IoRef<Mm::AdaptorEstimator>::registerClass<
+      Mm::ShiftAdaptorViterbiEstimator>(adaptationConfiguration_,
+                                        adaptationTree_);
 
-
-    Core::IoRef<Mm::Adaptor>::registerClass<Mm::FullAdaptor>(adaptationConfiguration_);
-    Core::IoRef<Mm::Adaptor>::registerClass<Mm::ShiftAdaptor>(adaptationConfiguration_);
+  Core::IoRef<Mm::Adaptor>::registerClass<Mm::FullAdaptor>(
+      adaptationConfiguration_);
+  Core::IoRef<Mm::Adaptor>::registerClass<Mm::ShiftAdaptor>(
+      adaptationConfiguration_);
 }
 
 AdaptedAcousticModel::~AdaptedAcousticModel() {}
 
-Core::Ref<Mm::MixtureSet> AdaptedAcousticModel::mixtureSet()
-{
-	checkIfModelNeedsUpdate();
-	verify(adaptMixtureSet_);
-	return adaptMixtureSet_;
+Core::Ref<Mm::MixtureSet> AdaptedAcousticModel::mixtureSet() {
+  checkIfModelNeedsUpdate();
+  verify(adaptMixtureSet_);
+  return adaptMixtureSet_;
 }
 
-Core::Ref<const Mm::ScaledFeatureScorer> AdaptedAcousticModel::featureScorer()
-{
-    checkIfModelNeedsUpdate();
-    return ClassicAcousticModel::featureScorer();
+Core::Ref<const Mm::ScaledFeatureScorer> AdaptedAcousticModel::featureScorer() {
+  checkIfModelNeedsUpdate();
+  return ClassicAcousticModel::featureScorer();
 }
 
-void AdaptedAcousticModel::loadCorpusKeyMap()
-{
-    std::string mapFile = paramCorpusKeyMap(adaptationConfiguration_);
-    if (mapFile != "") {
-	log("Corpus key map file: ") << mapFile;
-	Core::XmlMapDocument<Core::StringHashMap<std::string> > parser(
-		adaptationConfiguration_, corpusKeyMap_, "coprus-key-map", "map-item", "key", "value");
-	parser.parseFile(mapFile.c_str());
+void AdaptedAcousticModel::loadCorpusKeyMap() {
+  std::string mapFile = paramCorpusKeyMap(adaptationConfiguration_);
+  if (mapFile != "") {
+    log("Corpus key map file: ") << mapFile;
+    Core::XmlMapDocument<Core::StringHashMap<std::string> > parser(
+        adaptationConfiguration_, corpusKeyMap_, "coprus-key-map", "map-item",
+        "key", "value");
+    parser.parseFile(mapFile.c_str());
+  }
+}
+
+void AdaptedAcousticModel::signOn(Speech::CorpusVisitor &corpusVisitor) {
+  corpusVisitor.signOn(corpusKey_);
+  useCorpusKey_ = true;
+}
+
+void AdaptedAcousticModel::checkIfModelNeedsUpdate() {
+  if (useCorpusKey_) {
+    std::string key;
+    corpusKey_->resolve(key);
+    setKey(key);
+  }
+}
+
+bool AdaptedAcousticModel::setKey(const std::string &key) {
+  if (key == currentKey_)
+    return true;
+  currentKey_ = key;
+
+  std::string mappedKey(key);
+  Core::StringHashMap<std::string>::const_iterator i = corpusKeyMap_.find(key);
+  if (i != corpusKeyMap_.end())
+    mappedKey = i->second;
+
+  if (mappedKey == currentMappedKey_)
+    return true;
+  currentMappedKey_ = mappedKey;
+
+  Core::Ref<Mm::MixtureSet> mixtureSet = Precursor::mixtureSet();
+  if (!mixtureSet) {
+    error("Could not get mixture set from precursor.");
+    return false;
+  }
+
+  // Do the adaptation
+  log("Adaptation key: ") << currentMappedKey_;
+
+  if (!adaptorCache_.findForReadAccess(currentMappedKey_)) {
+    if (!adaptorEstimatorCache_.findForReadAccess(currentMappedKey_)) {
+      log("No adaptation data seen for key ")
+          << currentMappedKey_ << "using unadapted references!\n";
+    } else {
+      adaptorCache_.insert(
+          currentMappedKey_,
+          new Core::IoRef<Mm::Adaptor>(
+              (*adaptorEstimatorCache_.findForReadAccess(currentMappedKey_))
+                  ->adaptor()));
+
+      (*adaptorCache_.findForReadAccess(currentMappedKey_))
+          ->adaptMixtureSet(mixtureSet);
     }
+  } else {
+    (*adaptorCache_.findForReadAccess(currentMappedKey_))
+        ->adaptMixtureSet(mixtureSet);
+  }
+  mixtureSet_.reset();
+  adaptMixtureSet_ = mixtureSet;
+
+  Core::Ref<Mm::ScaledFeatureScorer> featureScorer =
+      Mm::Module::instance().createScaledFeatureScorer(
+          select("mixture-set"), Core::Ref<Mm::AbstractMixtureSet>(mixtureSet));
+  if (!featureScorer) {
+    error("Could not create feature scorer.");
+    return false;
+  }
+
+  return setFeatureScorer(featureScorer);
 }
-
-void AdaptedAcousticModel::signOn(Speech::CorpusVisitor &corpusVisitor)
-{
-    corpusVisitor.signOn(corpusKey_);
-    useCorpusKey_ = true;
-}
-
-void AdaptedAcousticModel::checkIfModelNeedsUpdate()
-{
-    if (useCorpusKey_) {
-	    std::string key;
-	    corpusKey_->resolve(key);
-	    setKey(key);
-   }
-}
-
-bool AdaptedAcousticModel::setKey(const std::string &key)
-{
-    if (key == currentKey_)
-	return true;
-    currentKey_ = key;
-
-    std::string mappedKey(key);
-    Core::StringHashMap<std::string>::const_iterator i = corpusKeyMap_.find(key);
-    if (i != corpusKeyMap_.end())
-	mappedKey = i->second;
-
-    if (mappedKey == currentMappedKey_)
-	return true;
-    currentMappedKey_ = mappedKey;
-
-    Core::Ref<Mm::MixtureSet> mixtureSet = Precursor::mixtureSet();
-    if (!mixtureSet) {
-	error("Could not get mixture set from precursor.");
-	return false;
-    }
-
-    // Do the adaptation
-    log("Adaptation key: ") << currentMappedKey_;
-
-    if (!adaptorCache_.findForReadAccess(currentMappedKey_)) {
-	if (!adaptorEstimatorCache_.findForReadAccess(currentMappedKey_)) {
-	    log("No adaptation data seen for key ") << currentMappedKey_ <<
-		"using unadapted references!\n";
-	}
-	else {
-	    adaptorCache_.insert(currentMappedKey_, new Core::IoRef<Mm::Adaptor>(
-	    (*adaptorEstimatorCache_.findForReadAccess(currentMappedKey_))->adaptor()));
-
-	    (*adaptorCache_.findForReadAccess(currentMappedKey_))->adaptMixtureSet(mixtureSet);
-	}
-    }
-    else {
-	(*adaptorCache_.findForReadAccess(currentMappedKey_))->adaptMixtureSet(mixtureSet);
-    }
-    mixtureSet_.reset();
-    adaptMixtureSet_ = mixtureSet;
-
-    Core::Ref<Mm::ScaledFeatureScorer> featureScorer =
-	Mm::Module::instance().createScaledFeatureScorer(
-	    select("mixture-set"),
-	    Core::Ref<Mm::AbstractMixtureSet>(mixtureSet));
-    if (!featureScorer) {
-	error("Could not create feature scorer.");
-	return false;
-    }
-
-    return setFeatureScorer(featureScorer);
-}
-
-

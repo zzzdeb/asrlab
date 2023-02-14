@@ -18,8 +18,8 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef removeEpsilons(ConstWordLatticeRef);
+ConstWordLatticeRef removeEpsilons(ConstWordLatticeRef);
 
-} //namespace Lattice
+} // namespace Lattice
 
 #endif //_LATTICE_REMOVE_EPSILONS_HH

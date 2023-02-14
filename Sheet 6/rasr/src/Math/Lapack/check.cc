@@ -11,28 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Core/Application.hh>
 #include "Lapack.hh"
-
+#include <Core/Application.hh>
 
 using namespace Math::Lapack;
 
-
-class TestApplication :
-    public Core::Application
-{
+class TestApplication : public Core::Application {
 public:
-    virtual std::string getUsage() const {
-	return "short program to test LAPACK features\n";
-    }
+  virtual std::string getUsage() const {
+    return "short program to test LAPACK features\n";
+  }
 
-    TestApplication() : Core::Application() {
-	setTitle("check");
-    }
+  TestApplication() : Core::Application() { setTitle("check"); }
 
-    int main(const std::vector<std::string> &arguments) {
-	return 0;
-    }
+  int main(const std::vector<std::string> &arguments) { return 0; }
 
 } app;
 

@@ -14,19 +14,13 @@
 #include "Types.hh"
 
 namespace Fsa {
-    Core::Choice TypeChoice(
-	"unknown", TypeUnknown,
-	"acceptor", TypeAcceptor,
-	"transducer", TypeTransducer,
-	Core::Choice::endMark());
+Core::Choice TypeChoice("unknown", TypeUnknown, "acceptor", TypeAcceptor,
+                        "transducer", TypeTransducer, Core::Choice::endMark());
 
-    Core::Choice PropertyChoice(
-	"storage", PropertyStorage,
-	"sorted-by-arc", PropertySortedByArc,
-	"sorted-by-input", PropertySortedByInput,
-	"sorted-by-output", PropertySortedByOutput,
-	"linear", PropertyLinear,
-	"acyclic", PropertyAcyclic,
-	"cached", PropertyCached,
-	Core::Choice::endMark());
+Core::Choice PropertyChoice("storage", PropertyStorage, "sorted-by-arc",
+                            PropertySortedByArc, "sorted-by-input",
+                            PropertySortedByInput, "sorted-by-output",
+                            PropertySortedByOutput, "linear", PropertyLinear,
+                            "acyclic", PropertyAcyclic, "cached",
+                            PropertyCached, Core::Choice::endMark());
 } // namespace Fsa

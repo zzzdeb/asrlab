@@ -13,40 +13,40 @@
 // limitations under the License.
 // $Id: check.cc 7257 2009-07-10 12:17:00Z rybach $
 
+#include <Audio/Module.hh>
 #include <Core/Application.hh>
 #include <Core/Parameter.hh>
 #include <Flow/Module.hh>
 #include <Flow/Network.hh>
 #include <Flow/Registry.hh>
-#include <Audio/Module.hh>
 
-class TestApplication :
-    public Core::Application
-{
+class TestApplication : public Core::Application {
 public:
-    virtual std::string getUsage() const { return "short program to test audio network\n"; }
+  virtual std::string getUsage() const {
+    return "short program to test audio network\n";
+  }
 
-    TestApplication() {
-	INIT_MODULE(Flow);
-	INIT_MODULE(Audio);
-	setTitle("check");
-    }
+  TestApplication() {
+    INIT_MODULE(Flow);
+    INIT_MODULE(Audio);
+    setTitle("check");
+  }
 
-    static const Core::ParameterString p_network;
+  static const Core::ParameterString p_network;
 
-    int main(const std::vector<std::string> &arguments) {
-	//Flow::Registry::instance().dumpFilters(clog());
+  int main(const std::vector<std::string> &arguments) {
+    // Flow::Registry::instance().dumpFilters(clog());
 
-	Flow::Network net(select("network"), false);
-	net.buildFromFile(p_network(config));
-	net.go();
+    Flow::Network net(select("network"), false);
+    net.buildFromFile(p_network(config));
+    net.go();
 
-	return 0;
-    }
-
+    return 0;
+  }
 };
 
-const Core::ParameterString TestApplication::p_network(
-    "network-file", "feature extraction network file");
+const Core::ParameterString
+    TestApplication::p_network("network-file",
+                               "feature extraction network file");
 
 APPLICATION(TestApplication)

@@ -14,68 +14,61 @@
 #ifndef _AM_HMM_TOPOLOGY_SET_HH
 #define _AM_HMM_TOPOLOGY_SET_HH
 
-
 #include <list>
 #include <vector>
 
 #include <Core/Component.hh>
 #include <Core/Types.hh>
 
-
 namespace Am {
 
-    class HmmTopology : public Core::Component {
-    public:
-	typedef u32 StateIndex;
+class HmmTopology : public Core::Component {
+public:
+  typedef u32 StateIndex;
 
-    private:
-	struct Transition { StateIndex from_, to_; };
-	std::vector<StateIndex> states_;
-	std::vector<Transition> transitions_;
+private:
+  struct Transition {
+    StateIndex from_, to_;
+  };
+  std::vector<StateIndex> states_;
+  std::vector<Transition> transitions_;
 
-    public:
-	HmmTopology(const Core::Configuration &c) : Core::Component(c) {}
+public:
+  HmmTopology(const Core::Configuration &c) : Core::Component(c) {}
 
-	void addState(const StateIndex s, const std::string &tie = "");
-	void addTransition(const StateIndex from, const StateIndex to);
-	void addHmmTopology(const HmmTopology &t, const StateIndex start);
-	void scale(const u32 scale);
+  void addState(const StateIndex s, const std::string &tie = "");
+  void addTransition(const StateIndex from, const StateIndex to);
+  void addHmmTopology(const HmmTopology &t, const StateIndex start);
+  void scale(const u32 scale);
 
-	friend std::ostream& operator<< (std::ostream &o, const HmmTopology &t)  {
-	    o << t.name();
-	    return o;
-	}
-    };
+  friend std::ostream &operator<<(std::ostream &o, const HmmTopology &t) {
+    o << t.name();
+    return o;
+  }
+};
 
+class HmmTopologySet : public Core::Component, public Core::ReferenceCounted {
+private:
+  std::list<HmmTopology *> topologies_;
+  HmmTopology *default_silence_;
+  HmmTopology *default_acoustic_unit_;
 
-    class HmmTopologySet :
-	public Core::Component,
-	public Core::ReferenceCounted
-    {
-    private:
-	std::list<HmmTopology*> topologies_;
-	HmmTopology* default_silence_;
-	HmmTopology* default_acoustic_unit_;
+public:
+  HmmTopologySet(const Core::Configuration &c, const std::string &name);
 
-    public:
-	HmmTopologySet(const Core::Configuration &c, const std::string &name);
+  bool addHmmTopology(HmmTopology *t);
+  bool setDefaultSilence(const std::string &name);
+  bool setDefaultAcousticUnit(const std::string &name);
 
-	bool addHmmTopology(HmmTopology *t);
-	bool setDefaultSilence(const std::string &name);
-	bool setDefaultAcousticUnit(const std::string &name);
+  const HmmTopology *getHmmTopology(const std::string &name);
+  const HmmTopology *getDefaultSilence() { return default_silence_; }
+  const HmmTopology *getDefaultAcousticUnit() { return default_acoustic_unit_; }
 
-	const HmmTopology* getHmmTopology(const std::string &name);
-	const HmmTopology* getDefaultSilence()
-	    { return default_silence_; }
-	const HmmTopology* getDefaultAcousticUnit()
-	    { return default_acoustic_unit_; }
-
-	friend std::ostream& operator<< (std::ostream &o, const HmmTopologySet &h)  {
-	    return o;
-	}
-    };
-    typedef Core::Ref<HmmTopologySet> HmmTopologySetRef;
-}
-
+  friend std::ostream &operator<<(std::ostream &o, const HmmTopologySet &h) {
+    return o;
+  }
+};
+typedef Core::Ref<HmmTopologySet> HmmTopologySetRef;
+} // namespace Am
 
 #endif // _AM_HMM_TOPOLOGY_SET_HH

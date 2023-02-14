@@ -14,52 +14,51 @@
 #ifndef _LM_MODULE_HH
 #define _LM_MODULE_HH
 
-#include <Core/Singleton.hh>
 #include "LanguageModel.hh"
 #include "ScaledLanguageModel.hh"
+#include <Core/Singleton.hh>
 
 namespace Lm {
 
-    class Module_
-    {
-    private:
-	static const Core::Choice lmTypeChoice;
-	static const Core::ParameterChoice lmTypeParam;
+class Module_ {
+private:
+  static const Core::Choice lmTypeChoice;
+  static const Core::ParameterChoice lmTypeParam;
 
-    public:
-	Module_() {}
+public:
+  Module_() {}
 
-	/**
-	 * Creates and initializes a LanguageModel as configured.
-	 * @return a newly created instance of LanguageModel or a void
-	 * reference if an error occured.
-	 */
-	Core::Ref<LanguageModel> createLanguageModel(
-	    const Core::Configuration&, Bliss::LexiconRef);
+  /**
+   * Creates and initializes a LanguageModel as configured.
+   * @return a newly created instance of LanguageModel or a void
+   * reference if an error occured.
+   */
+  Core::Ref<LanguageModel> createLanguageModel(const Core::Configuration &,
+                                               Bliss::LexiconRef);
 
-	/**
-	 * Creates a scaled language model from @param languageModel.
-	 * @return a valid reference to the newly created instance of
-	 * ScaledLanguageModel or an invalid reference if an error
-	 * occured.
-	 */
-	Core::Ref<ScaledLanguageModel> createScaledLanguageModel(
-	    const Core::Configuration &, Core::Ref<LanguageModel>);
+  /**
+   * Creates a scaled language model from @param languageModel.
+   * @return a valid reference to the newly created instance of
+   * ScaledLanguageModel or an invalid reference if an error
+   * occured.
+   */
+  Core::Ref<ScaledLanguageModel>
+  createScaledLanguageModel(const Core::Configuration &,
+                            Core::Ref<LanguageModel>);
 
-	/**
-	 * Creates a scaled language model as configured.
-	 * @return a valid reference to the newly created instance of
-	 * ScaledLanguageModel or an invalid reference if an error
-	 * occured.
-	 */
-	Core::Ref<ScaledLanguageModel> createScaledLanguageModel(
-	    const Core::Configuration &c, Bliss::LexiconRef l) {
-	    return createScaledLanguageModel(c, createLanguageModel(c, l));
-	}
+  /**
+   * Creates a scaled language model as configured.
+   * @return a valid reference to the newly created instance of
+   * ScaledLanguageModel or an invalid reference if an error
+   * occured.
+   */
+  Core::Ref<ScaledLanguageModel>
+  createScaledLanguageModel(const Core::Configuration &c, Bliss::LexiconRef l) {
+    return createScaledLanguageModel(c, createLanguageModel(c, l));
+  }
+};
 
-    };
-
-    typedef Core::SingletonHolder<Module_> Module;
-}
+typedef Core::SingletonHolder<Module_> Module;
+} // namespace Lm
 
 #endif // _LM_MODULE_HH

@@ -21,34 +21,44 @@
 
 class MyApplication : public Core::Application {
 public:
-    std::string getUsage() const {
-	return "...";
+  std::string getUsage() const { return "..."; }
+
+  int main(const std::vector<std::string> &arguments) {
+    Flf::ConstSemiringRef semiring =
+        Flf::Semiring::create(Fsa::SemiringTypeTropical, 2);
+    Flf::ByteVector v;
+    {
+      std::cout << semiring->describe(semiring->one(), Fsa::HintShowDetails)
+                << std::endl;
+      semiring->compress(v, semiring->one());
+      Flf::ScoresRef s = semiring->create();
+      s->set(0, 12.0);
+      s->set(1, 4.0);
+      std::cout << semiring->describe(s, Fsa::HintShowDetails) << std::endl;
+      semiring->compress(v, s);
+      std::cout << semiring->describe(semiring->invalid(), Fsa::HintShowDetails)
+                << std::endl;
+      semiring->compress(v, semiring->invalid());
+      std::cout << semiring->describe(semiring->zero(), Fsa::HintShowDetails)
+                << std::endl;
+      semiring->compress(v, semiring->zero());
     }
 
-    int main(const std::vector<std::string> &arguments) {
-	Flf::ConstSemiringRef semiring = Flf::Semiring::create(Fsa::SemiringTypeTropical, 2);
-	Flf::ByteVector v;
-	{
-	    std::cout << semiring->describe(semiring->one(), Fsa::HintShowDetails) << std::endl;
-	    semiring->compress(v, semiring->one());
-	    Flf::ScoresRef s = semiring->create();
-	    s->set(0, 12.0);
-	    s->set(1, 4.0);
-	    std::cout << semiring->describe(s, Fsa::HintShowDetails) << std::endl;
-	    semiring->compress(v, s);
-	    std::cout << semiring->describe(semiring->invalid(), Fsa::HintShowDetails) << std::endl;
-	    semiring->compress(v, semiring->invalid());
-	    std::cout << semiring->describe(semiring->zero(), Fsa::HintShowDetails) << std::endl;
-	    semiring->compress(v, semiring->zero());
-	}
-
-	Flf::ByteVector::const_iterator vIt = v.begin();
-	std::cout << semiring->describe(semiring->uncompress(vIt), Fsa::HintShowDetails) << std::endl;
-	std::cout << semiring->describe(semiring->uncompress(vIt), Fsa::HintShowDetails) << std::endl;
-	std::cout << semiring->describe(semiring->uncompress(vIt), Fsa::HintShowDetails) << std::endl;
-	std::cout << semiring->describe(semiring->uncompress(vIt), Fsa::HintShowDetails) << std::endl;
-	return 0;
-    }
+    Flf::ByteVector::const_iterator vIt = v.begin();
+    std::cout << semiring->describe(semiring->uncompress(vIt),
+                                    Fsa::HintShowDetails)
+              << std::endl;
+    std::cout << semiring->describe(semiring->uncompress(vIt),
+                                    Fsa::HintShowDetails)
+              << std::endl;
+    std::cout << semiring->describe(semiring->uncompress(vIt),
+                                    Fsa::HintShowDetails)
+              << std::endl;
+    std::cout << semiring->describe(semiring->uncompress(vIt),
+                                    Fsa::HintShowDetails)
+              << std::endl;
+    return 0;
+  }
 } app; // <- You have to create ONE instance of the application
 
 APPLICATION(MyApplication)

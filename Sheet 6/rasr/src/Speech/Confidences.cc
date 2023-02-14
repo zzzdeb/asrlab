@@ -20,110 +20,94 @@ using namespace Speech;
 /**
  *  Confidences
  */
-const Core::ParameterFloat Confidences::paramThreshold(
-    "threshold",
-    "threshold to cut-off confidences",
-    1, 0, 1);
+const Core::ParameterFloat
+    Confidences::paramThreshold("threshold", "threshold to cut-off confidences",
+                                1, 0, 1);
 
-Confidences::Confidences(const Core::Configuration &c) :
-    Precursor(c),
-    alignment_(0),
-    threshold_(paramThreshold(config))
-{
-    statistics_.nZero = 0;
-    statistics_.nOne = 0;
+Confidences::Confidences(const Core::Configuration &c)
+    : Precursor(c), alignment_(0), threshold_(paramThreshold(config)) {
+  statistics_.nZero = 0;
+  statistics_.nOne = 0;
 }
 
-Confidences::~Confidences()
-{
-    dumpStatistics();
-    clear();
+Confidences::~Confidences() {
+  dumpStatistics();
+  clear();
 }
 
-void Confidences::updateStatistics(const Alignment &alignment)
-{
-    for (u32 t = 0; t < alignment.size(); ++ t) {
-	alignment[t].weight < threshold_ ? ++ statistics_.nZero : ++ statistics_.nOne;
-    }
+void Confidences::updateStatistics(const Alignment &alignment) {
+  for (u32 t = 0; t < alignment.size(); ++t) {
+    alignment[t].weight < threshold_ ? ++statistics_.nZero : ++statistics_.nOne;
+  }
 }
 
-void Confidences::dumpStatistics()
-{
-    log(Core::form("statistics: %d with weight '0' and %d with weight '1'",
-		   statistics_.nZero, statistics_.nOne).c_str());
+void Confidences::dumpStatistics() {
+  log(Core::form("statistics: %d with weight '0' and %d with weight '1'",
+                 statistics_.nZero, statistics_.nOne)
+          .c_str());
 }
 
-void Confidences::clear()
-{
-    delete alignment_;
-    alignment_ = 0;
+void Confidences::clear() {
+  delete alignment_;
+  alignment_ = 0;
 }
 
-void Confidences::setAlignment(const Alignment *alignment)
-{
-    clear();
-    alignment_ = alignment;
-    updateStatistics(*alignment_);
+void Confidences::setAlignment(const Alignment *alignment) {
+  clear();
+  alignment_ = alignment;
+  updateStatistics(*alignment_);
 }
 
-Mm::Weight Confidences::operator[](TimeframeIndex t) const
-{
-    if (t < alignment_->size()) {
-	require(t == (*alignment_)[t].time);
-	return ((*alignment_)[t].weight >= threshold_) ? 1 : 0;
-    } else {
-	error("confidence (size=") << alignment_->size() << ") shorter than feature stream";
-	return 0;
-    }
+Mm::Weight Confidences::operator[](TimeframeIndex t) const {
+  if (t < alignment_->size()) {
+    require(t == (*alignment_)[t].time);
+    return ((*alignment_)[t].weight >= threshold_) ? 1 : 0;
+  } else {
+    error("confidence (size=")
+        << alignment_->size() << ") shorter than feature stream";
+    return 0;
+  }
 }
 
-bool Confidences::isValid() const
-{
-    return alignment_;
-}
+bool Confidences::isValid() const { return alignment_; }
 
 /**
  *  ConfidenceArchive
  */
-ConfidenceArchive::ConfidenceArchive(const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c)
-{}
+ConfidenceArchive::ConfidenceArchive(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c) {}
 
-ConfidenceArchive::~ConfidenceArchive()
-{}
+ConfidenceArchive::~ConfidenceArchive() {}
 
-void ConfidenceArchive::get(Confidences &result, const std::string &id)
-{
-    result.clear();
-    if (!hasAccess(Core::Archive::AccessModeRead)) {
-	if (!open(Core::Archive::AccessModeRead)) {
-	    error("failed to open archive '") << path_.c_str() << "' for reading";
-	    return;
-	}
+void ConfidenceArchive::get(Confidences &result, const std::string &id) {
+  result.clear();
+  if (!hasAccess(Core::Archive::AccessModeRead)) {
+    if (!open(Core::Archive::AccessModeRead)) {
+      error("failed to open archive '") << path_.c_str() << "' for reading";
+      return;
     }
-    if (!hasAccess(Core::Archive::AccessModeRead)) {
-	error("failed to open archive '") << path_.c_str() << "' for reading";
-    }
-    if (!archive_->hasFile(id)) {
-	error("file '") << id << "' not found";
-	return;
-    }
-    Flow::CacheReader *reader = newReader(id);
-    if (!reader) {
-	error("cannot open cache for '") << id << "'";
-	return;
-    }
-    Flow::Data *data = reader->getData();
-    Flow::DataAdaptor<Alignment> *alignment =
-	dynamic_cast<Flow::DataAdaptor<Alignment>* >(data);
-    require(alignment);
-    result.setAlignment(new Alignment(alignment->data()));
-    delete reader;
-    //    delete alignment;
+  }
+  if (!hasAccess(Core::Archive::AccessModeRead)) {
+    error("failed to open archive '") << path_.c_str() << "' for reading";
+  }
+  if (!archive_->hasFile(id)) {
+    error("file '") << id << "' not found";
+    return;
+  }
+  Flow::CacheReader *reader = newReader(id);
+  if (!reader) {
+    error("cannot open cache for '") << id << "'";
+    return;
+  }
+  Flow::Data *data = reader->getData();
+  Flow::DataAdaptor<Alignment> *alignment =
+      dynamic_cast<Flow::DataAdaptor<Alignment> *>(data);
+  require(alignment);
+  result.setAlignment(new Alignment(alignment->data()));
+  delete reader;
+  //    delete alignment;
 }
 
-void ConfidenceArchive::get(Confidences &result, Bliss::SpeechSegment *s)
-{
-    get(result, s->fullName());
+void ConfidenceArchive::get(Confidences &result, Bliss::SpeechSegment *s) {
+  get(result, s->fullName());
 }

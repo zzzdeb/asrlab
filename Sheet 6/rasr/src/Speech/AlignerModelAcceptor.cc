@@ -17,40 +17,33 @@
 
 using namespace Speech;
 
+AlignerModelAcceptorGenerator::AlignerModelAcceptorGenerator(
+    const Core::Configuration &c)
+    : Component(c), Precursor(c), allophoneStateGraphBuilder_(0), cache_(0) {
+  ModelCombination modelCombination(
+      select("model-combination"), ModelCombination::useAcousticModel,
+      Am::AcousticModel::noEmissions | Am::AcousticModel::noStateTying);
+  modelCombination.load();
 
-AlignerModelAcceptorGenerator::AlignerModelAcceptorGenerator(const Core::Configuration &c) :
-    Component(c),
-    Precursor(c),
-    allophoneStateGraphBuilder_(0),
-    cache_(0)
-{
-    ModelCombination modelCombination(
-	select("model-combination"),
-	ModelCombination::useAcousticModel,
-	Am::AcousticModel::noEmissions | Am::AcousticModel::noStateTying);
-    modelCombination.load();
+  allophoneStateGraphBuilder_ = new AllophoneStateGraphBuilder(
+      select("allophone-state-graph-builder"), modelCombination.lexicon(),
+      modelCombination.acousticModel());
 
-    allophoneStateGraphBuilder_ = new AllophoneStateGraphBuilder(
-	select("allophone-state-graph-builder"),
-	modelCombination.lexicon(),
-	modelCombination.acousticModel());
-
-    cache_ = new FsaCache(select("model-acceptor-cache"), Fsa::storeStates);
-    Core::DependencySet dependencies;
-    modelCombination.getDependencies(dependencies);
-    cache_->setDependencies(dependencies);
+  cache_ = new FsaCache(select("model-acceptor-cache"), Fsa::storeStates);
+  Core::DependencySet dependencies;
+  modelCombination.getDependencies(dependencies);
+  cache_->setDependencies(dependencies);
 }
 
-AlignerModelAcceptorGenerator::~AlignerModelAcceptorGenerator()
-{
-    delete cache_;
-    delete allophoneStateGraphBuilder_;
+AlignerModelAcceptorGenerator::~AlignerModelAcceptorGenerator() {
+  delete cache_;
+  delete allophoneStateGraphBuilder_;
 }
 
-void AlignerModelAcceptorGenerator::enterSpeechSegment(Bliss::SpeechSegment *s)
-{
-    require(s != 0);
+void AlignerModelAcceptorGenerator::enterSpeechSegment(
+    Bliss::SpeechSegment *s) {
+  require(s != 0);
 
-    Precursor::enterSpeechSegment(s);
-    cache_->get(allophoneStateGraphBuilder_->createFunctor(*s));
+  Precursor::enterSpeechSegment(s);
+  cache_->get(allophoneStateGraphBuilder_->createFunctor(*s));
 }

@@ -19,14 +19,15 @@
 #include "FlfCore/Lattice.hh"
 #include "Network.hh"
 
-
 namespace Flf {
 
-    /**
-     * visualization
-     **/
-    bool drawDot(ConstLatticeRef l, std::ostream &o, Fsa::Hint hint = Fsa::HintNone, bool progress = false);
-    bool drawDot(ConstLatticeRef l, const std::string &file, Fsa::Hint hint = Fsa::HintNone, bool progress = false);
+/**
+ * visualization
+ **/
+bool drawDot(ConstLatticeRef l, std::ostream &o, Fsa::Hint hint = Fsa::HintNone,
+             bool progress = false);
+bool drawDot(ConstLatticeRef l, const std::string &file,
+             Fsa::Hint hint = Fsa::HintNone, bool progress = false);
 
 } // namespace Flf
 

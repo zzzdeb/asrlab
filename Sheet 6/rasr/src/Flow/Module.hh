@@ -20,8 +20,8 @@ namespace Flow {
 
 class Module_ {
 public:
-    Module_();
-    ~Module_() {}
+  Module_();
+  ~Module_() {}
 };
 
 typedef Core::SingletonHolder<Module_> Module;

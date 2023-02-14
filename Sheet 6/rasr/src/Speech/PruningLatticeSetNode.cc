@@ -20,44 +20,35 @@ using namespace Speech;
  * pruning node
  */
 const Core::ParameterFloat PruningLatticeSetNode::paramThreshold(
-    "threshold",
-    "threshold used for posterior pruning of word lattices",
+    "threshold", "threshold used for posterior pruning of word lattices",
     Core::Type<f32>::max);
 
 const Core::ParameterBool PruningLatticeSetNode::paramThresholdIsRelative(
-    "threshold-is-relative",
-    "threshold used relative to best path",
-    true);
+    "threshold-is-relative", "threshold used relative to best path", true);
 
-Core::Choice PruningLatticeSetNode::choicePruningType(
-    "forward-backward", forwardBackward,
-    "forward", forward,
-    Core::Choice::endMark());
+Core::Choice PruningLatticeSetNode::choicePruningType("forward-backward",
+                                                      forwardBackward,
+                                                      "forward", forward,
+                                                      Core::Choice::endMark());
 
-const Core::ParameterChoice PruningLatticeSetNode::paramPruningType(
-    "pruning-type",
-    &choicePruningType,
-    "type of pruning",
-    forwardBackward);
+const Core::ParameterChoice
+    PruningLatticeSetNode::paramPruningType("pruning-type", &choicePruningType,
+                                            "type of pruning", forwardBackward);
 
-PruningLatticeSetNode::PruningLatticeSetNode(const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c),
-    threshold_(Fsa::Weight(paramThreshold(config))),
-    thresholdIsRelative_(paramThresholdIsRelative(config)),
-    pruningType_((PruningType)paramPruningType(config))
-{}
+PruningLatticeSetNode::PruningLatticeSetNode(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c),
+      threshold_(Fsa::Weight(paramThreshold(config))),
+      thresholdIsRelative_(paramThresholdIsRelative(config)),
+      pruningType_((PruningType)paramPruningType(config)) {}
 
-PruningLatticeSetNode::~PruningLatticeSetNode()
-{}
+PruningLatticeSetNode::~PruningLatticeSetNode() {}
 
 void PruningLatticeSetNode::processWordLattice(
-    Lattice::ConstWordLatticeRef lattice, Bliss::SpeechSegment *s)
-{
-    if (lattice->nParts() != 1) {
-	criticalError("number of lattice parts must be 1");
-    }
-    Lattice::ConstWordLatticeRef pruned =
-	Lattice::prune(lattice, threshold_, thresholdIsRelative_);
-    Precursor::processWordLattice(pruned, s);
+    Lattice::ConstWordLatticeRef lattice, Bliss::SpeechSegment *s) {
+  if (lattice->nParts() != 1) {
+    criticalError("number of lattice parts must be 1");
+  }
+  Lattice::ConstWordLatticeRef pruned =
+      Lattice::prune(lattice, threshold_, thresholdIsRelative_);
+  Precursor::processWordLattice(pruned, s);
 }

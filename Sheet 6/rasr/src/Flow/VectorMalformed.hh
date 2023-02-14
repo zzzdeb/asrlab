@@ -14,98 +14,105 @@
 #ifndef _FLOW_VECTORMALFORMED_HH
 #define _FLOW_VECTORMALFORMED_HH
 
-#include <Core/Utility.hh>
 #include "Node.hh"
 #include "Vector.hh"
+#include <Core/Utility.hh>
 
 namespace Flow {
 
-    // VectorMalformed
-    //////////////////
+// VectorMalformed
+//////////////////
 
-    template<class T, class Policy> class VectorMalformed {
-    private:
-	Policy policy_;
+template <class T, class Policy> class VectorMalformed {
+private:
+  Policy policy_;
 
-    public:
-	VectorMalformed() {}
-	virtual ~VectorMalformed() {}
+public:
+  VectorMalformed() {}
+  virtual ~VectorMalformed() {}
 
-	void setPolicy(Policy policy) { policy_ = policy; }
-	bool apply(std::vector<T> &v) { return policy_.work(Core::isMalformed(v.begin(), v.end()), v); }
-    };
+  void setPolicy(Policy policy) { policy_ = policy; }
+  bool apply(std::vector<T> &v) {
+    return policy_.work(Core::isMalformed(v.begin(), v.end()), v);
+  }
+};
 
-    // Policies
-    ///////////
+// Policies
+///////////
 
-    template<class T> class CopyMalformedPolicy {
-    private:
-	std::vector<T> old_;
-    public:
-	bool work(bool malformed, std::vector<T>& v) {
-	    if (malformed) {
-		if (old_.size() != v.size()) return false;
-		v = old_;
-	    } else old_ = v;
-	    return true; }
-	static std::string name() { return "copy"; }
-    };
+template <class T> class CopyMalformedPolicy {
+private:
+  std::vector<T> old_;
 
-    template<class T> class DismissMalformedPolicy {
-    public:
-	bool work(bool malformed, std::vector<T>& v) { return !malformed; }
-	static std::string name() { return "dismiss"; }
-    };
+public:
+  bool work(bool malformed, std::vector<T> &v) {
+    if (malformed) {
+      if (old_.size() != v.size())
+        return false;
+      v = old_;
+    } else
+      old_ = v;
+    return true;
+  }
+  static std::string name() { return "copy"; }
+};
 
-    template<class T> class FloorMalformedPolicy {
-    public:
-	bool work(bool malformed, std::vector<T>& v) {
-	    for (u32 i = 0; i < v.size(); i++) {
-		if (Core::isMalformed(v[i]))
-		    v[i] = v[i] > 0 ? Core::Type<T>::max : Core::Type<T>::min;
-	    }
-	    return true;
-	}
+template <class T> class DismissMalformedPolicy {
+public:
+  bool work(bool malformed, std::vector<T> &v) { return !malformed; }
+  static std::string name() { return "dismiss"; }
+};
 
-	static std::string name() { return "floor"; }
-    };
+template <class T> class FloorMalformedPolicy {
+public:
+  bool work(bool malformed, std::vector<T> &v) {
+    for (u32 i = 0; i < v.size(); i++) {
+      if (Core::isMalformed(v[i]))
+        v[i] = v[i] > 0 ? Core::Type<T>::max : Core::Type<T>::min;
+    }
+    return true;
+  }
 
-    template<class T> class KeepMalformedPolicy {
-    public:
-	bool work(bool malformed, std::vector<T>& v) { return true; }
-	static std::string name() { return "keep"; }
-    };
+  static std::string name() { return "floor"; }
+};
 
+template <class T> class KeepMalformedPolicy {
+public:
+  bool work(bool malformed, std::vector<T> &v) { return true; }
+  static std::string name() { return "keep"; }
+};
 
-    // VectorMalformedNode
-    //////////////////////
+// VectorMalformedNode
+//////////////////////
 
-    template<class T, class Policy>
-    class VectorMalformedNode : public SleeveNode, VectorMalformed<T, Policy> {
-    public:
-	static std::string filterName() {
-	    return std::string("generic-vector-") +  Core::Type<T>::name + "-" + Policy::name() + "-malformed";
-	}
-	VectorMalformedNode(const Core::Configuration &c) : Core::Component(c), SleeveNode(c) {}
-	virtual ~VectorMalformedNode() {}
+template <class T, class Policy>
+class VectorMalformedNode : public SleeveNode, VectorMalformed<T, Policy> {
+public:
+  static std::string filterName() {
+    return std::string("generic-vector-") + Core::Type<T>::name + "-" +
+           Policy::name() + "-malformed";
+  }
+  VectorMalformedNode(const Core::Configuration &c)
+      : Core::Component(c), SleeveNode(c) {}
+  virtual ~VectorMalformedNode() {}
 
-	virtual bool configure() {
-	    Core::Ref<const Attributes> a = getInputAttributes(0);
-	    if (!configureDatatype(a, Vector<T>::type()))
-		return false;
-	    return putOutputAttributes(0, a);
-	}
-	virtual bool work(PortId p) {
-	    DataPtr<Vector<T> > in;
-	    do {
-		if (!getData(0, in)) return putData(0, in.get());
-		in.makePrivate();
-	    } while (!apply(*in));
-	    return putData(0, in.get());
-	}
-    };
+  virtual bool configure() {
+    Core::Ref<const Attributes> a = getInputAttributes(0);
+    if (!configureDatatype(a, Vector<T>::type()))
+      return false;
+    return putOutputAttributes(0, a);
+  }
+  virtual bool work(PortId p) {
+    DataPtr<Vector<T> > in;
+    do {
+      if (!getData(0, in))
+        return putData(0, in.get());
+      in.makePrivate();
+    } while (!apply(*in));
+    return putData(0, in.get());
+  }
+};
 
-}
-
+} // namespace Flow
 
 #endif // _FLOW_VECTORMALFORMED_HH

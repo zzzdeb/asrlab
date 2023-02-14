@@ -19,18 +19,18 @@
 
 namespace Flf {
 
-    void estimateJointPosteriorCn(
-	PosteriorCn &jointCn,
-	const ConstPosteriorCnRefList &cns,
-	const ScoreList &weights);
-    /**
-     * Attention: No timeframe-wise probability distr. anymore
-     **/
-    void estimateMaxPosteriorCn(
-	PosteriorCn &maxCn,
-	const ConstPosteriorCnRefList &cns);
+void estimateJointPosteriorCn(PosteriorCn &jointCn,
+                              const ConstPosteriorCnRefList &cns,
+                              const ScoreList &weights);
+/**
+ * Attention: No timeframe-wise probability distr. anymore
+ **/
+void estimateMaxPosteriorCn(PosteriorCn &maxCn,
+                            const ConstPosteriorCnRefList &cns);
 
-    NodeRef createFramePosteriorCnCombinationNode(const std::string &name, const Core::Configuration &config);
+NodeRef
+createFramePosteriorCnCombinationNode(const std::string &name,
+                                      const Core::Configuration &config);
 
 } // namespace Flf
 

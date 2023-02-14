@@ -14,76 +14,87 @@
 #ifndef _SPEECH_FEATURE_SCORER_HH
 #define _SPEECH_FEATURE_SCORER_HH
 
-#include <Core/Hash.hh>
 #include "AcousticModelTrainer.hh"
+#include <Core/Hash.hh>
 
 namespace Speech {
 
-    /** FeatureScorer
-     */
-    class FeatureScorer : public AcousticModelTrainer {
-	typedef AcousticModelTrainer Precursor;
-    public:
-	static const Core::ParameterString paramWeightPortName;
-	static const Core::ParameterInt paramPrecision;
-    public:
-	typedef Mm::Score Score;
-	typedef f32 Weight;
+/** FeatureScorer
+ */
+class FeatureScorer : public AcousticModelTrainer {
+  typedef AcousticModelTrainer Precursor;
 
-	class Accumulator {
-	    f64 weightedSum_;
-	    f64 sumOfWeights_;
-	public:
-	    Accumulator() { reset(); }
+public:
+  static const Core::ParameterString paramWeightPortName;
+  static const Core::ParameterInt paramPrecision;
 
-	    void accumulate(Score value, Weight weight) {
-		weightedSum_ += value * weight; sumOfWeights_ += weight;
-	    }
-	    void accumulate(const Accumulator &a) {
-		weightedSum_ += a.weightedSum_; sumOfWeights_ += a.sumOfWeights_;
-	    }
+public:
+  typedef Mm::Score Score;
+  typedef f32 Weight;
 
-	    void reset() { weightedSum_ = 0; sumOfWeights_ = 0; }
+  class Accumulator {
+    f64 weightedSum_;
+    f64 sumOfWeights_;
 
-	    f64 weightedSum() const { return weightedSum_; }
-	    f64 sumOfWeights() const { return sumOfWeights_; }
-	    f64 weightedAverage() const { return weightedSum_ / sumOfWeights_; }
-	};
-    private:
-	bool weightScores_;
-	Core::Ref<DataSource> weightSource_;
-	Flow::PortId weightPort_;
+  public:
+    Accumulator() { reset(); }
 
-	Core::Ref<Bliss::CorpusKey> corpusKey_;
+    void accumulate(Score value, Weight weight) {
+      weightedSum_ += value * weight;
+      sumOfWeights_ += weight;
+    }
+    void accumulate(const Accumulator &a) {
+      weightedSum_ += a.weightedSum_;
+      sumOfWeights_ += a.sumOfWeights_;
+    }
 
-	typedef Core::StringHashMap<Accumulator> CorpusKeyToScoreMap;
-	CorpusKeyToScoreMap corpusKeyToScoreMap_;
+    void reset() {
+      weightedSum_ = 0;
+      sumOfWeights_ = 0;
+    }
 
-	Accumulator segmentAccumulator_;
+    f64 weightedSum() const { return weightedSum_; }
+    f64 sumOfWeights() const { return sumOfWeights_; }
+    f64 weightedAverage() const { return weightedSum_ / sumOfWeights_; }
+  };
 
-	Core::XmlChannel outputChannel_;
-    private:
-	Weight featureScoreWeight(const Flow::Timestamp &featureTimestamp);
-    public:
+private:
+  bool weightScores_;
+  Core::Ref<DataSource> weightSource_;
+  Flow::PortId weightPort_;
 
-	FeatureScorer(const Core::Configuration &configuration);
-	virtual ~FeatureScorer();
+  Core::Ref<Bliss::CorpusKey> corpusKey_;
 
-	virtual void signOn(CorpusVisitor &corpusVisitor);
+  typedef Core::StringHashMap<Accumulator> CorpusKeyToScoreMap;
+  CorpusKeyToScoreMap corpusKeyToScoreMap_;
 
-	virtual void enterSpeechSegment(Bliss::SpeechSegment*);
-	virtual void leaveSpeechSegment(Bliss::SpeechSegment*);
-	virtual void processAlignedFeature(Core::Ref<const Feature>, Am::AllophoneStateIndex);
+  Accumulator segmentAccumulator_;
 
-	virtual void setDataSource(Core::Ref<DataSource>);
-	virtual void setFeatureDescription(const Mm::FeatureDescription &description);
-	virtual void setNumberOfLabels(size_t nLabels);
+  Core::XmlChannel outputChannel_;
 
-	const CorpusKeyToScoreMap& scores() const { return corpusKeyToScoreMap_; }
-	void reset() { corpusKeyToScoreMap_.clear(); }
+private:
+  Weight featureScoreWeight(const Flow::Timestamp &featureTimestamp);
 
-	void write();
-    };
+public:
+  FeatureScorer(const Core::Configuration &configuration);
+  virtual ~FeatureScorer();
+
+  virtual void signOn(CorpusVisitor &corpusVisitor);
+
+  virtual void enterSpeechSegment(Bliss::SpeechSegment *);
+  virtual void leaveSpeechSegment(Bliss::SpeechSegment *);
+  virtual void processAlignedFeature(Core::Ref<const Feature>,
+                                     Am::AllophoneStateIndex);
+
+  virtual void setDataSource(Core::Ref<DataSource>);
+  virtual void setFeatureDescription(const Mm::FeatureDescription &description);
+  virtual void setNumberOfLabels(size_t nLabels);
+
+  const CorpusKeyToScoreMap &scores() const { return corpusKeyToScoreMap_; }
+  void reset() { corpusKeyToScoreMap_.clear(); }
+
+  void write();
+};
 
 } // namespace Speech
 

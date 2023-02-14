@@ -18,97 +18,93 @@ using namespace Flow;
 const std::string StringExpressionNode::openTag = "$input(";
 const std::string StringExpressionNode::closeTag = ")";
 
-StringExpressionNode::StringExpressionNode(const Core::Configuration &c, PortId firstPortId) :
-    Component(c),
-    Precursor(c),
-    nextPortId_(firstPortId),
-    newTemplate_(false),
-    newData_(false)
-{}
+StringExpressionNode::StringExpressionNode(const Core::Configuration &c,
+                                           PortId firstPortId)
+    : Component(c), Precursor(c), nextPortId_(firstPortId), newTemplate_(false),
+      newData_(false) {}
 
-PortId StringExpressionNode::getInput(const std::string &name)
-{
-    if (inputPorts_.find(name) != inputPorts_.end() || !stringExpression_.hasVariable(name))
-	return IllegalPortId;
+PortId StringExpressionNode::getInput(const std::string &name) {
+  if (inputPorts_.find(name) != inputPorts_.end() ||
+      !stringExpression_.hasVariable(name))
+    return IllegalPortId;
 
-    inputPorts_[name].portId_ = addInput(nextPortId_ ++);
-    inputPorts_[name].timestamp_ = Timestamp(Core::Type<Time>::min, Core::Type<Time>::min);
-    return inputPorts_[name].portId_;
+  inputPorts_[name].portId_ = addInput(nextPortId_++);
+  inputPorts_[name].timestamp_ =
+      Timestamp(Core::Type<Time>::min, Core::Type<Time>::min);
+  return inputPorts_[name].portId_;
 }
 
-void StringExpressionNode::setTemplate(const std::string &t)
-{
-    stringExpression_ = Core::makeStringExpression(template_ = t, openTag, closeTag);
-    newTemplate_ = true;
+void StringExpressionNode::setTemplate(const std::string &t) {
+  stringExpression_ =
+      Core::makeStringExpression(template_ = t, openTag, closeTag);
+  newTemplate_ = true;
 }
 
-bool StringExpressionNode::configure(Attributes &result)
-{
-    reset();
+bool StringExpressionNode::configure(Attributes &result) {
+  reset();
 
-    Core::StringHashMap<InputPort>::iterator i;
-    for(i = inputPorts_.begin(); i != inputPorts_.end(); ++ i) {
-	Core::Ref<const Attributes> attributes = getInputAttributes(i->second.portId_);
-	if (!configureDatatype(attributes, String::type())) return false;
-	result.merge(*attributes);
+  Core::StringHashMap<InputPort>::iterator i;
+  for (i = inputPorts_.begin(); i != inputPorts_.end(); ++i) {
+    Core::Ref<const Attributes> attributes =
+        getInputAttributes(i->second.portId_);
+    if (!configureDatatype(attributes, String::type()))
+      return false;
+    result.merge(*attributes);
+  }
+  return true;
+}
+
+bool StringExpressionNode::update(const Timestamp &timestamp) {
+  Core::StringHashMap<InputPort>::iterator i;
+  for (i = inputPorts_.begin(); i != inputPorts_.end(); ++i) {
+    while (!i->second.timestamp_.contains(timestamp)) {
+      DataPtr<String> in;
+      if (getData(i->second.portId_, in))
+        update(i, *in);
+      else {
+        criticalError(
+            "In input stream '%s', no object contained the interval [%f..%f].",
+            i->first.c_str(), timestamp.startTime(), timestamp.endTime());
+      }
     }
-    return true;
+  }
+  return newData_ || newTemplate_;
 }
 
-bool StringExpressionNode::update(const Timestamp &timestamp)
-{
-    Core::StringHashMap<InputPort>::iterator i;
-    for(i = inputPorts_.begin(); i != inputPorts_.end(); ++ i) {
-	while(!i->second.timestamp_.contains(timestamp)) {
-	    DataPtr<String> in;
-	    if (getData(i->second.portId_, in))
-		update(i, *in);
-	    else {
-		criticalError("In input stream '%s', no object contained the interval [%f..%f].",
-			      i->first.c_str(), timestamp.startTime(), timestamp.endTime());
-	    }
-	}
-    }
-    return newData_ || newTemplate_;
+bool StringExpressionNode::update() {
+  Core::StringHashMap<InputPort>::iterator i;
+  for (i = inputPorts_.begin(); i != inputPorts_.end(); ++i) {
+    DataPtr<String> in;
+    if (getData(i->second.portId_, in))
+      update(i, *in);
+  }
+  return newData_ || newTemplate_;
 }
-
-bool StringExpressionNode::update()
-{
-    Core::StringHashMap<InputPort>::iterator i;
-    for(i = inputPorts_.begin(); i != inputPorts_.end(); ++ i) {
-	DataPtr<String> in;
-	if (getData(i->second.portId_, in))
-	    update(i, *in);
-    }
-    return newData_ || newTemplate_;
-}
-
 
 void StringExpressionNode::update(
-    Core::StringHashMap<InputPort>::iterator inputPort, const String &value)
-{
-    inputPort->second.timestamp_ = value;
-    stringExpression_.setVariable(inputPort->first, value());
-    newData_ = true;
+    Core::StringHashMap<InputPort>::iterator inputPort, const String &value) {
+  inputPort->second.timestamp_ = value;
+  stringExpression_.setVariable(inputPort->first, value());
+  newData_ = true;
 }
 
-std::string StringExpressionNode::value()
-{
-    if (newData_ || newTemplate_) {
-	if (!stringExpression_.value(resolvedValue_))
-	    criticalError("Could not resolve string expression '%s'.", template_.c_str());
-	newData_ = newTemplate_ = false;
-    }
-    return resolvedValue_;
+std::string StringExpressionNode::value() {
+  if (newData_ || newTemplate_) {
+    if (!stringExpression_.value(resolvedValue_))
+      criticalError("Could not resolve string expression '%s'.",
+                    template_.c_str());
+    newData_ = newTemplate_ = false;
+  }
+  return resolvedValue_;
 }
 
-void StringExpressionNode::reset()
-{
-    stringExpression_.clear();
-    resolvedValue_.clear();
-    newData_ = false;
+void StringExpressionNode::reset() {
+  stringExpression_.clear();
+  resolvedValue_.clear();
+  newData_ = false;
 
-    Core::StringHashMap<InputPort>::iterator i;
-    for(i = inputPorts_.begin(); i != inputPorts_.end(); ++ i)
-	i->second.timestamp_ = Timestamp(Core::Type<Time>::min, Core::Type<Time>::min);
+  Core::StringHashMap<InputPort>::iterator i;
+  for (i = inputPorts_.begin(); i != inputPorts_.end(); ++i)
+    i->second.timestamp_ =
+        Timestamp(Core::Type<Time>::min, Core::Type<Time>::min);
 }

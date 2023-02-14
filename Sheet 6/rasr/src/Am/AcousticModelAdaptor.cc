@@ -15,37 +15,34 @@
 #include <Mm/Module.hh>
 using namespace Am;
 
-
 MixtureSetAdaptor::MixtureSetAdaptor(const Core::Configuration &c,
-				     Core::Ref<AcousticModel> toAdapt):
-    Component(c), Precursor(c, toAdapt)
-{
-    Core::Ref<Mm::MixtureSet> mixtureSet = Mm::Module::instance().readMixtureSet(select("mixture-set"));
-    if (!mixtureSet || !setMixtureSet(mixtureSet))
-	criticalError("failed to initialize mixture set.");
+                                     Core::Ref<AcousticModel> toAdapt)
+    : Component(c), Precursor(c, toAdapt) {
+  Core::Ref<Mm::MixtureSet> mixtureSet =
+      Mm::Module::instance().readMixtureSet(select("mixture-set"));
+  if (!mixtureSet || !setMixtureSet(mixtureSet))
+    criticalError("failed to initialize mixture set.");
 }
 
 MixtureSetAdaptor::~MixtureSetAdaptor() {}
 
-bool MixtureSetAdaptor::setMixtureSet(const Core::Ref<Mm::MixtureSet> mixtureSet)
-{
-    require(mixtureSet);
+bool MixtureSetAdaptor::setMixtureSet(
+    const Core::Ref<Mm::MixtureSet> mixtureSet) {
+  require(mixtureSet);
 
-    Core::Ref<Mm::ScaledFeatureScorer> featureScorer =
-	Mm::Module::instance().createScaledFeatureScorer(
-	    select("mixture-set"),
-	    Core::Ref<Mm::AbstractMixtureSet>(mixtureSet));
-    if (!featureScorer) {
-	error("Could not create feature scorer.");
-	return false;
-    }
-    if (!toAdapt_->setFeatureScorer(featureScorer))
-	return false;
-    mixtureSet_ = mixtureSet;
-    return true;
+  Core::Ref<Mm::ScaledFeatureScorer> featureScorer =
+      Mm::Module::instance().createScaledFeatureScorer(
+          select("mixture-set"), Core::Ref<Mm::AbstractMixtureSet>(mixtureSet));
+  if (!featureScorer) {
+    error("Could not create feature scorer.");
+    return false;
+  }
+  if (!toAdapt_->setFeatureScorer(featureScorer))
+    return false;
+  mixtureSet_ = mixtureSet;
+  return true;
 }
 
-Core::Ref<Mm::MixtureSet> MixtureSetAdaptor::unadaptedMixtureSet() const
-{
-    return Mm::Module::instance().readMixtureSet(select("mixture-set"));
+Core::Ref<Mm::MixtureSet> MixtureSetAdaptor::unadaptedMixtureSet() const {
+  return Mm::Module::instance().readMixtureSet(select("mixture-set"));
 }

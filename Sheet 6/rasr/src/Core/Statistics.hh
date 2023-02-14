@@ -16,126 +16,135 @@
 #ifndef _CORE_STATISTICS_HH
 #define _CORE_STATISTICS_HH
 
-#include <sys/times.h>
-#include <iostream>
 #include <Core/Assertions.hh>
 #include <Core/Choice.hh>
 #include <Core/StringUtilities.hh>
 #include <Core/Types.hh>
 #include <Core/XmlStream.hh>
+#include <iostream>
+#include <sys/times.h>
 
 namespace Core {
 
-    template <typename T>
-    class Statistics {
-    public:
-	typedef T Value;
-	typedef Statistics<T> Self;
+template <typename T> class Statistics {
+public:
+  typedef T Value;
+  typedef Statistics<T> Self;
 
-    private:
-	std::string name_;
-	u32 nObs_;
-	Value min_, max_, sum_;
-	static const Value minInit, maxInit;
+private:
+  std::string name_;
+  u32 nObs_;
+  Value min_, max_, sum_;
+  static const Value minInit, maxInit;
 
-    public:
-	void clear() {
-	    nObs_ = 0;
-	    max_ = maxInit;
-	    min_ = minInit;
-	    sum_ = Value();
-	}
+public:
+  void clear() {
+    nObs_ = 0;
+    max_ = maxInit;
+    min_ = minInit;
+    sum_ = Value();
+  }
 
-	void operator+= (Value v) {
-	    ++nObs_;
-	    if (max_ < v) max_ = v;
-	    if (min_ > v) min_ = v;
-	    sum_ += v;
-	}
+  void operator+=(Value v) {
+    ++nObs_;
+    if (max_ < v)
+      max_ = v;
+    if (min_ > v)
+      min_ = v;
+    sum_ += v;
+  }
 
-	Self &operator+= (const Self&);
+  Self &operator+=(const Self &);
 
-	u32 nObservations() const { return nObs_; }
-	Value minimum() const { return min_; }
-	Value maximum() const { return max_; }
-	f64   average() const { return f64(sum_) / f64(nObs_); }
+  u32 nObservations() const { return nObs_; }
+  Value minimum() const { return min_; }
+  Value maximum() const { return max_; }
+  f64 average() const { return f64(sum_) / f64(nObs_); }
 
-	const std::string& name() const { return name_; }
+  const std::string &name() const { return name_; }
 
-	void write(XmlWriter&) const;
+  void write(XmlWriter &) const;
 
-	Statistics(const std::string &n) : name_(n) { clear(); }
-    };
+  Statistics(const std::string &n) : name_(n) { clear(); }
+};
 
-    /**
-     * A histogram statistics class for simple unsigned integers.
-     * @param bins The count of bins that will be created to visualize the data
-     * When printing the statistics, the number of occurences that fell into each
-     * bin will be printed, together with the bin range.
-     */
-    class HistogramStatistics : public Statistics<u32> {
-	typedef Statistics<Value> Precursor;
-    public:
-	HistogramStatistics(std::string name, u32 bins = 10);
-	void clear();
-	void operator+= (Value v);
-	void write(XmlWriter&) const;
-      private:
-	std::vector<u32> counts_;
-	u32 scale_, bins_;
-    };
+/**
+ * A histogram statistics class for simple unsigned integers.
+ * @param bins The count of bins that will be created to visualize the data
+ * When printing the statistics, the number of occurences that fell into each
+ * bin will be printed, together with the bin range.
+ */
+class HistogramStatistics : public Statistics<u32> {
+  typedef Statistics<Value> Precursor;
 
-    template <class T>
-    XmlWriter &operator<<(XmlWriter &os, const Statistics<T> &t) { t.write(os); return os; }
-    inline XmlWriter &operator<<(XmlWriter &os, const HistogramStatistics &t) { t.write(os); return os; }
+public:
+  HistogramStatistics(std::string name, u32 bins = 10);
+  void clear();
+  void operator+=(Value v);
+  void write(XmlWriter &) const;
 
-    class ChoiceStatistics {
-    public:
-	typedef ChoiceStatistics Self;
-	typedef Choice::Value Value;
-    private:
-	std::string name_;
-	const Choice &choice_;
-	std::vector<u32> counts_;
-	u32 totalCount() const;
-    public:
-	ChoiceStatistics(const std::string &name, const Choice&);
+private:
+  std::vector<u32> counts_;
+  u32 scale_, bins_;
+};
 
-	void clear();
+template <class T>
+XmlWriter &operator<<(XmlWriter &os, const Statistics<T> &t) {
+  t.write(os);
+  return os;
+}
+inline XmlWriter &operator<<(XmlWriter &os, const HistogramStatistics &t) {
+  t.write(os);
+  return os;
+}
 
-	void operator+= (Value v) {
-	    require_(0 <= v && size_t(v) < counts_.size());
-	    ++counts_[v];
-	}
+class ChoiceStatistics {
+public:
+  typedef ChoiceStatistics Self;
+  typedef Choice::Value Value;
 
-	Self &operator+= (const Self&);
+private:
+  std::string name_;
+  const Choice &choice_;
+  std::vector<u32> counts_;
+  u32 totalCount() const;
 
-	void write(XmlWriter&) const;
-	friend XmlWriter &operator<<(XmlWriter&, const ChoiceStatistics&);
-    };
+public:
+  ChoiceStatistics(const std::string &name, const Choice &);
 
+  void clear();
 
-    class Timer {
-    private:
-	static float clocksPerSecond;
-	struct tms start_tms,   stop_tms;
-	clock_t    start_clock, stop_clock;
+  void operator+=(Value v) {
+    require_(0 <= v && size_t(v) < counts_.size());
+    ++counts_[v];
+  }
 
-    public:
-	Timer();
+  Self &operator+=(const Self &);
 
-	bool isRunning() const;
-	void start();
-	void stop();
-	float user() const;
-	float system() const;
-	float elapsed() const;
-	void write(XmlWriter &os) const;
+  void write(XmlWriter &) const;
+  friend XmlWriter &operator<<(XmlWriter &, const ChoiceStatistics &);
+};
 
-	friend XmlWriter &operator<<(XmlWriter &os, const Timer &t);
-    };
+class Timer {
+private:
+  static float clocksPerSecond;
+  struct tms start_tms, stop_tms;
+  clock_t start_clock, stop_clock;
+
+public:
+  Timer();
+
+  bool isRunning() const;
+  void start();
+  void stop();
+  float user() const;
+  float system() const;
+  float elapsed() const;
+  void write(XmlWriter &os) const;
+
+  friend XmlWriter &operator<<(XmlWriter &os, const Timer &t);
+};
 
 } // namespace Core
 
 #endif // _CORE_STATISTICS_HH
-

@@ -23,11 +23,12 @@
 #include "Sssp.hh"
 
 namespace Fsa {
-    Weight bestscore(ConstAutomatonRef f);
-    ConstAutomatonRef best(ConstAutomatonRef f);
-    ConstAutomatonRef best(ConstAutomatonRef f, const StatePotentials &backward);
-    ConstAutomatonRef nbest(ConstAutomatonRef f, size_t n = 1, bool bestSequences = true);
-    ConstAutomatonRef firstbest(ConstAutomatonRef f);
+Weight bestscore(ConstAutomatonRef f);
+ConstAutomatonRef best(ConstAutomatonRef f);
+ConstAutomatonRef best(ConstAutomatonRef f, const StatePotentials &backward);
+ConstAutomatonRef nbest(ConstAutomatonRef f, size_t n = 1,
+                        bool bestSequences = true);
+ConstAutomatonRef firstbest(ConstAutomatonRef f);
 } // namespace Fsa
 
 #endif // _FSA_BEST_HH

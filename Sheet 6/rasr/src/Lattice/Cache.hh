@@ -18,7 +18,7 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef cache(ConstWordLatticeRef l, u32 maxAge = 10000);
+ConstWordLatticeRef cache(ConstWordLatticeRef l, u32 maxAge = 10000);
 
 } // namespace Lattice
 

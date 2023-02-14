@@ -22,236 +22,208 @@
 
 namespace Core {
 
-    template<typename T>
-    class BuildDelegation :
-	protected Delegation<const T &>,
-	protected Delegation<T *> {
+template <typename T>
+class BuildDelegation : protected Delegation<const T &>,
+                        protected Delegation<T *> {
 
-    public:
-	typedef Delegation<const T &> ParsedDelegation;
-	typedef Delegation<T *>       CreatedDelegation;
+public:
+  typedef Delegation<const T &> ParsedDelegation;
+  typedef Delegation<T *> CreatedDelegation;
 
-	typedef typename ParsedDelegation::Target  ParsedHandler;
-	typedef typename CreatedDelegation::Target CreatedHandler;
+  typedef typename ParsedDelegation::Target ParsedHandler;
+  typedef typename CreatedDelegation::Target CreatedHandler;
 
-    protected:
-	/**
-	  Calls first parsed handler and then created handler.
-	**/
-	void delegate(T *t);
+protected:
+  /**
+    Calls first parsed handler and then created handler.
+  **/
+  void delegate(T *t);
 
-	/**
-	  Calls first parsed handler and then created handler;
-	  if no created handler exists, t is deleted
-	**/
-	void delegateOrDelete(T *t);
+  /**
+    Calls first parsed handler and then created handler;
+    if no created handler exists, t is deleted
+  **/
+  void delegateOrDelete(T *t);
 
-	/**
-	  Calls first parsed handler and then created handler;
-	  return t if no created handler exists, else
-	  return a newly created instance of T .
-	**/
-	T *delegateAndCreate(T *t);
+  /**
+    Calls first parsed handler and then created handler;
+    return t if no created handler exists, else
+    return a newly created instance of T .
+  **/
+  T *delegateAndCreate(T *t);
 
-	/**
-	  Calls parsed handler.
-	**/
-	bool delegateParsed(const T &t);
+  /**
+    Calls parsed handler.
+  **/
+  bool delegateParsed(const T &t);
 
-	/**
-	  Calls created handler.
-	**/
-	bool delegateCreated(T *t);
+  /**
+    Calls created handler.
+  **/
+  bool delegateCreated(T *t);
 
-    public:
-	void setParsedHandler(ParsedHandler *handler) {
-	    ParsedDelegation::set(handler);
-	}
+public:
+  void setParsedHandler(ParsedHandler *handler) {
+    ParsedDelegation::set(handler);
+  }
 
-	template<class HandlerClass>
-	void setParsedHandler(HandlerClass &handler, void (HandlerClass::*deleg)(const T &)) {
-	    ParsedDelegation::set(handler, deleg);
-	}
+  template <class HandlerClass>
+  void setParsedHandler(HandlerClass &handler,
+                        void (HandlerClass::*deleg)(const T &)) {
+    ParsedDelegation::set(handler, deleg);
+  }
 
-	void resetParsedHandler() {
-	    ParsedDelegation::reset();
-	}
+  void resetParsedHandler() { ParsedDelegation::reset(); }
 
-	void setCreatedHandler(CreatedHandler *handler) {
-	    CreatedDelegation::set(handler);
-	}
+  void setCreatedHandler(CreatedHandler *handler) {
+    CreatedDelegation::set(handler);
+  }
 
-	template<class HandlerClass>
-	void setCreatedHandler(HandlerClass &handler, void (HandlerClass::*deleg)(T *)) {
-	    CreatedDelegation::set(handler, deleg);
-	}
+  template <class HandlerClass>
+  void setCreatedHandler(HandlerClass &handler,
+                         void (HandlerClass::*deleg)(T *)) {
+    CreatedDelegation::set(handler, deleg);
+  }
 
-	void resetCreatedHandler() {
-	    CreatedDelegation::reset();
-	}
-    };
-
+  void resetCreatedHandler() { CreatedDelegation::reset(); }
+};
 
 } // namespace Core
 
 namespace XmlBuilder2 {
 
-    template<typename T>
-    struct StringConversion {
-	bool operator()(const std::string &in, T &out) const {
-	    return Core::strconv(in, out);
-	}
-    };
+template <typename T> struct StringConversion {
+  bool operator()(const std::string &in, T &out) const {
+    return Core::strconv(in, out);
+  }
+};
 
-    template<typename T, class Converter = StringConversion<T> >
-    class XmlDataOnlyBuilderElement :
-	public Core::XmlEmptyElement,
-	public Core::BuildDelegation<T> {
+template <typename T, class Converter = StringConversion<T> >
+class XmlDataOnlyBuilderElement : public Core::XmlEmptyElement,
+                                  public Core::BuildDelegation<T> {
 
-    private:
-	std::string cdata_;
-	Converter conv_;
-	T *t_;
+private:
+  std::string cdata_;
+  Converter conv_;
+  T *t_;
 
-    public:
-	XmlDataOnlyBuilderElement(const char *name, XmlContext *context, const Converter &conv = Converter()) :
-	    XmlEmptyElement(name, context),
-	    cdata_(),
-	    conv_(conv),
-	    t_(new T()) {}
-	~XmlDataOnlyBuilderElement() {
-	    delete t_;
-	}
+public:
+  XmlDataOnlyBuilderElement(const char *name, XmlContext *context,
+                            const Converter &conv = Converter())
+      : XmlEmptyElement(name, context), cdata_(), conv_(conv), t_(new T()) {}
+  ~XmlDataOnlyBuilderElement() { delete t_; }
 
-	void characters(const char *ch, int len) {
-	    cdata_.append(ch, len);
-	}
+  void characters(const char *ch, int len) { cdata_.append(ch, len); }
 
-	void end();
-    };
+  void end();
+};
 
+template <>
+class XmlDataOnlyBuilderElement<std::string, StringConversion<std::string> >
+    : public Core::XmlEmptyElement, public Core::BuildDelegation<std::string> {
 
-    template<>
-    class XmlDataOnlyBuilderElement<std::string, StringConversion<std::string> > :
-	public Core::XmlEmptyElement,
-	public Core::BuildDelegation<std::string> {
+private:
+  std::string cdata_;
 
-    private:
-	std::string cdata_;
+public:
+  XmlDataOnlyBuilderElement(const char *name, XmlContext *context)
+      : XmlEmptyElement(name, context) {}
 
-    public:
-	XmlDataOnlyBuilderElement(const char *name, XmlContext *context) :
-	    XmlEmptyElement(name, context) {}
+  void characters(const char *ch, int len) { cdata_.append(ch, len); }
 
-	void characters(const char *ch, int len) {
-	    cdata_.append(ch, len);
-	}
+  void end() {
+    delegateParsed(cdata_);
+    if (CreatedDelegation::hasTarget())
+      CreatedDelegation::delegate(new std::string(cdata_));
+    cdata_.clear();
+  }
+};
 
-	void end() {
-	    delegateParsed(cdata_);
-	    if (CreatedDelegation::hasTarget())
-		CreatedDelegation::delegate(new std::string(cdata_));
-	    cdata_.clear();
-	}
-    };
+typedef XmlDataOnlyBuilderElement<std::string> XmlStringBuilderElement;
+typedef XmlDataOnlyBuilderElement<bool> XmlBooleanBuilderElement;
+typedef XmlDataOnlyBuilderElement<u32> XmlUnsignedBuilderElement;
+typedef XmlDataOnlyBuilderElement<s32> XmlSignedBuilderElement;
+typedef XmlDataOnlyBuilderElement<f64> XmlFloatBuilderElement;
 
+class XmlChoiceBuilderElement
+    : public Core::XmlEmptyElement,
+      public Core::BuildDelegation<Core::Choice::Value> {
 
-    typedef XmlDataOnlyBuilderElement<std::string> XmlStringBuilderElement;
-    typedef XmlDataOnlyBuilderElement<bool>        XmlBooleanBuilderElement;
-    typedef XmlDataOnlyBuilderElement<u32>         XmlUnsignedBuilderElement;
-    typedef XmlDataOnlyBuilderElement<s32>         XmlSignedBuilderElement;
-    typedef XmlDataOnlyBuilderElement<f64>         XmlFloatBuilderElement;
+private:
+  const Core::Choice *choice_;
+  std::string cdata_;
 
+public:
+  XmlChoiceBuilderElement(const char *name, Core::XmlContext *context,
+                          const Core::Choice *choice)
+      : XmlEmptyElement(name, context), choice_(choice), cdata_() {}
 
-    class XmlChoiceBuilderElement :
-	public Core::XmlEmptyElement,
-	public Core::BuildDelegation<Core::Choice::Value> {
+  void characters(const char *ch, int len) { cdata_.append(ch, len); }
 
-    private:
-	const Core::Choice *choice_;
-	std::string cdata_;
-
-    public:
-	XmlChoiceBuilderElement(const char *name, Core::XmlContext *context, const Core::Choice *choice) :
-	    XmlEmptyElement(name, context),
-	    choice_(choice),
-	    cdata_() {}
-
-	void characters(const char *ch, int len) {
-	    cdata_.append(ch, len);
-	}
-
-	void end() {
-	    Core::stripWhitespace(cdata_);
-	    delegateParsed((*choice_)[cdata_]);
-	    if (CreatedDelegation::hasTarget())
-		CreatedDelegation::delegate(new Core::Choice::Value((*choice_)[cdata_]));
-	    cdata_.clear();
-	}
-    };
+  void end() {
+    Core::stripWhitespace(cdata_);
+    delegateParsed((*choice_)[cdata_]);
+    if (CreatedDelegation::hasTarget())
+      CreatedDelegation::delegate(new Core::Choice::Value((*choice_)[cdata_]));
+    cdata_.clear();
+  }
+};
 
 } // namespace XmlBuilder2
 
-
-template<typename T>
-void Core::BuildDelegation<T>::delegate(T *t) {
-    if (ParsedDelegation::hasTarget())
-	ParsedDelegation::delegate(*t);
-    if (CreatedDelegation::hasTarget())
-	CreatedDelegation::delegate(t);
+template <typename T> void Core::BuildDelegation<T>::delegate(T *t) {
+  if (ParsedDelegation::hasTarget())
+    ParsedDelegation::delegate(*t);
+  if (CreatedDelegation::hasTarget())
+    CreatedDelegation::delegate(t);
 }
 
-template<typename T>
-void Core::BuildDelegation<T>::delegateOrDelete(T *t) {
-    if (ParsedDelegation::hasTarget())
-	ParsedDelegation::delegate(*t);
-    if (CreatedDelegation::hasTarget())
-	CreatedDelegation::delegate(t);
-    else
-	delete t;
+template <typename T> void Core::BuildDelegation<T>::delegateOrDelete(T *t) {
+  if (ParsedDelegation::hasTarget())
+    ParsedDelegation::delegate(*t);
+  if (CreatedDelegation::hasTarget())
+    CreatedDelegation::delegate(t);
+  else
+    delete t;
 }
 
-template<typename T>
-T *Core::BuildDelegation<T>::delegateAndCreate(T *t) {
-    if (ParsedDelegation::hasTarget()) {
-	ParsedDelegation::delegate(*t);
-    }
-    if (CreatedDelegation::hasTarget()) {
-	CreatedDelegation::delegate(t);
-	return new T();
-    } else {
-	return t;
-    }
+template <typename T> T *Core::BuildDelegation<T>::delegateAndCreate(T *t) {
+  if (ParsedDelegation::hasTarget()) {
+    ParsedDelegation::delegate(*t);
+  }
+  if (CreatedDelegation::hasTarget()) {
+    CreatedDelegation::delegate(t);
+    return new T();
+  } else {
+    return t;
+  }
 }
 
-template<typename T>
+template <typename T>
 bool Core::BuildDelegation<T>::delegateParsed(const T &t) {
-    if (ParsedDelegation::hasTarget()) {
-	ParsedDelegation::delegate(t);
-	return true;
-    } else
-	return false;
+  if (ParsedDelegation::hasTarget()) {
+    ParsedDelegation::delegate(t);
+    return true;
+  } else
+    return false;
 }
 
-template<typename T>
-bool Core::BuildDelegation<T>::delegateCreated(T *t) {
-    if (CreatedDelegation::hasTarget()) {
-	CreatedDelegation::delegate(t);
-	return true;
-    } else
-	return false;
+template <typename T> bool Core::BuildDelegation<T>::delegateCreated(T *t) {
+  if (CreatedDelegation::hasTarget()) {
+    CreatedDelegation::delegate(t);
+    return true;
+  } else
+    return false;
 }
 
-
-template<typename T, class Converter>
+template <typename T, class Converter>
 void XmlBuilder2::XmlDataOnlyBuilderElement<T, Converter>::end() {
-    if (conv_(cdata_, *t_))
-	t_ = delegateAndCreate(t_);
-    else
-	parser()->error("In element \"%s\": non-interpretable value \"%s\"",
-			name(), cdata_.c_str());
-    cdata_.clear();
+  if (conv_(cdata_, *t_))
+    t_ = delegateAndCreate(t_);
+  else
+    parser()->error("In element \"%s\": non-interpretable value \"%s\"", name(),
+                    cdata_.c_str());
+  cdata_.clear();
 }
-
 
 #endif // _CORE_XML_BUILDER2_HH

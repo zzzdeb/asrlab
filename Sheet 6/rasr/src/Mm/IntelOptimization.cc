@@ -19,77 +19,100 @@
 using namespace Mm;
 
 FeatureScorerIntelOptimization::FeatureScorerIntelOptimization(
-    const Core::Configuration &c, ComponentIndex dimension) :
-    Precursor(c)
+    const Core::Configuration &c, ComponentIndex dimension)
+    : Precursor(c)
 #if !defined(DISABLE_SIMD)
-    ,l2norm_(c, dimension)
+      ,
+      l2norm_(c, dimension)
 #if !defined(ENABLE_SSE2)
-    , reset_(c)
+      ,
+      reset_(c)
 #endif
 #endif
 {
 #if defined(DISABLE_SIMD)
-    Core::Application::us()->warning("SIMD is not supported (in Valgrind executables)");
+  Core::Application::us()->warning(
+      "SIMD is not supported (in Valgrind executables)");
 #endif
 }
 
 void FeatureScorerIntelOptimization::createDensityElement(
-    Score scaledMinus2LogWeight,
-    const Mean &mean,
+    Score scaledMinus2LogWeight, const Mean &mean,
     const CovarianceFeatureScorerElement &covarianceScorerElement,
-    MixtureElement::Density &result)
-{
-    multiplyAndQuantize(mean,
-			covarianceScorerElement.inverseSquareRootDiagonal(),
-			result.preparedMean_);
+    MixtureElement::Density &result) {
+  multiplyAndQuantize(mean, covarianceScorerElement.inverseSquareRootDiagonal(),
+                      result.preparedMean_);
 
-    result.constantWeight_ = (s32)(scaledMinus2LogWeight +
-				   covarianceScorerElement.logNormalizationFactor());
+  result.constantWeight_ =
+      (s32)(scaledMinus2LogWeight +
+            covarianceScorerElement.logNormalizationFactor());
 }
 
 void FeatureScorerIntelOptimization::multiplyAndQuantize(
     const std::vector<FeatureType> &x, const std::vector<VarianceType> &y,
-    PreparedFeatureVector &r)
-{
-    require(x.size() == y.size());
+    PreparedFeatureVector &r) {
+  require(x.size() == y.size());
 
-    r.resize(optimalVectorSize(x.size()));
+  r.resize(optimalVectorSize(x.size()));
 
-    std::vector<FeatureType>::const_iterator xi = x.begin();
-    std::vector<VarianceType>::const_iterator yi = y.begin();
-    PreparedFeatureVector::iterator ri = r.begin();
+  std::vector<FeatureType>::const_iterator xi = x.begin();
+  std::vector<VarianceType>::const_iterator yi = y.begin();
+  PreparedFeatureVector::iterator ri = r.begin();
 
-    quantize<FeatureType, QuantizedType> quantize;
+  quantize<FeatureType, QuantizedType> quantize;
 
-    for (; xi != x.end(); ++ xi, ++yi, ++ri)
-	*ri = quantize(*xi * *yi);
+  for (; xi != x.end(); ++xi, ++yi, ++ri)
+    *ri = quantize(*xi * *yi);
 
-    std::fill(ri, r.end(), 0);
+  std::fill(ri, r.end(), 0);
 }
-
 
 #if defined(DISABLE_SIMD)
 
 int FeatureScorerIntelOptimization::distance(
-    const PreparedFeatureVector &mean, const PreparedFeatureVector &featureVector) const
-{
-    int df, score = 0;
-    ComponentIndex cmp = 0;
-    ComponentIndex dimension = featureVector.size();
-    switch ((dimension - 1) % 8) {
-	while (cmp < dimension) {
-	case 7: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 6: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 5: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 4: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 3: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 2: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 1: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	case 0: df = (mean[cmp] - featureVector[cmp]); score += df * df; ++cmp;
-	}
+    const PreparedFeatureVector &mean,
+    const PreparedFeatureVector &featureVector) const {
+  int df, score = 0;
+  ComponentIndex cmp = 0;
+  ComponentIndex dimension = featureVector.size();
+  switch ((dimension - 1) % 8) {
+    while (cmp < dimension) {
+    case 7:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 6:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 5:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 4:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 3:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 2:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 1:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
+    case 0:
+      df = (mean[cmp] - featureVector[cmp]);
+      score += df * df;
+      ++cmp;
     }
-    verify_(cmp == dimension);
-    return score;
+  }
+  verify_(cmp == dimension);
+  return score;
 }
 
 #endif // DISABLE_SIMD

@@ -17,21 +17,21 @@
 #include "FlfCore/Lattice.hh"
 #include "Network.hh"
 
-
 namespace Flf {
 
-    /**
-     * determinization
-     **/
-    ConstLatticeRef determinize(ConstLatticeRef l);
-    NodeRef createDeterminizeNode(const std::string &name, const Core::Configuration &config);
+/**
+ * determinization
+ **/
+ConstLatticeRef determinize(ConstLatticeRef l);
+NodeRef createDeterminizeNode(const std::string &name,
+                              const Core::Configuration &config);
 
-
-    /**
-     * minimization
-     **/
-    ConstLatticeRef minimize(ConstLatticeRef l);
-    NodeRef createMinimizeNode(const std::string &name, const Core::Configuration &config);
+/**
+ * minimization
+ **/
+ConstLatticeRef minimize(ConstLatticeRef l);
+NodeRef createMinimizeNode(const std::string &name,
+                           const Core::Configuration &config);
 
 } // namespace Flf
 

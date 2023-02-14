@@ -14,114 +14,107 @@
 #ifndef _SPEECH_CORPUS_PROCESSOR_NODE_HH
 #define _SPEECH_CORPUS_PROCESSOR_NODE_HH
 
+#include "CorpusVisitor.hh"
 #include <Core/Types.hh>
 #include <Flow/Node.hh>
-#include "CorpusVisitor.hh"
-
 
 namespace Speech {
 
-    /** CorpusProcessorNode: base class for nodes implementing a whole pass over a corpus
-     *
-     * This class derives from Flow::Node and from an arbirtary CorpusProcessor
-     * The node generates output objects by passing processing corpus file: data is extracted from the
-     * dataSource (Flow::Network) and it is processed by the CorpusProcessor base class.
-     * The generated objects are sent the the next node in the network.
-     *
-     */
+/** CorpusProcessorNode: base class for nodes implementing a whole pass over a
+ * corpus
+ *
+ * This class derives from Flow::Node and from an arbirtary CorpusProcessor
+ * The node generates output objects by passing processing corpus file: data is
+ * extracted from the dataSource (Flow::Network) and it is processed by the
+ * CorpusProcessor base class. The generated objects are sent the the next node
+ * in the network.
+ *
+ */
 
-    template<class CorpusProcessorType>
-    class CorpusProcessorNode :
-	public virtual Flow::Node,
-	public CorpusProcessorType
-    {
-    private:
+template <class CorpusProcessorType>
+class CorpusProcessorNode : public virtual Flow::Node,
+                            public CorpusProcessorType {
+private:
+  typedef CorpusProcessorType CorpusProcessorPrecursor;
 
-	typedef CorpusProcessorType CorpusProcessorPrecursor;
+private:
+  const std::string dataSourceSelection;
+  const std::string corpusSelection;
 
-    private:
+  Flow::Network dataSource_;
 
-	const std::string dataSourceSelection;
-	const std::string corpusSelection;
+private:
+  bool dataSourceParameterName(std::string &name) {
 
-	Flow::Network dataSource_;
+    if (name.find(dataSourceSelection + ".") == 0) {
 
-    private:
+      name = name.substr(dataSourceSelection.size() + 1);
+      return true;
+    }
+    return false;
+  }
 
-	bool dataSourceParameterName(std::string &name) {
+  virtual bool work(Flow::PortId p) {
 
-	    if (name.find(dataSourceSelection + ".") == 0) {
+    Speech::CorpusVisitor corpusVisitor(CorpusProcessorPrecursor::config,
+                                        dataSource_, *this);
+    Bliss::CorpusDescription corpusDescription(
+        CorpusProcessorPrecursor::select(corpusSelection));
 
-		name = name.substr(dataSourceSelection.size() + 1);
-		return true;
-	    }
-	    return false;
-	}
+    corpusDescription.accept(&corpusVisitor);
 
-	virtual bool work(Flow::PortId p) {
+    return putData(p);
+  }
 
-	    Speech::CorpusVisitor corpusVisitor(CorpusProcessorPrecursor::config, dataSource_, *this);
-	    Bliss::CorpusDescription corpusDescription(CorpusProcessorPrecursor::select(corpusSelection));
+protected:
+  /** putData: callback function to put the output into the network.
+   *
+   * It is called after the CorpusVisitor object has finished the corpus.
+   * Use the base functionality of Flow:Node to put the results of the
+   * processing into the network
+   *
+   * @param portId is the port on which a data object was requested
+   */
 
-	    corpusDescription.accept(&corpusVisitor);
+  virtual bool putData(Flow::PortId portId) = 0;
 
-	    return putData(p);
-	}
+public:
+  CorpusProcessorNode(const Core::Configuration &c)
+      : Core::Component(c), Flow::Node(c), CorpusProcessorPrecursor(c),
+        dataSourceSelection("data-source"), corpusSelection("corpus"),
+        dataSource_(Flow::Node::select(dataSourceSelection)) {
+    dataSource_.respondToDelayedErrors();
+  }
 
-    protected:
+  ~CorpusProcessorNode() {}
 
-	/** putData: callback function to put the output into the network.
-	 *
-	 * It is called after the CorpusVisitor object has finished the corpus.
-	 * Use the base functionality of Flow:Node to put the results of the processing into the network
-	 *
-	 * @param portId is the port on which a data object was requested
-	 */
+  /** setParameter: passes parameters to the underlying dataSource network
+   *
+   * Network parameters of the main network are passed to the underlying
+   * dataSource network. E.g.: <node name="corpus-processor-1"
+   * filter="speech-corpus-processor" data-source.process-time="$(time)"> The
+   * example node corpus-processor-1 hands on the value of its network parameter
+   * $(time) to the underlying dataSource network under the name "process-time".
+   *
+   * Parameters starting with "data-source." are only handed on to the
+   * underlying network.
+   *
+   * Remark:
+   *  do not forget to call this function from the derived classes
+   */
 
-	virtual bool putData(Flow::PortId portId) = 0;
+  virtual bool setParameter(const std::string &name, const std::string &value) {
 
-    public:
+    std::string n(name);
 
-	CorpusProcessorNode(const Core::Configuration &c) :
-	    Core::Component(c),
-	    Flow::Node(c),
-	    CorpusProcessorPrecursor(c),
-	    dataSourceSelection("data-source"),
-	    corpusSelection("corpus"),
-	    dataSource_(Flow::Node::select(dataSourceSelection))
-	{
-	    dataSource_.respondToDelayedErrors();
-	}
+    if (dataSourceParameterName(n))
+      return dataSource_.setParameter(n, value);
+    else
+      return false;
 
-
-	~CorpusProcessorNode() {}
-
-	/** setParameter: passes parameters to the underlying dataSource network
-	 *
-	 * Network parameters of the main network are passed to the underlying dataSource network.
-	 * E.g.: <node name="corpus-processor-1" filter="speech-corpus-processor"
-	 *             data-source.process-time="$(time)">
-	 * The example node corpus-processor-1 hands on the value of its network parameter $(time) to the underlying
-	 * dataSource network under the name "process-time".
-	 *
-	 * Parameters starting with "data-source." are only handed on to the underlying network.
-	 *
-	 * Remark:
-	 *  do not forget to call this function from the derived classes
-	 */
-
-	virtual bool setParameter(const std::string &name, const std::string &value) {
-
-	    std::string n(name);
-
-	    if (dataSourceParameterName(n))
-		return dataSource_.setParameter(n, value);
-	    else
-		return false;
-
-	    return true;
-	}
-    };
+    return true;
+  }
+};
 
 } // namespace Speech
 

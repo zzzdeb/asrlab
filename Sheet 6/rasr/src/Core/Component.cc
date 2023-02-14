@@ -24,256 +24,239 @@
 
 namespace Core {
 
-    const Choice Component::errorActionChoice(
-	"ignore",         ErrorActionIgnore,
-	"delayed-exit",   ErrorActionDelayedExit,
-	"immediate-exit", ErrorActionImmediateExit,
-	Choice::endMark());
+const Choice
+    Component::errorActionChoice("ignore", ErrorActionIgnore, "delayed-exit",
+                                 ErrorActionDelayedExit, "immediate-exit",
+                                 ErrorActionImmediateExit, Choice::endMark());
 
-    const char *Component::errorNames[nErrorTypes] = {
-	"information",
-	"warning",
-	"error",
-	"critical-error"
-    };
+const char *Component::errorNames[nErrorTypes] = {"information", "warning",
+                                                  "error", "critical-error"};
 
-    const char *Component::errorChannelNames[nErrorTypes] = {
-	"log",
-	"warning",
-	"error",
-	"critical"
-    };
+const char *Component::errorChannelNames[nErrorTypes] = {"log", "warning",
+                                                         "error", "critical"};
 
-    const Channel::Default Component::errorChannelDefaults[nErrorTypes] = {
-	Channel::standard,
-	Channel::error,
-	Channel::error,
-	Channel::error
-    };
+const Channel::Default Component::errorChannelDefaults[nErrorTypes] = {
+    Channel::standard, Channel::error, Channel::error, Channel::error};
 
-    Component::Component(const Configuration &c) :
-	Precursor(c) {
-	initialize();
+Component::Component(const Configuration &c) : Precursor(c) { initialize(); }
+
+Component::Component(const Component &component) : Configurable(component) {
+  initialize();
+  std::copy(component.errorCounts_, component.errorCounts_ + nErrorTypes,
+            errorCounts_);
+}
+
+Component::~Component() {
+  for (int e = 0; e < nErrorTypes; ++e) {
+    delete errorChannels_[e];
+  }
+}
+
+Component &Component::operator=(const Component &component) {
+  Precursor::operator=(component);
+  std::copy(component.errorCounts_, component.errorCounts_ + nErrorTypes,
+            errorCounts_);
+  return *this;
+}
+
+void Component::initialize() {
+  static const ParameterChoice onWarning("on-warning", &errorActionChoice,
+                                         "what happens when a warning occurs",
+                                         ErrorActionIgnore);
+
+  static const ParameterChoice onError("on-error", &errorActionChoice,
+                                       "what happens when an error occurs",
+                                       ErrorActionImmediateExit);
+
+  static const ParameterChoice onCriticalError(
+      "on-critical-error", &errorActionChoice,
+      "what happens when a critical error occurs", ErrorActionImmediateExit);
+
+  errorActions_[ErrorTypeInfo] = ErrorActionIgnore;
+  errorActions_[ErrorTypeWarning] = ErrorAction(onWarning(config));
+  errorActions_[ErrorTypeError] = ErrorAction(onError(config));
+  errorActions_[ErrorTypeCriticalError] = ErrorAction(onCriticalError(config));
+
+  for (int e = 0; e < nErrorTypes; ++e) {
+    errorCounts_[e] = 0;
+    errorChannels_[e] = 0;
+  }
+
+  if (errorActions_[ErrorTypeCriticalError] != ErrorActionImmediateExit) {
+    warning("Critical errors will be delayed or ignored. Expect unpredictable "
+            "behaviour!");
+  }
+}
+
+XmlChannel *Component::errorChannel(ErrorType mt) const {
+  require(0 <= mt && mt < nErrorTypes);
+  if (!errorChannels_[mt]) {
+    errorChannels_[mt] =
+        new XmlChannel(config, errorChannelNames[mt], errorChannelDefaults[mt]);
+  }
+  return errorChannels_[mt];
+}
+
+void Component::errorOccured(ErrorType mt) const {
+  require(0 <= mt && mt < nErrorTypes);
+
+  errorCounts_[mt] += 1;
+
+  switch (errorActions_[mt]) {
+  case ErrorActionIgnore:
+  case ErrorActionDelayedExit:
+    break;
+  case ErrorActionImmediateExit:
+    exit();
+    break;
+  default:
+    defect();
+    break;
+  }
+}
+
+bool Component::hasFatalErrors() const {
+  for (int et = nErrorTypes - 1; et >= 0; --et) {
+    if (errorCounts_[et] > 0) {
+      switch (errorActions_[et]) {
+      case ErrorActionIgnore:
+        break;
+      case ErrorActionDelayedExit:
+      case ErrorActionImmediateExit:
+        return true;
+        break;
+      default:
+        defect();
+        break;
+      }
     }
+  }
+  return false;
+}
 
-    Component::Component(const Component &component) :
-	Configurable(component) {
-	initialize();
-	std::copy(component.errorCounts_, component.errorCounts_ + nErrorTypes, errorCounts_);
-    }
+void Component::respondToDelayedErrors() const {
+  if (hasFatalErrors())
+    exit();
+}
 
-    Component::~Component() {
-	for (int e = 0 ; e < nErrorTypes ; ++e) {
-	    delete errorChannels_[e];
-	}
-    }
+void Component::exit() const {
+  static const ParameterInt errorCode(
+      "error-code", "exit status in case of a critical error", EXIT_FAILURE, 0,
+      255,
+      "This is the exit status to be returned when the program aborts "
+      "due to a runtime error within this component.");
 
-    Component &Component::operator=(const Component &component) {
-	Precursor::operator=(component);
-	std::copy(component.errorCounts_, component.errorCounts_ + nErrorTypes, errorCounts_);
-	return *this;
-    }
+  *errorChannel(ErrorTypeCriticalError)
+      << XmlOpen(errorNames[ErrorTypeCriticalError]) +
+             XmlAttribute("component", fullName())
+      << "Terminating due to previous errors"
+      << XmlClose(errorNames[ErrorTypeCriticalError]);
 
-    void Component::initialize() {
-	static const ParameterChoice onWarning(
-	    "on-warning",
-	    &errorActionChoice,
-	    "what happens when a warning occurs",
-	    ErrorActionIgnore);
+  Application::us()->exit(errorCode(config));
+}
 
-	static const ParameterChoice onError(
-	    "on-error",
-	    &errorActionChoice,
-	    "what happens when an error occurs",
-	    ErrorActionImmediateExit);
+XmlChannel *Component::vErrorMessage(ErrorType type, const char *msg,
+                                     va_list ap) const {
+  require(0 <= type && type < nErrorTypes);
 
-	static const ParameterChoice onCriticalError(
-	    "on-critical-error",
-	    &errorActionChoice,
-	    "what happens when a critical error occurs",
-	    ErrorActionImmediateExit);
+  XmlChannel *chn = errorChannel(type);
 
-	errorActions_[ErrorTypeInfo         ] = ErrorActionIgnore;
-	errorActions_[ErrorTypeWarning      ] = ErrorAction(onWarning      (config));
-	errorActions_[ErrorTypeError        ] = ErrorAction(onError        (config));
-	errorActions_[ErrorTypeCriticalError] = ErrorAction(onCriticalError(config));
+  *chn << XmlOpen(errorNames[type]) + XmlAttribute("component", fullName());
+  if (msg) {
+    (*chn) << vform(msg, ap);
+  }
 
-	for (int e = 0 ; e < nErrorTypes ; ++e) {
-	    errorCounts_[e] = 0;
-	    errorChannels_[e] = 0;
-	}
+  if ((type != ErrorTypeInfo) && (type != ErrorTypeWarning) && errno) {
+    /*! \todo strerror() is not thread safe.  But strerror_r() does not seems to
+     * work. */
+    /*
+                char libCError[256];
+                strerror_r(errno, libCError, 256);
+                libCError[255] = 0;
+    */
+    *chn << XmlOpen("system") << strerror(errno) << XmlClose("system");
+    errno = 0;
+  }
 
-	if (errorActions_[ErrorTypeCriticalError] != ErrorActionImmediateExit) {
-	    warning("Critical errors will be delayed or ignored. Expect unpredictable behaviour!");
-	}
-    }
+  return chn;
+}
 
-    XmlChannel *Component::errorChannel(ErrorType mt) const {
-	require(0 <= mt && mt < nErrorTypes);
-	if (!errorChannels_[mt]) {
-	    errorChannels_[mt] = new XmlChannel(
-		config,
-		errorChannelNames[mt],
-		errorChannelDefaults[mt]);
-	}
-	return errorChannels_[mt];
-    }
+Component::Message Component::log(const char *msg, ...) const {
+  va_list ap;
+  require(msg);
 
-    void Component::errorOccured(ErrorType mt) const {
-	require(0 <= mt && mt < nErrorTypes);
+  va_start(ap, msg);
+  XmlChannel *chn = vErrorMessage(ErrorTypeInfo, msg, ap);
+  va_end(ap);
+  return Message(this, ErrorTypeInfo, chn);
+}
 
-	errorCounts_[mt] += 1;
+Component::Message Component::log() const {
+  XmlChannel *chn = errorChannel(ErrorTypeInfo);
+  *chn << XmlOpen(errorNames[ErrorTypeInfo]) +
+              XmlAttribute("component", fullName());
+  return Message(this, ErrorTypeInfo, chn);
+}
 
-	switch (errorActions_[mt]) {
-	case ErrorActionIgnore:
-	case ErrorActionDelayedExit:
-	    break;
-	case ErrorActionImmediateExit:
-	    exit();
-	    break;
-	default: defect(); break;
-	}
-    }
+Component::Message Component::warning(const char *msg, ...) const {
+  va_list ap;
 
-    bool Component::hasFatalErrors() const {
-	for (int et = nErrorTypes-1 ; et >= 0 ; --et) {
-	    if (errorCounts_[et] > 0) {
-		switch (errorActions_[et]) {
-		case ErrorActionIgnore:
-		    break;
-		case ErrorActionDelayedExit:
-		case ErrorActionImmediateExit:
-		    return true;
-		    break;
-		default: defect(); break;
-		}
-	    }
-	}
-	return false;
-    }
+  va_start(ap, msg);
+  XmlChannel *chn = vErrorMessage(ErrorTypeWarning, msg, ap);
+  va_end(ap);
 
-    void Component::respondToDelayedErrors() const {
-	if (hasFatalErrors()) exit();
-    }
+  return Message(this, ErrorTypeWarning, chn);
+}
 
-    void Component::exit() const {
-	static const ParameterInt errorCode(
-	    "error-code",
-	    "exit status in case of a critical error",
-	    EXIT_FAILURE, 0, 255,
-	    "This is the exit status to be returned when the program aborts "
-	    "due to a runtime error within this component.");
+Component::Message Component::vWarning(const char *msg, va_list ap) const {
+  XmlChannel *chn = vErrorMessage(ErrorTypeWarning, msg, ap);
+  return Message(this, ErrorTypeWarning, chn);
+}
 
-	*errorChannel(ErrorTypeCriticalError)
-	    << XmlOpen(errorNames[ErrorTypeCriticalError])
-		+ XmlAttribute("component", fullName())
-	    << "Terminating due to previous errors"
-	    << XmlClose(errorNames[ErrorTypeCriticalError]);
+Component::Message Component::error(const char *msg, ...) const {
+  va_list ap;
 
-	Application::us()->exit(errorCode(config));
-    }
+  va_start(ap, msg);
+  XmlChannel *chn = vErrorMessage(ErrorTypeError, msg, ap);
+  va_end(ap);
 
-    XmlChannel *Component::vErrorMessage(
-	ErrorType type, const char *msg, va_list ap) const
-    {
-	require(0 <= type && type < nErrorTypes);
+  return Message(this, ErrorTypeError, chn);
+}
 
-	XmlChannel *chn = errorChannel(type);
+Component::Message Component::vError(const char *msg, va_list ap) const {
+  XmlChannel *chn = vErrorMessage(ErrorTypeError, msg, ap);
+  return Message(this, ErrorTypeError, chn);
+}
 
-	*chn << XmlOpen(errorNames[type]) + XmlAttribute("component", fullName());
-	if (msg) {
-	    (*chn) << vform(msg, ap);
-	}
+Component::Message Component::criticalError(const char *msg, ...) const {
+  va_list ap;
 
-	if ((type != ErrorTypeInfo) && (type != ErrorTypeWarning) && errno) {
-	    /*! \todo strerror() is not thread safe.  But strerror_r() does not seems to work. */
-/*
-	    char libCError[256];
-	    strerror_r(errno, libCError, 256);
-	    libCError[255] = 0;
-*/
-	    *chn << XmlOpen("system") << strerror(errno) << XmlClose("system");
-	    errno = 0;
-	}
+  va_start(ap, msg);
+  XmlChannel *chn = vErrorMessage(ErrorTypeCriticalError, msg, ap);
+  va_end(ap);
 
-	return chn;
-    }
+  return Message(this, ErrorTypeCriticalError, chn);
+}
 
-    Component::Message Component::log(const char *msg, ...) const{
-	va_list ap ;
-	require(msg);
+Component::Message Component::vCriticalError(const char *msg,
+                                             va_list ap) const {
+  XmlChannel *chn = vErrorMessage(ErrorTypeCriticalError, msg, ap);
+  return Message(this, ErrorTypeCriticalError, chn);
+}
 
-	va_start(ap, msg);
-	XmlChannel *chn =  vErrorMessage(ErrorTypeInfo, msg, ap);
-	va_end(ap) ;
-	return Message(this, ErrorTypeInfo, chn);
-    }
+Component::Message &Component::Message::form(const char *msg, ...) {
+  va_list ap;
+  va_start(ap, msg);
+  (*ostream_) << Core::vform(msg, ap);
+  va_end(ap);
+  return *this;
+}
 
-    Component::Message Component::log() const {
-	XmlChannel *chn = errorChannel(ErrorTypeInfo);
-	*chn << XmlOpen(errorNames[ErrorTypeInfo]) + XmlAttribute("component", fullName());
-	return Message(this, ErrorTypeInfo, chn);
-    }
-
-    Component::Message Component::warning(const char *msg, ...) const {
-	va_list ap ;
-
-	va_start(ap, msg) ;
-	XmlChannel *chn = vErrorMessage(ErrorTypeWarning, msg, ap);
-	va_end(ap) ;
-
-	return Message(this, ErrorTypeWarning, chn);
-    }
-
-    Component::Message Component::vWarning(const char *msg, va_list ap) const {
-	XmlChannel *chn = vErrorMessage(ErrorTypeWarning, msg, ap);
-	return Message(this, ErrorTypeWarning, chn);
-    }
-
-    Component::Message Component::error(const char *msg, ...) const {
-	va_list ap ;
-
-	va_start(ap, msg) ;
-	XmlChannel *chn = vErrorMessage(ErrorTypeError, msg, ap);
-	va_end(ap) ;
-
-	return Message(this, ErrorTypeError, chn);
-    }
-
-    Component::Message Component::vError(const char *msg, va_list ap) const {
-	XmlChannel *chn = vErrorMessage(ErrorTypeError, msg, ap);
-	return Message(this, ErrorTypeError, chn);
-    }
-
-    Component::Message Component::criticalError(const char *msg, ...) const {
-	va_list ap ;
-
-	va_start(ap, msg) ;
-	XmlChannel *chn = vErrorMessage(ErrorTypeCriticalError, msg, ap);
-	va_end(ap) ;
-
-	return Message(this, ErrorTypeCriticalError, chn);
-    }
-
-    Component::Message Component::vCriticalError(const char *msg, va_list ap) const {
-	XmlChannel *chn = vErrorMessage(ErrorTypeCriticalError, msg, ap);
-	return Message(this, ErrorTypeCriticalError, chn);
-    }
-
-
-    Component::Message& Component::Message::form(const char *msg, ...)   {
-	va_list ap ;
-	va_start(ap, msg) ;
-	(*ostream_) << Core::vform(msg, ap);
-	va_end(ap) ;
-	return *this;
-    }
-
-    Component::Message::~Message() {
-	if (component_) {
-	    *ostream_ << XmlClose(errorNames[type_]);
-	    component_->errorOccured(type_);
-	}
-    }
+Component::Message::~Message() {
+  if (component_) {
+    *ostream_ << XmlClose(errorNames[type_]);
+    component_->errorOccured(type_);
+  }
+}
 
 } // namespace Core

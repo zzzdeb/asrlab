@@ -17,20 +17,17 @@
 #include "Semiring.hh"
 #include "tAutomaton.hh"
 
-namespace Fsa
-{
-class Automaton : public Ftl::Automaton<Semiring>
-{
-	typedef Fsa::Automaton Self;
-	typedef Ftl::Automaton<Semiring> Precursor;
+namespace Fsa {
+class Automaton : public Ftl::Automaton<Semiring> {
+  typedef Fsa::Automaton Self;
+  typedef Ftl::Automaton<Semiring> Precursor;
+
 public:
-	typedef Core::Ref<Self> Ref;
-	typedef Core::Ref<const Self> ConstRef;
+  typedef Core::Ref<Self> Ref;
+  typedef Core::Ref<const Self> ConstRef;
+
 public:
-	virtual ConstSemiringRef semiring() const
-	{
-		return UnknownSemiring;
-	}
+  virtual ConstSemiringRef semiring() const { return UnknownSemiring; }
 };
 
 typedef Automaton::ConstRef ConstAutomatonRef;

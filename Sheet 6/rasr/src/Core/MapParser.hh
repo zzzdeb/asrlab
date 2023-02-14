@@ -14,130 +14,121 @@
 #ifndef _CORE_MAP_PARSER_HH
 #define _CORE_MAP_PARSER_HH
 
-#include <Core/StringUtilities.hh>
 #include "XmlBuilder.hh"
+#include <Core/StringUtilities.hh>
 
 namespace Core {
 
-    /** XmlMapElement implements XmlBuilderElement for an arbitrary XmlSchemaParser
-     *  which parses a map.
-     *
-     *  Structure of map-element
-     *    <"map-name">  <"map-item" key="xxx" data="xxx" ... /> ... </"map-name">
-     */
-    template<class Map>
-    class XmlMapElement :
-	public XmlBuilderElement<Map,
-				 XmlRegularElement,
-				 CreateByContext>
-    {
-    public:
-	typedef XmlBuilderElement<Map,
-				  XmlRegularElement,
-				  CreateByContext> Predecessor;
-	typedef XmlMapElement<Map> Self;
-	typedef Map* (XmlContext::*CreationHandler)(const XmlAttributes atts);
-    private:
-	XmlEmptyElement *mapEntryElement_;
-	const char *keyAttributeName_;
-	const char *dataAttributeName_;
-    protected:
-	virtual void newEntry(const XmlAttributes atts);
-    public:
-	XmlMapElement(XmlContext *context, CreationHandler newMap,
-		      const char *name = "map",
-		      const char *itemName = "map-item",
-		      const char *keyAttributeName = "key",
-		      const char *dataAttributeName = "data");
-	virtual ~XmlMapElement();
-    };
+/** XmlMapElement implements XmlBuilderElement for an arbitrary XmlSchemaParser
+ *  which parses a map.
+ *
+ *  Structure of map-element
+ *    <"map-name">  <"map-item" key="xxx" data="xxx" ... /> ... </"map-name">
+ */
+template <class Map>
+class XmlMapElement
+    : public XmlBuilderElement<Map, XmlRegularElement, CreateByContext> {
+public:
+  typedef XmlBuilderElement<Map, XmlRegularElement, CreateByContext>
+      Predecessor;
+  typedef XmlMapElement<Map> Self;
+  typedef Map *(XmlContext::*CreationHandler)(const XmlAttributes atts);
 
-    template<class Map>
-    XmlMapElement<Map>::XmlMapElement(XmlContext *context, CreationHandler newMap,
-				      const char *name, const char *itemName,
-				      const char *keyAttributeName, const char *dataAttributeName) :
-	Predecessor(name, context, newMap),
-	mapEntryElement_(0),
-	keyAttributeName_(keyAttributeName),
-	dataAttributeName_(dataAttributeName)
-    {
-	mapEntryElement_ = new XmlEmptyElementRelay(
-	    itemName, this, XmlEmptyElementRelay::startHandler(&Self::newEntry));
+private:
+  XmlEmptyElement *mapEntryElement_;
+  const char *keyAttributeName_;
+  const char *dataAttributeName_;
 
-	addTransition(Predecessor::initial, Predecessor::initial, mapEntryElement_);
-	addFinalState(Predecessor::initial);
-    }
+protected:
+  virtual void newEntry(const XmlAttributes atts);
 
-    template<class Map>
-    XmlMapElement<Map>::~XmlMapElement()
-    {
-	delete mapEntryElement_;
-    }
+public:
+  XmlMapElement(XmlContext *context, CreationHandler newMap,
+                const char *name = "map", const char *itemName = "map-item",
+                const char *keyAttributeName = "key",
+                const char *dataAttributeName = "data");
+  virtual ~XmlMapElement();
+};
 
-    template<class Map>
-    void XmlMapElement<Map>::newEntry(const XmlAttributes atts)
-    {
-	const char *keyValue = atts[keyAttributeName_];
-	if (keyValue == 0) {
-	    this->parser()->error("Map entry must have an attribute \"%s\"", keyAttributeName_);
-	    return;
-	}
+template <class Map>
+XmlMapElement<Map>::XmlMapElement(XmlContext *context, CreationHandler newMap,
+                                  const char *name, const char *itemName,
+                                  const char *keyAttributeName,
+                                  const char *dataAttributeName)
+    : Predecessor(name, context, newMap), mapEntryElement_(0),
+      keyAttributeName_(keyAttributeName),
+      dataAttributeName_(dataAttributeName) {
+  mapEntryElement_ = new XmlEmptyElementRelay(
+      itemName, this, XmlEmptyElementRelay::startHandler(&Self::newEntry));
 
-	std::stringstream keyStream(keyValue);
-	typename Map::key_type key;
-	keyStream >> key;
+  addTransition(Predecessor::initial, Predecessor::initial, mapEntryElement_);
+  addFinalState(Predecessor::initial);
+}
 
-	const char *dataValue = atts[dataAttributeName_];
-	if (dataValue == 0) {
-	    this->parser()->error("Map entry must have an attribute \"%s\"", dataAttributeName_);
-	    return;
-	}
+template <class Map> XmlMapElement<Map>::~XmlMapElement() {
+  delete mapEntryElement_;
+}
 
-	std::stringstream dataStream(dataValue);
-	typename Map::data_type data;
-	dataStream >> data;
+template <class Map>
+void XmlMapElement<Map>::newEntry(const XmlAttributes atts) {
+  const char *keyValue = atts[keyAttributeName_];
+  if (keyValue == 0) {
+    this->parser()->error("Map entry must have an attribute \"%s\"",
+                          keyAttributeName_);
+    return;
+  }
 
-	(*Predecessor::product_)[key] = data;
-    }
+  std::stringstream keyStream(keyValue);
+  typename Map::key_type key;
+  keyStream >> key;
 
+  const char *dataValue = atts[dataAttributeName_];
+  if (dataValue == 0) {
+    this->parser()->error("Map entry must have an attribute \"%s\"",
+                          dataAttributeName_);
+    return;
+  }
 
-    /** XML document containing one single map. */
-    template<class Map>
-    class XmlMapDocument : public XmlSchemaParser {
-	typedef XmlSchemaParser Predecessor;
-	typedef XmlMapDocument Self;
-    private:
-	XmlMapElement<Map> *mapElement_;
-	Map &map_;
-	Map* pseudoCreateMap(const XmlAttributes atts) { return &map_; }
-    public:
-	XmlMapDocument(const Configuration &c, Map &map,
-		       const char *name, const char *itemName,
-		       const char *keyAttributeName, const char *dataAttributeName);
-	virtual ~XmlMapDocument();
-    };
+  std::stringstream dataStream(dataValue);
+  typename Map::data_type data;
+  dataStream >> data;
 
-    template<class Map>
-    XmlMapDocument<Map>::XmlMapDocument(const Configuration &c, Map &map,
-					const char *name, const char *itemName,
-					const char *keyAttributeName, const char *dataAttributeName) :
-	Predecessor(c),
-	mapElement_(0),
-	map_(map)
-    {
-	mapElement_ = new XmlMapElement<Map>(
-	    this, XmlMapElement<Map>::creationHandler(&Self::pseudoCreateMap),
-	    name, itemName, keyAttributeName, dataAttributeName);
-	setRoot(mapElement_);
-    }
+  (*Predecessor::product_)[key] = data;
+}
 
-    template<class Map>
-    XmlMapDocument<Map>::~XmlMapDocument()
-    {
-	delete mapElement_;
-    }
+/** XML document containing one single map. */
+template <class Map> class XmlMapDocument : public XmlSchemaParser {
+  typedef XmlSchemaParser Predecessor;
+  typedef XmlMapDocument Self;
 
-} //namespace Core
+private:
+  XmlMapElement<Map> *mapElement_;
+  Map &map_;
+  Map *pseudoCreateMap(const XmlAttributes atts) { return &map_; }
+
+public:
+  XmlMapDocument(const Configuration &c, Map &map, const char *name,
+                 const char *itemName, const char *keyAttributeName,
+                 const char *dataAttributeName);
+  virtual ~XmlMapDocument();
+};
+
+template <class Map>
+XmlMapDocument<Map>::XmlMapDocument(const Configuration &c, Map &map,
+                                    const char *name, const char *itemName,
+                                    const char *keyAttributeName,
+                                    const char *dataAttributeName)
+    : Predecessor(c), mapElement_(0), map_(map) {
+  mapElement_ = new XmlMapElement<Map>(
+      this, XmlMapElement<Map>::creationHandler(&Self::pseudoCreateMap), name,
+      itemName, keyAttributeName, dataAttributeName);
+  setRoot(mapElement_);
+}
+
+template <class Map> XmlMapDocument<Map>::~XmlMapDocument() {
+  delete mapElement_;
+}
+
+} // namespace Core
 
 #endif // _CORE_MAP_PARSER_HH
-

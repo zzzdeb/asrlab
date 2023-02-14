@@ -19,8 +19,8 @@
 
 namespace Lattice {
 
-    bool dumpWordBoundaries(Core::Ref<const WordBoundaries>, Core::XmlWriter &);
-    bool dumpWordBoundaries(Core::Ref<const WordBoundaries>, const std::string &);
+bool dumpWordBoundaries(Core::Ref<const WordBoundaries>, Core::XmlWriter &);
+bool dumpWordBoundaries(Core::Ref<const WordBoundaries>, const std::string &);
 
 } // namespace Lattice
 

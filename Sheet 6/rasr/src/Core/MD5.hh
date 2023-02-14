@@ -14,43 +14,45 @@
 #ifndef _CORE_MD5_HH
 #define _CORE_MD5_HH
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "BinaryStream.hh"
 #include "StringUtilities.hh"
 
 namespace Core {
 
-    class MD5 {
-    private:
-	// mutable is a messy way of doing the lazy finalisation stuff
-	mutable u32 A_, B_, C_, D_;
-	mutable u32 nblocks;
-	mutable u8 buf[64];
-	mutable u32 count;
-	mutable bool isFinalized_;
+class MD5 {
+private:
+  // mutable is a messy way of doing the lazy finalisation stuff
+  mutable u32 A_, B_, C_, D_;
+  mutable u32 nblocks;
+  mutable u8 buf[64];
+  mutable u32 count;
+  mutable bool isFinalized_;
 
-    private:
-	void transform(const void *data) const;
-	void finalize(void) const;
+private:
+  void transform(const void *data) const;
+  void finalize(void) const;
 
-    public:
-	MD5();
+public:
+  MD5();
 
-	void update(const char *v, u32 n) const;
-	void update(const std::string&) const;
-	bool updateFromFile(const std::string &filename);
+  void update(const char *v, u32 n) const;
+  void update(const std::string &) const;
+  bool updateFromFile(const std::string &filename);
 
-	bool operator== (const MD5 &m) const {
-	    for (int i = 0; i < 16; i++) if (buf[i] != m.buf[i]) return false;
-	    return true;
-	}
+  bool operator==(const MD5 &m) const {
+    for (int i = 0; i < 16; i++)
+      if (buf[i] != m.buf[i])
+        return false;
+    return true;
+  }
 
-	operator std::string() const;
-	friend std::ostream& operator<< (std::ostream &o, const MD5 &m);
-	friend BinaryOutputStream& operator<<(BinaryOutputStream&, const MD5&);
-    };
-}
+  operator std::string() const;
+  friend std::ostream &operator<<(std::ostream &o, const MD5 &m);
+  friend BinaryOutputStream &operator<<(BinaryOutputStream &, const MD5 &);
+};
+} // namespace Core
 
 #endif // _CORE_MD5_HH

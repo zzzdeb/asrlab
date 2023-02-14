@@ -19,16 +19,15 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef resolveMorphism(
-	ConstWordLatticeRef,
-	Core::Ref<const WordBoundaries>,
-	Fsa::ConstMappingRef);
+ConstWordLatticeRef resolveMorphism(ConstWordLatticeRef,
+                                    Core::Ref<const WordBoundaries>,
+                                    Fsa::ConstMappingRef);
 
-    ConstWordLatticeRef resolveNaryMorphism(
-	ConstWordLatticeRef l,
-	const Core::Vector<Core::Ref<const WordBoundaries> > &,
-	const Core::Vector<Fsa::ConstMappingRef> &);
+ConstWordLatticeRef
+resolveNaryMorphism(ConstWordLatticeRef l,
+                    const Core::Vector<Core::Ref<const WordBoundaries> > &,
+                    const Core::Vector<Fsa::ConstMappingRef> &);
 
-} // namespace
+} // namespace Lattice
 
 #endif // _LATTICE_MORPHISM_HH

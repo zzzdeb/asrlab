@@ -14,36 +14,32 @@
 #ifndef _CORE_SINGLETON_HH
 #define _CORE_SINGLETON_HH
 
-namespace Core
-{
+namespace Core {
 /**
  * Implementation of the Singleton Pattern.
  * Inspired by A. Alexandrescu "Modern C++ Design"
  */
-template<class T>
-class SingletonHolder
-{
+template <class T> class SingletonHolder {
 public:
-    typedef T Instance;
-    static Instance& instance();
+  typedef T Instance;
+  static Instance &instance();
 
 private:
-    SingletonHolder();
-    SingletonHolder(const SingletonHolder&);
+  SingletonHolder();
+  SingletonHolder(const SingletonHolder &);
 
-    static Instance* instance_;
+  static Instance *instance_;
 };
 
-template<class T> T* SingletonHolder<T>::instance_ = 0;
+template <class T> T *SingletonHolder<T>::instance_ = 0;
 
-template<class T>
-inline typename SingletonHolder<T>::Instance& SingletonHolder<T>::instance()
-{
-    if (!instance_) {
-	instance_ = new Instance;
-    }
-    return *instance_;
+template <class T>
+inline typename SingletonHolder<T>::Instance &SingletonHolder<T>::instance() {
+  if (!instance_) {
+    instance_ = new Instance;
+  }
+  return *instance_;
 }
 
-}
+} // namespace Core
 #endif /* _CORE_SINGLETON_HH */

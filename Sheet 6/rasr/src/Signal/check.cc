@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <Core/Application.hh>
-#include <Signal/Module.hh>
 #include <Flow/Registry.hh>
-
+#include <Signal/Module.hh>
 
 class TestApplication : public Core::Application {
 public:
-  std::string getUsage() const { return "short program to test signal network\n"; }
+  std::string getUsage() const {
+    return "short program to test signal network\n";
+  }
 
   int main(const std::vector<std::string> &arguments) {
     INIT_MODULE(Signal)

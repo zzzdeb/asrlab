@@ -21,66 +21,66 @@
 #include <Core/Component.hh>
 #include <Core/Dependency.hh>
 
-
 namespace Legacy {
 
-    class PhoneticDecisionTreeBase :
-	public virtual Core::Component
-    {
-    protected:
-	enum BoundaryStyle { noPosDep, posDep, superPosDep };
-	static const Core::Choice boundaryStyleChoice;
-	static const Core::ParameterChoice paramBoundaryStyle;
+class PhoneticDecisionTreeBase : public virtual Core::Component {
+protected:
+  enum BoundaryStyle { noPosDep, posDep, superPosDep };
+  static const Core::Choice boundaryStyleChoice;
+  static const Core::ParameterChoice paramBoundaryStyle;
 
-	Core::Ref<const Bliss::PhonemeInventory> pi_;
-	BoundaryStyle boundaryStyle_;
-	PhoneticDecisionTreeBase(
-	    const Core::Configuration&,
-	    Core::Ref<const Bliss::PhonemeInventory>);
-    };
+  Core::Ref<const Bliss::PhonemeInventory> pi_;
+  BoundaryStyle boundaryStyle_;
+  PhoneticDecisionTreeBase(const Core::Configuration &,
+                           Core::Ref<const Bliss::PhonemeInventory>);
+};
 
-    class PhoneticDecisionTree :
-	public PhoneticDecisionTreeBase,
-	public Am::ClassicStateTying
-    {
-    protected:
-	Core::Dependency dependency_;
+class PhoneticDecisionTree : public PhoneticDecisionTreeBase,
+                             public Am::ClassicStateTying {
+protected:
+  Core::Dependency dependency_;
 
-	struct LightTree;
-	Bliss::PhonemeMap<signed char> phonemeMap_;
-	std::vector<Bliss::Phoneme::Id> inversePhonemeMap_;
-	LightTree *tree_;
-	bool load(const char *filename);
-	void makePhonemeMapping();
-	s16 translateBoundaryFlag(u8) const;
-	bool answerQuestion(short quest, short phonePosition,
-			    const Am::Allophone &phone,
-			    short state, short boundary) const;
-	mutable Core::Channel classifyDumpChannel_;
-	void checkCompatibility(const PhoneticDecisionTree& pdt2);
-	void removeBeginAndEndBranches();
-    public:
-	static const Core::ParameterString paramFilename;
-	static const Core::ParameterBool paramUseCentralStateClassesOnly;
+  struct LightTree;
+  Bliss::PhonemeMap<signed char> phonemeMap_;
+  std::vector<Bliss::Phoneme::Id> inversePhonemeMap_;
+  LightTree *tree_;
+  bool load(const char *filename);
+  void makePhonemeMapping();
+  s16 translateBoundaryFlag(u8) const;
+  bool answerQuestion(short quest, short phonePosition,
+                      const Am::Allophone &phone, short state,
+                      short boundary) const;
+  mutable Core::Channel classifyDumpChannel_;
+  void checkCompatibility(const PhoneticDecisionTree &pdt2);
+  void removeBeginAndEndBranches();
 
-	PhoneticDecisionTree(const Core::Configuration &,
-			     Am::ClassicStateModelRef);
-	virtual ~PhoneticDecisionTree();
-	const Core::Dependency& getDependency() const { return dependency_; }
-	virtual void getDependencies(Core::DependencySet &d) const { d.add(name(), getDependency()); }
-	Core::Ref<const Bliss::PhonemeInventory> phonemeInventory() const { return pi_; }
-	u32 maximumContextLength() const;
-	virtual u32 nClasses() const;
-	virtual u32 classify(const Am::AllophoneState&) const;
-	void draw(std::ostream&) const;
-	Core::BinaryTree::TreeStructure treeStructure() const;
-	std::vector<std::set<u32> >  phonemeToMixtureIndices() const;
-	typedef std::pair<u32, u32>  ClassPair;
-	typedef std::vector<ClassPair>  ClassPairs;
-	void addTree(const PhoneticDecisionTree& pdt2, ClassPairs& toBuild);
-	void addTree(const PhoneticDecisionTree& pdt2) {
-	    ClassPairs cp; addTree(pdt2, cp); }
-    };
+public:
+  static const Core::ParameterString paramFilename;
+  static const Core::ParameterBool paramUseCentralStateClassesOnly;
+
+  PhoneticDecisionTree(const Core::Configuration &, Am::ClassicStateModelRef);
+  virtual ~PhoneticDecisionTree();
+  const Core::Dependency &getDependency() const { return dependency_; }
+  virtual void getDependencies(Core::DependencySet &d) const {
+    d.add(name(), getDependency());
+  }
+  Core::Ref<const Bliss::PhonemeInventory> phonemeInventory() const {
+    return pi_;
+  }
+  u32 maximumContextLength() const;
+  virtual u32 nClasses() const;
+  virtual u32 classify(const Am::AllophoneState &) const;
+  void draw(std::ostream &) const;
+  Core::BinaryTree::TreeStructure treeStructure() const;
+  std::vector<std::set<u32> > phonemeToMixtureIndices() const;
+  typedef std::pair<u32, u32> ClassPair;
+  typedef std::vector<ClassPair> ClassPairs;
+  void addTree(const PhoneticDecisionTree &pdt2, ClassPairs &toBuild);
+  void addTree(const PhoneticDecisionTree &pdt2) {
+    ClassPairs cp;
+    addTree(pdt2, cp);
+  }
+};
 
 } // namespace Legacy
 

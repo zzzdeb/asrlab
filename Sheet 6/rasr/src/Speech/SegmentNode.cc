@@ -19,115 +19,106 @@ using namespace Speech;
 
 /** SegmentNode
  */
-const Core::ParameterString SegmentNode::paramSegmentId(
-    "id",
-    "segment identifier for caches etc.");
+const Core::ParameterString
+    SegmentNode::paramSegmentId("id", "segment identifier for caches etc.");
 
-SegmentNode::SegmentNode(
-    const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c),
-    needInit_(true),
-    segmentId_(paramSegmentId(config))
-{
-    addInputs(1);
+SegmentNode::SegmentNode(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c), needInit_(true),
+      segmentId_(paramSegmentId(config)) {
+  addInputs(1);
 }
 
-bool SegmentNode::setParameter(const std::string &name, const std::string &value)
-{
-    if (paramSegmentId.match(name)) {
-	segmentId_ = paramSegmentId(value);
-	return true;
-    }
-    return Precursor::setParameter(name, value);
-}
-
-bool SegmentNode::configure()
-{
-    Core::Ref<Flow::Attributes> attributes(new Flow::Attributes);
-    getInputAttributes(0, *attributes);
-    if (!configureDatatype(attributes, Flow::DataAdaptor<ModelCombinationRef>::type())) {
-	return false;
-    }
+bool SegmentNode::setParameter(const std::string &name,
+                               const std::string &value) {
+  if (paramSegmentId.match(name)) {
+    segmentId_ = paramSegmentId(value);
     return true;
+  }
+  return Precursor::setParameter(name, value);
 }
 
-bool SegmentNode::work(Flow::PortId)
-{
-    if (needInit_) {
-	Flow::DataPtr<Flow::DataAdaptor<ModelCombinationRef> > in;
-	if (!getData(0, in)) {
-	    error("could not read port 0");
-	    return false;
-	}
-	initialize(in->data());
-	//		require(!getData(0, in));
+bool SegmentNode::configure() {
+  Core::Ref<Flow::Attributes> attributes(new Flow::Attributes);
+  getInputAttributes(0, *attributes);
+  if (!configureDatatype(attributes,
+                         Flow::DataAdaptor<ModelCombinationRef>::type())) {
+    return false;
+  }
+  return true;
+}
+
+bool SegmentNode::work(Flow::PortId) {
+  if (needInit_) {
+    Flow::DataPtr<Flow::DataAdaptor<ModelCombinationRef> > in;
+    if (!getData(0, in)) {
+      error("could not read port 0");
+      return false;
     }
-    return true;
+    initialize(in->data());
+    //		require(!getData(0, in));
+  }
+  return true;
 }
 
 /** SegmentwiseFeaturesNode
  */
-SegmentwiseFeaturesNode::SegmentwiseFeaturesNode(
-    const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c)
-{
-    addInputs(1);
-    addOutputs(1);
+SegmentwiseFeaturesNode::SegmentwiseFeaturesNode(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c) {
+  addInputs(1);
+  addOutputs(1);
 }
 
-bool SegmentwiseFeaturesNode::configure()
-{
-    Core::Ref<Flow::Attributes> attributes(new Flow::Attributes);
-    getInputAttributes(1, *attributes);
-    if (!configureDatatype(attributes, Feature::FlowFeature::type())) {
-	return false;
-    }
+bool SegmentwiseFeaturesNode::configure() {
+  Core::Ref<Flow::Attributes> attributes(new Flow::Attributes);
+  getInputAttributes(1, *attributes);
+  if (!configureDatatype(attributes, Feature::FlowFeature::type())) {
+    return false;
+  }
 
-    attributes->set("datatype", Flow::DataAdaptor<ConstSegmentwiseFeaturesRef>::type()->name());
-    return Precursor::configure() && putOutputAttributes(0, attributes);
+  attributes->set(
+      "datatype",
+      Flow::DataAdaptor<ConstSegmentwiseFeaturesRef>::type()->name());
+  return Precursor::configure() && putOutputAttributes(0, attributes);
 }
 
-bool SegmentwiseFeaturesNode::work(Flow::PortId p)
-{
-    if (!Precursor::work(p)) {
-	return false;
+bool SegmentwiseFeaturesNode::work(Flow::PortId p) {
+  if (!Precursor::work(p)) {
+    return false;
+  }
+  Flow::DataPtr<Feature::FlowFeature> in;
+  Flow::DataAdaptor<ConstSegmentwiseFeaturesRef> *out =
+      new Flow::DataAdaptor<ConstSegmentwiseFeaturesRef>();
+  out->invalidateTimestamp();
+  SegmentwiseFeaturesRef features(new SegmentwiseFeatures);
+  bool firstFeature = true;
+  while (getData(1, in)) {
+    Core::Ref<Feature> feature(new Feature(in));
+    if (firstFeature) {
+      checkFeatureDependencies(*feature);
+      firstFeature = false;
     }
-    Flow::DataPtr<Feature::FlowFeature> in;
-    Flow::DataAdaptor<ConstSegmentwiseFeaturesRef> *out = new Flow::DataAdaptor<ConstSegmentwiseFeaturesRef>();
+    features->push_back(feature);
+    out->expandTimestamp(feature->timestamp());
+  }
+  if (features->empty()) {
     out->invalidateTimestamp();
-    SegmentwiseFeaturesRef features(new SegmentwiseFeatures);
-    bool firstFeature = true;
-    while (getData(1, in)) {
-	Core::Ref<Feature> feature(new Feature(in));
-	if (firstFeature) {
-	    checkFeatureDependencies(*feature);
-	    firstFeature = false;
-	}
-	features->push_back(feature);
-	out->expandTimestamp(feature->timestamp());
-    }
-    if (features->empty()) {
-	out->invalidateTimestamp();
-	return false;
-    } else {
-	out->data() = features;
-	return putData(0, out) && putData(0, in.get());
-    }
+    return false;
+  } else {
+    out->data() = features;
+    return putData(0, out) && putData(0, in.get());
+  }
 }
 
-void SegmentwiseFeaturesNode::checkFeatureDependencies(const Mm::Feature &feature) const
-{
-    Mm::FeatureDescription description(*this, feature);
-    if (acousticModel_ && !acousticModel_->isCompatible(description)) {
-	acousticModel_->respondToDelayedErrors();
-    }
+void SegmentwiseFeaturesNode::checkFeatureDependencies(
+    const Mm::Feature &feature) const {
+  Mm::FeatureDescription description(*this, feature);
+  if (acousticModel_ && !acousticModel_->isCompatible(description)) {
+    acousticModel_->respondToDelayedErrors();
+  }
 }
 
-void SegmentwiseFeaturesNode::initialize(ModelCombinationRef modelCombination)
-{
-    Precursor::initialize(modelCombination);
-    acousticModel_ = modelCombination->acousticModel();
-    needInit_ = false;
+void SegmentwiseFeaturesNode::initialize(ModelCombinationRef modelCombination) {
+  Precursor::initialize(modelCombination);
+  acousticModel_ = modelCombination->acousticModel();
+  needInit_ = false;
 }

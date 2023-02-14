@@ -25,22 +25,20 @@
 
 class MyApplication : public Core::Application {
 public:
-    std::string getUsage() const {
-	return "...";
-    }
+  std::string getUsage() const { return "..."; }
 
-    int main(const std::vector<std::string> &arguments) {
-	std::ifstream fis(arguments[0].c_str());
-	Flf::ConstSemiringRef semiring = Flf::Semiring::read(fis);
+  int main(const std::vector<std::string> &arguments) {
+    std::ifstream fis(arguments[0].c_str());
+    Flf::ConstSemiringRef semiring = Flf::Semiring::read(fis);
 
-	std::cout << semiring->name() << std::endl;
-	std::cout << std::endl;
+    std::cout << semiring->name() << std::endl;
+    std::cout << std::endl;
 
-	Core::XmlWriter xml(std::cout);
-	semiring->write(xml);
+    Core::XmlWriter xml(std::cout);
+    semiring->write(xml);
 
-	return 0;
-    }
+    return 0;
+  }
 
 } app; // <- You have to create ONE instance of the application
 

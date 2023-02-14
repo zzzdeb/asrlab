@@ -19,21 +19,22 @@
 
 namespace Am {
 
-    class LexiconUtilities : public virtual Core::Component {
-    private:
-	Bliss::LexiconRef lexicon_;
-    public:
-	LexiconUtilities(const Core::Configuration&, Bliss::LexiconRef);
+class LexiconUtilities : public virtual Core::Component {
+private:
+  Bliss::LexiconRef lexicon_;
 
-	Bliss::Phoneme::Id determineSilencePhoneme() const;
-	const Bliss::LemmaPronunciation *determineSilencePronunciation() const;
-	Fsa::LabelId determineSilenceLemmaPronunciationId() const;
+public:
+  LexiconUtilities(const Core::Configuration &, Bliss::LexiconRef);
 
-	void getInitialAndFinalPhonemes(std::vector<Bliss::Phoneme::Id> &initialPhonemes,
-					std::vector<Bliss::Phoneme::Id> &finalPhonemes) const;
-    };
+  Bliss::Phoneme::Id determineSilencePhoneme() const;
+  const Bliss::LemmaPronunciation *determineSilencePronunciation() const;
+  Fsa::LabelId determineSilenceLemmaPronunciationId() const;
+
+  void getInitialAndFinalPhonemes(
+      std::vector<Bliss::Phoneme::Id> &initialPhonemes,
+      std::vector<Bliss::Phoneme::Id> &finalPhonemes) const;
+};
 
 } // namespace Am
 
 #endif //_AM_UTILITIES_HH
-

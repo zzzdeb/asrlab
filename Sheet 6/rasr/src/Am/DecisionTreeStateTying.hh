@@ -14,46 +14,47 @@
 #ifndef _AM_DECISION_TREE_STATE_TYING_HH
 #define _AM_DECISION_TREE_STATE_TYING_HH
 
-#include "ClassicStateTying.hh"
 #include "ClassicDecisionTree.hh"
+#include "ClassicStateTying.hh"
 
-namespace Am
-{
-	class DecisionTreeStateTying :
-		public ClassicStateTying {
-	protected:
-		typedef ClassicStateTying Precursor;
+namespace Am {
+class DecisionTreeStateTying : public ClassicStateTying {
+protected:
+  typedef ClassicStateTying Precursor;
 
-	private:
-		PropertyMap map_;
-		DecisionTree tree_;
-		Properties * props_;
-		Core::Dependency dependency_;
+private:
+  PropertyMap map_;
+  DecisionTree tree_;
+  Properties *props_;
+  Core::Dependency dependency_;
 
-	public:
-		DecisionTreeStateTying(
-			const Core::Configuration & config,
-			ClassicStateModelRef stateModel);
+public:
+  DecisionTreeStateTying(const Core::Configuration &config,
+                         ClassicStateModelRef stateModel);
 
-		~DecisionTreeStateTying();
+  ~DecisionTreeStateTying();
 
-		const PropertyMap & stateModelMap() const { return map_; }
+  const PropertyMap &stateModelMap() const { return map_; }
 
-		const DecisionTree & decisionTree() const { return tree_; }
+  const DecisionTree &decisionTree() const { return tree_; }
 
-		void set(const Conditions & cond) { props_->set(cond); }
+  void set(const Conditions &cond) { props_->set(cond); }
 
-		Mm::MixtureIndex nClasses() const { return Mm::MixtureIndex(tree_.nLeaves()) +1 ; }
+  Mm::MixtureIndex nClasses() const {
+    return Mm::MixtureIndex(tree_.nLeaves()) + 1;
+  }
 
-		Mm::MixtureIndex classify(const AllophoneState &alloState) const {
-			props_->set(alloState);
-			return Mm::MixtureIndex(tree_.classify(*props_));
-		}
+  Mm::MixtureIndex classify(const AllophoneState &alloState) const {
+    props_->set(alloState);
+    return Mm::MixtureIndex(tree_.classify(*props_));
+  }
 
-		const Core::Dependency& getDependency() const { return dependency_; }
+  const Core::Dependency &getDependency() const { return dependency_; }
 
-		virtual void getDependencies(Core::DependencySet &d) const { d.add(name(), getDependency()); }
-	};
-}
+  virtual void getDependencies(Core::DependencySet &d) const {
+    d.add(name(), getDependency());
+  }
+};
+} // namespace Am
 
 #endif // _AM_DECISION_TREE_STATE_TYING_HH

@@ -13,20 +13,22 @@
 // limitations under the License.
 // $Id: Linear.cc 4892 2005-07-19 18:17:40Z hoffmeister $
 
-#include "tLinear.hh"
 #include "Linear.hh"
 #include "Types.hh"
+#include "tLinear.hh"
 
 namespace Fsa {
-    bool isLinear(ConstAutomatonRef la)
-    { return Ftl::isLinear<Automaton>(la); }
+bool isLinear(ConstAutomatonRef la) { return Ftl::isLinear<Automaton>(la); }
 
-    void getLinearInput(ConstAutomatonRef la, std::vector<LabelId> &result)
-    { return Ftl::getLinearInput<Automaton>(la, result); }
+void getLinearInput(ConstAutomatonRef la, std::vector<LabelId> &result) {
+  return Ftl::getLinearInput<Automaton>(la, result);
+}
 
-    void getLinearOutput(ConstAutomatonRef la, std::vector<LabelId> &result)
-    { return Ftl::getLinearOutput<Automaton>(la, result); }
+void getLinearOutput(ConstAutomatonRef la, std::vector<LabelId> &result) {
+  return Ftl::getLinearOutput<Automaton>(la, result);
+}
 
-    Weight getLinearWeight(ConstAutomatonRef la)
-    { return Ftl::getLinearWeight<Automaton>(la); }
+Weight getLinearWeight(ConstAutomatonRef la) {
+  return Ftl::getLinearWeight<Automaton>(la);
+}
 } // namespace Fsa

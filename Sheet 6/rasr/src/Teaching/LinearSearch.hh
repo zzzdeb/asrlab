@@ -3,64 +3,59 @@
 
 #include <Teaching/SearchInterface.hh>
 
-namespace Teaching
-{
+namespace Teaching {
 
-    class LinearSearch :
-	public SearchInterface
-    {
-    public:
-	LinearSearch(const Core::Configuration &c);
-	virtual ~LinearSearch();
+class LinearSearch : public SearchInterface {
+public:
+  LinearSearch(const Core::Configuration &c);
+  virtual ~LinearSearch();
 
-	virtual bool setModelCombination(const Speech::ModelCombination &modelCombination);
+  virtual bool
+  setModelCombination(const Speech::ModelCombination &modelCombination);
 
-    protected:
-	virtual void initialize();
-	virtual void processFrame(Time t);
-	virtual void getResult(Traceback &result) const;
+protected:
+  virtual void initialize();
+  virtual void processFrame(Time t);
+  virtual void getResult(Traceback &result) const;
 
-    protected:
+protected:
+  class SearchSpace;
 
-	class SearchSpace;
+  struct WordBoundaryHypothesis {
+    Word word;
+    Score score;
+    Index backpointer;
 
-	struct WordBoundaryHypothesis
-	{
-	    Word  word;
-	    Score score;
-	    Index backpointer;
+    WordBoundaryHypothesis(Word w, Score s, Index b)
+        : word(w), score(s), backpointer(b) {}
 
-	    WordBoundaryHypothesis(Word w, Score s, Index b) :
-		word(w), score(s), backpointer(b) {}
+    WordBoundaryHypothesis()
+        : word(invalidWord), score(maxScore), backpointer(invalidIndex) {}
 
-	    WordBoundaryHypothesis() :
-		word(invalidWord), score(maxScore), backpointer(invalidIndex) {}
+    bool operator<(const WordBoundaryHypothesis &o) const {
+      return score < o.score;
+    }
+  };
 
-	    bool operator<(const WordBoundaryHypothesis &o) const {
-		return score < o.score;
-	    }
-	};
+protected:
+  typedef std::vector<MixtureSequence> LinearLexicon;
+  void buildLinearLexicon(LinearLexicon &lexicon);
+  LinearLexicon linearLexicon_;
 
-    protected:
+  typedef std::vector<WordBoundaryHypothesis> WordBoundaryHypotheses;
+  WordBoundaryHypotheses wordEndHypotheses_, wordStartHypotheses_;
 
-	typedef std::vector<MixtureSequence> LinearLexicon;
-	void buildLinearLexicon(LinearLexicon &lexicon);
-	LinearLexicon linearLexicon_;
+  Score languageModelPruningThreshold_, acousticPruningThreshold_;
 
-	typedef std::vector<WordBoundaryHypothesis> WordBoundaryHypotheses;
-	WordBoundaryHypotheses wordEndHypotheses_, wordStartHypotheses_;
+  SearchSpace *searchSpace_;
+  AcousticModelScorer *amScorer_;
+  LanguageModelScorer *lmScorer_;
 
-	Score languageModelPruningThreshold_, acousticPruningThreshold_;
-
-	SearchSpace *searchSpace_;
-	AcousticModelScorer *amScorer_;
-	LanguageModelScorer *lmScorer_;
-
-    private:
-	static const Core::ParameterFloat paramAcousticPruningThreshold;
-	static const Core::ParameterFloat paramLmPruningThreshold;
-    };
-
+private:
+  static const Core::ParameterFloat paramAcousticPruningThreshold;
+  static const Core::ParameterFloat paramLmPruningThreshold;
 };
+
+}; // namespace Teaching
 
 #endif // TEACHING_LINEAR_SEARCH_HH

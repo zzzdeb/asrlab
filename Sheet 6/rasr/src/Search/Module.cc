@@ -18,23 +18,21 @@
 
 using namespace Search;
 
-Module_::Module_()
-{
-}
+Module_::Module_() {}
 
-
-SearchAlgorithm* Module_::createRecognizer(SearchType type, const Core::Configuration &config) const
-{
-    SearchAlgorithm *recognizer = 0;
-    switch (type) {
-    case WordConditionedTreeSearchType:
-	recognizer = new Search::WordConditionedTreeSearch(config);
-	break;
-    case TeachingWordConditionedTreeSearchType:
-	recognizer = new Teaching::WordConditionedTreeSearch(config);
-	break;
-    default:
-	Core::Application::us()->criticalError("unknown recognizer type: %d", type);
-    }
-    return recognizer;
+SearchAlgorithm *
+Module_::createRecognizer(SearchType type,
+                          const Core::Configuration &config) const {
+  SearchAlgorithm *recognizer = 0;
+  switch (type) {
+  case WordConditionedTreeSearchType:
+    recognizer = new Search::WordConditionedTreeSearch(config);
+    break;
+  case TeachingWordConditionedTreeSearchType:
+    recognizer = new Teaching::WordConditionedTreeSearch(config);
+    break;
+  default:
+    Core::Application::us()->criticalError("unknown recognizer type: %d", type);
+  }
+  return recognizer;
 }

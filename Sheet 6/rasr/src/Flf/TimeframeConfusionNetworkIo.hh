@@ -24,19 +24,25 @@
 
 namespace Flf {
 
-    /**
-     * Input
-     **/
-    ConstPosteriorCnRef readPosteriorCnFromXml(std::istream &is, PosteriorCnRef cn = PosteriorCnRef());
+/**
+ * Input
+ **/
+ConstPosteriorCnRef
+readPosteriorCnFromXml(std::istream &is, PosteriorCnRef cn = PosteriorCnRef());
 
-    /**
-     * Output
-     **/
-    void writePosteriorCnAsText(std::ostream &, ConstPosteriorCnRef cn, ConstSegmentRef segment);
-    void writePosteriorCnAsXml(Core::XmlWriter &, ConstPosteriorCnRef cn, ConstSegmentRef segment, u32 ioFlag = IoFlag::WriteAll);
-    void writePosteriorCnAsFlowAlignment(Flow::Cache &, ConstPosteriorCnRef cn, ConstSegmentRef segment);
+/**
+ * Output
+ **/
+void writePosteriorCnAsText(std::ostream &, ConstPosteriorCnRef cn,
+                            ConstSegmentRef segment);
+void writePosteriorCnAsXml(Core::XmlWriter &, ConstPosteriorCnRef cn,
+                           ConstSegmentRef segment,
+                           u32 ioFlag = IoFlag::WriteAll);
+void writePosteriorCnAsFlowAlignment(Flow::Cache &, ConstPosteriorCnRef cn,
+                                     ConstSegmentRef segment);
 
-    NodeRef createDumpPosteriorCnNode(const std::string &name, const Core::Configuration &config);
+NodeRef createDumpPosteriorCnNode(const std::string &name,
+                                  const Core::Configuration &config);
 
 } // namespace Flf
 

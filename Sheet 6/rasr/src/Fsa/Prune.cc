@@ -11,16 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "tPrune.hh"
 #include "Prune.hh"
+#include "tPrune.hh"
 
 namespace Fsa {
-    ConstAutomatonRef prunePosterior(ConstAutomatonRef f, const Weight &threshold, bool relative)
-    { return Ftl::prunePosterior<Automaton>(f, threshold, relative); }
+ConstAutomatonRef prunePosterior(ConstAutomatonRef f, const Weight &threshold,
+                                 bool relative) {
+  return Ftl::prunePosterior<Automaton>(f, threshold, relative);
+}
 
-    ConstAutomatonRef prunePosterior(ConstAutomatonRef f, const Weight &threshold, const StatePotentials &fw, const StatePotentials& bw, bool relative)
-    { return Ftl::prunePosterior<Automaton>(f, threshold, fw, bw, relative); }
+ConstAutomatonRef prunePosterior(ConstAutomatonRef f, const Weight &threshold,
+                                 const StatePotentials &fw,
+                                 const StatePotentials &bw, bool relative) {
+  return Ftl::prunePosterior<Automaton>(f, threshold, fw, bw, relative);
+}
 
-    ConstAutomatonRef pruneSync(ConstAutomatonRef f, const Weight &threshold)
-    { return Ftl::pruneSync<Automaton>(f, threshold); }
+ConstAutomatonRef pruneSync(ConstAutomatonRef f, const Weight &threshold) {
+  return Ftl::pruneSync<Automaton>(f, threshold);
+}
 } // namespace Fsa

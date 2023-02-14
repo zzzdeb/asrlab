@@ -14,59 +14,69 @@
 #ifndef _MM_MIXTURE_SET_BUILDER_HH
 #define _MM_MIXTURE_SET_BUILDER_HH
 
+#include "MixtureSet.hh"
 #include <Core/Configurable.hh>
 #include <Core/Parameter.hh>
-#include "MixtureSet.hh"
 
 namespace Mm {
 
-    /** MixtureSetTopologyBuilder creates a mixture set with independend densities.
-     */
-    class MixtureSetBuilder {
-    private:
-	MixtureIndex nMixtures_;
-	size_t nDensitiesPerMixture_;
-    protected:
-	virtual DensityIndex densityIndex(MixtureIndex mixtureIndex, DensityIndex densityInMixture) {
-	    return mixtureIndex * nDensitiesPerMixture_ + densityInMixture;
-	}
-	virtual MeanIndex meanIndex(MixtureIndex mixtureIndex, DensityIndex densityInMixture) {
-	    return densityIndex(mixtureIndex, densityInMixture);
-	}
-	virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex, DensityIndex densityInMixture) {
-	    return densityIndex(mixtureIndex, densityInMixture);
-	}
-    public:
-	MixtureSetBuilder(MixtureIndex nMixtures, size_t nDensitiesPerMixture = 1);
-	virtual ~MixtureSetBuilder() {}
-	void build(MixtureSet &toBuild, ComponentIndex dimension = 0);
-    };
+/** MixtureSetTopologyBuilder creates a mixture set with independend densities.
+ */
+class MixtureSetBuilder {
+private:
+  MixtureIndex nMixtures_;
+  size_t nDensitiesPerMixture_;
 
-    /** PooledCovarianceTopologyBuilder creates a mixture set with
-     *  one pooled covariance matrix.
-     */
-    class PooledCovarianceBuilder : public MixtureSetBuilder {
-    protected:
-	virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex, DensityIndex densityIndex) {
-	    return 0;
-	}
-    public:
-	PooledCovarianceBuilder(size_t nMixtures, size_t nDensitiesPerMixture = 1) :
-	    MixtureSetBuilder(nMixtures, nDensitiesPerMixture) {}
-    };
+protected:
+  virtual DensityIndex densityIndex(MixtureIndex mixtureIndex,
+                                    DensityIndex densityInMixture) {
+    return mixtureIndex * nDensitiesPerMixture_ + densityInMixture;
+  }
+  virtual MeanIndex meanIndex(MixtureIndex mixtureIndex,
+                              DensityIndex densityInMixture) {
+    return densityIndex(mixtureIndex, densityInMixture);
+  }
+  virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex,
+                                          DensityIndex densityInMixture) {
+    return densityIndex(mixtureIndex, densityInMixture);
+  }
 
-    /** MixtureSpecificCovarianceTopologyBuilder creates a mixture set with
-     *  mixture specific covariance matrices.
-     */
-    class MixtureSpecificCovarianceBuilder : public MixtureSetBuilder {
-    protected:
-	virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex, DensityIndex densityIndex) {
-	    return mixtureIndex;
-	}
-    public:
-	MixtureSpecificCovarianceBuilder(MixtureIndex nMixtures, size_t nDensitiesPerMixture = 1) :
-	    MixtureSetBuilder(nMixtures, nDensitiesPerMixture) {}
-    };
+public:
+  MixtureSetBuilder(MixtureIndex nMixtures, size_t nDensitiesPerMixture = 1);
+  virtual ~MixtureSetBuilder() {}
+  void build(MixtureSet &toBuild, ComponentIndex dimension = 0);
+};
+
+/** PooledCovarianceTopologyBuilder creates a mixture set with
+ *  one pooled covariance matrix.
+ */
+class PooledCovarianceBuilder : public MixtureSetBuilder {
+protected:
+  virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex,
+                                          DensityIndex densityIndex) {
+    return 0;
+  }
+
+public:
+  PooledCovarianceBuilder(size_t nMixtures, size_t nDensitiesPerMixture = 1)
+      : MixtureSetBuilder(nMixtures, nDensitiesPerMixture) {}
+};
+
+/** MixtureSpecificCovarianceTopologyBuilder creates a mixture set with
+ *  mixture specific covariance matrices.
+ */
+class MixtureSpecificCovarianceBuilder : public MixtureSetBuilder {
+protected:
+  virtual CovarianceIndex covarianceIndex(MixtureIndex mixtureIndex,
+                                          DensityIndex densityIndex) {
+    return mixtureIndex;
+  }
+
+public:
+  MixtureSpecificCovarianceBuilder(MixtureIndex nMixtures,
+                                   size_t nDensitiesPerMixture = 1)
+      : MixtureSetBuilder(nMixtures, nDensitiesPerMixture) {}
+};
 
 } // namespace Mm
 

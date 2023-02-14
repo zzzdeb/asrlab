@@ -11,9 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Modules.hh>
 #include "Module.hh"
-#include <Flow/Registry.hh>
 #include "ComplexVectorFunction.hh"
 #include "CosineTransform.hh"
 #include "DcDetection.hh"
@@ -32,6 +30,8 @@
 #include "VectorSequenceAggregation.hh"
 #include "VectorSequenceConcatenation.hh"
 #include "Window.hh"
+#include <Flow/Registry.hh>
+#include <Modules.hh>
 #ifdef MODULE_SIGNAL_VOICEDNESS
 #include "CrossCorrelation.hh"
 #include "PeakDetection.hh"
@@ -41,51 +41,66 @@
 #endif
 
 /*****************************************************************************/
-Signal::Module_::Module_()
-{
-    Flow::Registry::Instance &registry = Flow::Registry::instance();
-    registry.registerFilter<CosineTransformNode>();
-    registry.registerFilter<ComplexVectorFunctionNode<alternatingComplexVectorAmplitude<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<alternatingComplexVectorImaginaryPart<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<alternatingComplexVectorPhase<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<alternatingComplexVectorRealPart<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<vectorToAlternatingComplexVector<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<alternatingComplexVectorToComplexVector<f32> > >();
-    registry.registerFilter<ComplexVectorFunctionNode<complexVectorToAlternatingComplexVector<f32> > >();
-    registry.registerFilter<DcDetectionNode>();
-    registry.registerFilter<DelayNode>();
-    registry.registerFilter<FastFourierTransformNode<RealFastFourierTransform> >();
-    registry.registerFilter<FastFourierTransformNode<RealInverseFastFourierTransform> >();
-    registry.registerFilter<FastFourierTransformNode<ComplexFastFourierTransform> >();
-    registry.registerFilter<FastFourierTransformNode<ComplexInverseFastFourierTransform> >();
-    registry.registerFilter<FilterBankNode>();
-    registry.registerFilter<FramePredictionNode<RepeatingFramePrediction> >();
-    registry.registerFilter<MatrixMultiplicationNode<f32> >();
-    registry.registerFilter<MatrixMultiplicationNode<f64> >();
-    registry.registerFilter<NormalizationNode>();
-    registry.registerFilter<PreemphasisNode>();
-    registry.registerFilter<RegressionNode>();
-    registry.registerFilter<SegmentClusteringNode<CorrFullCovMonoGaussianModel> >();
-    registry.registerFilter<VectorNormalizationNode<AmplitudeSpectrumEnergyVectorNormalization<f32> > >();
-    registry.registerFilter<VectorNormalizationNode<EnergyVectorNormalization<f32> > >();
-    registry.registerFilter<VectorNormalizationNode<MaximumVectorNormalization<f32> > >();
-    registry.registerFilter<VectorNormalizationNode<MeanEnergyVectorNormalization<f32> > >();
-    registry.registerFilter<VectorNormalizationNode<MeanVectorNormalization<f32> > >();
-    registry.registerFilter<VectorNormalizationNode<VarianceVectorNormalization<f32> > >();
-    registry.registerFilter<VectorResizeNode<f32> >();
-    registry.registerFilter<VectorSequenceAggregation<f32> >();
-    registry.registerFilter<VectorSequenceConcatenation<f32> >();
-    registry.registerFilter<WindowNode>();
+Signal::Module_::Module_() {
+  Flow::Registry::Instance &registry = Flow::Registry::instance();
+  registry.registerFilter<CosineTransformNode>();
+  registry.registerFilter<
+      ComplexVectorFunctionNode<alternatingComplexVectorAmplitude<f32> > >();
+  registry.registerFilter<ComplexVectorFunctionNode<
+      alternatingComplexVectorImaginaryPart<f32> > >();
+  registry.registerFilter<
+      ComplexVectorFunctionNode<alternatingComplexVectorPhase<f32> > >();
+  registry.registerFilter<
+      ComplexVectorFunctionNode<alternatingComplexVectorRealPart<f32> > >();
+  registry.registerFilter<
+      ComplexVectorFunctionNode<vectorToAlternatingComplexVector<f32> > >();
+  registry.registerFilter<ComplexVectorFunctionNode<
+      alternatingComplexVectorToComplexVector<f32> > >();
+  registry.registerFilter<ComplexVectorFunctionNode<
+      complexVectorToAlternatingComplexVector<f32> > >();
+  registry.registerFilter<DcDetectionNode>();
+  registry.registerFilter<DelayNode>();
+  registry
+      .registerFilter<FastFourierTransformNode<RealFastFourierTransform> >();
+  registry.registerFilter<
+      FastFourierTransformNode<RealInverseFastFourierTransform> >();
+  registry
+      .registerFilter<FastFourierTransformNode<ComplexFastFourierTransform> >();
+  registry.registerFilter<
+      FastFourierTransformNode<ComplexInverseFastFourierTransform> >();
+  registry.registerFilter<FilterBankNode>();
+  registry.registerFilter<FramePredictionNode<RepeatingFramePrediction> >();
+  registry.registerFilter<MatrixMultiplicationNode<f32> >();
+  registry.registerFilter<MatrixMultiplicationNode<f64> >();
+  registry.registerFilter<NormalizationNode>();
+  registry.registerFilter<PreemphasisNode>();
+  registry.registerFilter<RegressionNode>();
+  registry
+      .registerFilter<SegmentClusteringNode<CorrFullCovMonoGaussianModel> >();
+  registry.registerFilter<VectorNormalizationNode<
+      AmplitudeSpectrumEnergyVectorNormalization<f32> > >();
+  registry.registerFilter<
+      VectorNormalizationNode<EnergyVectorNormalization<f32> > >();
+  registry.registerFilter<
+      VectorNormalizationNode<MaximumVectorNormalization<f32> > >();
+  registry.registerFilter<
+      VectorNormalizationNode<MeanEnergyVectorNormalization<f32> > >();
+  registry.registerFilter<
+      VectorNormalizationNode<MeanVectorNormalization<f32> > >();
+  registry.registerFilter<
+      VectorNormalizationNode<VarianceVectorNormalization<f32> > >();
+  registry.registerFilter<VectorResizeNode<f32> >();
+  registry.registerFilter<VectorSequenceAggregation<f32> >();
+  registry.registerFilter<VectorSequenceConcatenation<f32> >();
+  registry.registerFilter<WindowNode>();
 
 #ifdef MODULE_SIGNAL_VOICEDNESS
-    registry.registerFilter<CrossCorrelationNode>();
-    registry.registerFilter<PeakDetectionNode>();
+  registry.registerFilter<CrossCorrelationNode>();
+  registry.registerFilter<PeakDetectionNode>();
 #endif
 
 #ifdef MODULE_SIGNAL_VTLN
-    registry.registerFilter<BayesClassificationNode>();
-    registry.registerFilter<BayesClassificationScoreNode>();
+  registry.registerFilter<BayesClassificationNode>();
+  registry.registerFilter<BayesClassificationScoreNode>();
 #endif
-
-
 }

@@ -16,19 +16,20 @@
 
 #include <iostream>
 #include <list>
-namespace Core { class XmlWriter; }
-
+namespace Core {
+class XmlWriter;
+}
 
 namespace Core {
 
-    /** Access to source code version information. */
-    class VersionRegistry {
-    public:
-	VersionRegistry();
-	~VersionRegistry();
+/** Access to source code version information. */
+class VersionRegistry {
+public:
+  VersionRegistry();
+  ~VersionRegistry();
 
-	void reportVersion(XmlWriter&) const;
-    };
+  void reportVersion(XmlWriter &) const;
+};
 
 } // namespace Core
 

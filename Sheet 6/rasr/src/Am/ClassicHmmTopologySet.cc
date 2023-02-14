@@ -15,34 +15,29 @@
 
 using namespace Am;
 
-
 const Core::ParameterInt ClassicHmmTopologySet::paramPhoneStates(
     "states-per-phone",
     "number of (acoustically different) states per phone HMM (fka HMM_NOFSEG)",
     3, 1, Core::Type<s8>::max);
 const Core::ParameterInt ClassicHmmTopologySet::paramRepeatedStates(
     "state-repetitions",
-    "number of times each HMM state is repeated (fka DURATION)",
-    2, 1, Core::Type<s8>::max);
+    "number of times each HMM state is repeated (fka DURATION)", 2, 1,
+    Core::Type<s8>::max);
 // currently limited to two, because of TransitionModel
 const Core::ParameterBool ClassicHmmTopologySet::paramAcrossWordModel(
     "across-word-model",
-    "enable modeling of co-articulation across word boundaries",
-    false);
+    "enable modeling of co-articulation across word boundaries", false);
 
-ClassicHmmTopologySet::ClassicHmmTopologySet(const Core::Configuration &c, Bliss::Phoneme::Id silenceId) :
-    Component(c),
-    silenceId_(silenceId),
-    silence_(1, 1),
-    default_(paramPhoneStates(c), paramRepeatedStates(c)),
-    isAcrossWordModelEnabled_(false)
-{
-    isAcrossWordModelEnabled_ = paramAcrossWordModel(c);
+ClassicHmmTopologySet::ClassicHmmTopologySet(const Core::Configuration &c,
+                                             Bliss::Phoneme::Id silenceId)
+    : Component(c), silenceId_(silenceId), silence_(1, 1),
+      default_(paramPhoneStates(c), paramRepeatedStates(c)),
+      isAcrossWordModelEnabled_(false) {
+  isAcrossWordModelEnabled_ = paramAcrossWordModel(c);
 }
 
 void ClassicHmmTopologySet::getDependencies(Core::DependencySet &deps) const {
-    deps.add(paramPhoneStates.name(), default_.nPhoneStates());
-    deps.add(paramRepeatedStates.name(), default_.nSubStates());
-    deps.add(paramAcrossWordModel.name(), isAcrossWordModelEnabled_);
+  deps.add(paramPhoneStates.name(), default_.nPhoneStates());
+  deps.add(paramRepeatedStates.name(), default_.nSubStates());
+  deps.add(paramAcrossWordModel.name(), isAcrossWordModelEnabled_);
 }
-

@@ -19,9 +19,10 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef transpose(ConstWordLatticeRef l, bool progress = false, WordBoundary final = WordBoundary());
-    ConstWordLatticeRef unite(ConstWordLatticeRef, ConstWordLatticeRef);
-    ConstWordLatticeRef unite(const Core::Vector<ConstWordLatticeRef> &);
+ConstWordLatticeRef transpose(ConstWordLatticeRef l, bool progress = false,
+                              WordBoundary final = WordBoundary());
+ConstWordLatticeRef unite(ConstWordLatticeRef, ConstWordLatticeRef);
+ConstWordLatticeRef unite(const Core::Vector<ConstWordLatticeRef> &);
 
 } // namespace Lattice
 

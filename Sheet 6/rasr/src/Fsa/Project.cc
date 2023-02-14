@@ -11,16 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "tProject.hh"
 #include "Project.hh"
+#include "tProject.hh"
 
 namespace Fsa {
-    ConstAutomatonRef projectInput(ConstAutomatonRef f)
-    { return Ftl::projectInput<Automaton>(f); }
+ConstAutomatonRef projectInput(ConstAutomatonRef f) {
+  return Ftl::projectInput<Automaton>(f);
+}
 
-    ConstAutomatonRef projectOutput(ConstAutomatonRef f)
-    { return Ftl::projectOutput<Automaton>(f); }
+ConstAutomatonRef projectOutput(ConstAutomatonRef f) {
+  return Ftl::projectOutput<Automaton>(f);
+}
 
-    ConstAutomatonRef invert(ConstAutomatonRef f)
-    { return Ftl::invert<Automaton>(f); }
+ConstAutomatonRef invert(ConstAutomatonRef f) {
+  return Ftl::invert<Automaton>(f);
+}
 } // namespace Fsa

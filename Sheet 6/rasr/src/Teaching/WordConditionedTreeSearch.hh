@@ -1,8 +1,8 @@
 #ifndef WORDCONDITIONEDTREESEARCH_HH_
 #define WORDCONDITIONEDTREESEARCH_HH_
 
-#include <vector>
 #include "SearchInterface.hh"
+#include <vector>
 
 namespace Teaching {
 
@@ -23,61 +23,61 @@ static const HmmState inactiveState = std::numeric_limits<HmmState>::max();
 
 class WordConditionedTreeSearch : public SearchInterface {
 public:
-    struct WordHypothesis {
-	Word word;
-	Score score;
-	Index backpointer;
+  struct WordHypothesis {
+    Word word;
+    Score score;
+    Index backpointer;
 
-	WordHypothesis(Word word, Score score, Index backpointer) :
-	    word(word), score(score), backpointer(backpointer) {
-	}
+    WordHypothesis(Word word, Score score, Index backpointer)
+        : word(word), score(score), backpointer(backpointer) {}
 
-	bool operator<(const WordHypothesis &other) const {
-	    return score < other.score;
-	}
-    };
+    bool operator<(const WordHypothesis &other) const {
+      return score < other.score;
+    }
+  };
 
-    WordConditionedTreeSearch(const Core::Configuration &config);
-    virtual ~WordConditionedTreeSearch();
+  WordConditionedTreeSearch(const Core::Configuration &config);
+  virtual ~WordConditionedTreeSearch();
 
-	virtual bool setModelCombination(const Speech::ModelCombination &modelCombination);
+  virtual bool
+  setModelCombination(const Speech::ModelCombination &modelCombination);
 
 protected:
-    /**
-     * Initialize word-conditioned tree search.
-     */
-    virtual void initialize();
+  /**
+   * Initialize word-conditioned tree search.
+   */
+  virtual void initialize();
 
-    /**
-     * Recognize one time frame.
-     */
-    virtual void processFrame(Time t);
+  /**
+   * Recognize one time frame.
+   */
+  virtual void processFrame(Time t);
 
-    /**
-     * Return best found word sequence.
-     */
-    virtual void getResult(Traceback &result) const;
+  /**
+   * Return best found word sequence.
+   */
+  virtual void getResult(Traceback &result) const;
 
 private:
-    class SearchSpace;
-    class ActiveTrees;
+  class SearchSpace;
+  class ActiveTrees;
 
-    /**
-     * Create tree lexicon.
-     */
-    void buildTreeLexicon();
+  /**
+   * Create tree lexicon.
+   */
+  void buildTreeLexicon();
 
-    SearchSpace *searchSpace_;
-    AcousticModelScorer *amScorer_;
-    LanguageModelScorer *lmScorer_;
+  SearchSpace *searchSpace_;
+  AcousticModelScorer *amScorer_;
+  LanguageModelScorer *lmScorer_;
 
-    /** score offset relative to best state hypothesis for acoustic pruning */
-    Score acousticPruningThreshold_;
+  /** score offset relative to best state hypothesis for acoustic pruning */
+  Score acousticPruningThreshold_;
 
-    static const Core::ParameterFloat paramAcousticPruningThreshold_;
-    static const Core::ParameterInt paramAcousticPruningLimit_;
+  static const Core::ParameterFloat paramAcousticPruningThreshold_;
+  static const Core::ParameterInt paramAcousticPruningLimit_;
 };
 
-};
+}; // namespace Teaching
 
 #endif // WORDCONDITIONEDTREESEARCH_HH_

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "Module.hh"
-#include <Modules.hh>
-#include <Core/Application.hh>
 #include "ClassicAcousticModel.hh"
+#include <Core/Application.hh>
 #include <Legacy/DecisionTree.hh>
+#include <Modules.hh>
 #ifdef MODULE_CART
 #include "DecisionTreeStateTying.hh"
 #endif
@@ -25,50 +25,47 @@
 
 using namespace Am;
 
-const Core::Choice Module_::choiceAmType(
-    "classic", typeClassic,
-    "adapted", typeAdapted,
-    "fast-adapted", typeFastAdapted,
-    "combined", typeCombined,
-    Core::Choice::endMark());
+const Core::Choice Module_::choiceAmType("classic", typeClassic, "adapted",
+                                         typeAdapted, "fast-adapted",
+                                         typeFastAdapted, "combined",
+                                         typeCombined, Core::Choice::endMark());
 
-const Core::ParameterChoice Module_::paramAmType(
-    "type", &choiceAmType, "type of acoustic model", typeClassic);
+const Core::ParameterChoice Module_::paramAmType("type", &choiceAmType,
+                                                 "type of acoustic model",
+                                                 typeClassic);
 
-
-Module_::Module_()
-{
-    registerStateTying<NoStateTying>(ClassicAcousticModel::noTying);
-    registerStateTying<MonophoneStateTying>(ClassicAcousticModel::monophoneTying);
-    registerStateTying<LutStateTying>(ClassicAcousticModel::lutTying);
-    registerStateTying<Legacy::PhoneticDecisionTree>(ClassicAcousticModel::oldCartTying);
+Module_::Module_() {
+  registerStateTying<NoStateTying>(ClassicAcousticModel::noTying);
+  registerStateTying<MonophoneStateTying>(ClassicAcousticModel::monophoneTying);
+  registerStateTying<LutStateTying>(ClassicAcousticModel::lutTying);
+  registerStateTying<Legacy::PhoneticDecisionTree>(
+      ClassicAcousticModel::oldCartTying);
 #ifdef MODULE_CART
-    registerStateTying<DecisionTreeStateTying>(ClassicAcousticModel::cartTying);
+  registerStateTying<DecisionTreeStateTying>(ClassicAcousticModel::cartTying);
 #endif
-
 }
 
-Core::Ref<AcousticModel> Module_::createAcousticModel(
-    const Core::Configuration &c, Bliss::LexiconRef l, AcousticModel::Mode mode)
-{
-    Core::Ref<AcousticModel> result;
+Core::Ref<AcousticModel>
+Module_::createAcousticModel(const Core::Configuration &c, Bliss::LexiconRef l,
+                             AcousticModel::Mode mode) {
+  Core::Ref<AcousticModel> result;
 
-    switch (paramAmType(c)) {
-    case typeClassic:
-	Core::Application::us()->log("Load classic acoustic model.");
-	result = Core::ref(new ClassicAcousticModel(c, l));
-	break;
+  switch (paramAmType(c)) {
+  case typeClassic:
+    Core::Application::us()->log("Load classic acoustic model.");
+    result = Core::ref(new ClassicAcousticModel(c, l));
+    break;
 #ifdef MODULE_ADAPT_MLLR
-    case typeAdapted:
-	Core::Application::us()->log("Load adapted acoustic model.");
-	result = Core::ref(new AdaptedAcousticModel(c, l));
-	break;
+  case typeAdapted:
+    Core::Application::us()->log("Load adapted acoustic model.");
+    result = Core::ref(new AdaptedAcousticModel(c, l));
+    break;
 #endif
-    default:
-	defect();
-    }
-    result->load(mode);
-    if (result->hasFatalErrors())
-	result.reset();
-    return result;
+  default:
+    defect();
+  }
+  result->load(mode);
+  if (result->hasFatalErrors())
+    result.reset();
+  return result;
 }

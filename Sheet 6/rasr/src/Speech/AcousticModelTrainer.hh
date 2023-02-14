@@ -14,98 +14,104 @@
 #ifndef _SPEECH_ACOUSTIC_MODEL_TRAINER_HH
 #define _SPEECH_ACOUSTIC_MODEL_TRAINER_HH
 
-#include <Legacy/DecisionTree.hh>
-#include <Am/AcousticModel.hh>
-#include "MixtureSetTrainer.hh"
 #include "AlignedFeatureProcessor.hh"
+#include "MixtureSetTrainer.hh"
+#include <Am/AcousticModel.hh>
+#include <Legacy/DecisionTree.hh>
 
 namespace Speech {
 
-    /**
-     *  Base class for acoustic training applications.
-     *
-     *  Extends the AlignedFeatureProcessor by adding an acoustic model
-     *  and a lexicon
-     */
-    class AcousticModelTrainer : public AlignedFeatureProcessor {
-	typedef AlignedFeatureProcessor Precursor;
-    private:
-	Bliss::LexiconRef lexicon_;
-	Core::Ref<Am::AcousticModel> acousticModel_;
-    protected:
-	Bliss::LexiconRef lexicon() const { return lexicon_; }
-	Core::Ref<Am::AcousticModel> acousticModel() const { return acousticModel_; }
-	virtual void processAlignedFeature(Core::Ref<const Feature> f, Am::AllophoneStateIndex e) {
-	    processAlignedFeature(f, e, 1.0);
-	}
-	virtual void processAlignedFeature(Core::Ref<const Feature>, Am::AllophoneStateIndex, Mm::Weight) {
-	    criticalError("Processing of weighted alignments is not supported.");
-	}
-    public:
-	void signOn(CorpusVisitor &corpusVisitor);
-	AcousticModelTrainer(const Core::Configuration &c, Am::AcousticModel::Mode mode);
-	virtual ~AcousticModelTrainer();
-    };
+/**
+ *  Base class for acoustic training applications.
+ *
+ *  Extends the AlignedFeatureProcessor by adding an acoustic model
+ *  and a lexicon
+ */
+class AcousticModelTrainer : public AlignedFeatureProcessor {
+  typedef AlignedFeatureProcessor Precursor;
 
+private:
+  Bliss::LexiconRef lexicon_;
+  Core::Ref<Am::AcousticModel> acousticModel_;
 
-    /** TextDependentMixtureSetTrainer
-     */
-    class TextDependentMixtureSetTrainer :
-	public AcousticModelTrainer,
-	public MlMixtureSetTrainer
-    {
-    private:
-	Mm::FeatureDescription featureDescription_;
-	bool initialized_;
-    protected:
-	virtual void setFeatureDescription(const Mm::FeatureDescription &);
+protected:
+  Bliss::LexiconRef lexicon() const { return lexicon_; }
+  Core::Ref<Am::AcousticModel> acousticModel() const { return acousticModel_; }
+  virtual void processAlignedFeature(Core::Ref<const Feature> f,
+                                     Am::AllophoneStateIndex e) {
+    processAlignedFeature(f, e, 1.0);
+  }
+  virtual void processAlignedFeature(Core::Ref<const Feature>,
+                                     Am::AllophoneStateIndex, Mm::Weight) {
+    criticalError("Processing of weighted alignments is not supported.");
+  }
 
-	virtual void processAlignedFeature(Core::Ref<const Feature> f, Am::AllophoneStateIndex e) {
-	    accumulate(f->mainStream(), acousticModel()->emissionIndex(e));
-	}
-	virtual void processAlignedFeature(Core::Ref<const Feature> f, Am::AllophoneStateIndex e, Mm::Weight w) {
-	    accumulate(f->mainStream(), acousticModel()->emissionIndex(e), w);
-	}
+public:
+  void signOn(CorpusVisitor &corpusVisitor);
+  AcousticModelTrainer(const Core::Configuration &c,
+                       Am::AcousticModel::Mode mode);
+  virtual ~AcousticModelTrainer();
+};
 
-    public:
-	TextDependentMixtureSetTrainer(const Core::Configuration&);
-	virtual ~TextDependentMixtureSetTrainer() {}
-    };
+/** TextDependentMixtureSetTrainer
+ */
+class TextDependentMixtureSetTrainer : public AcousticModelTrainer,
+                                       public MlMixtureSetTrainer {
+private:
+  Mm::FeatureDescription featureDescription_;
+  bool initialized_;
 
+protected:
+  virtual void setFeatureDescription(const Mm::FeatureDescription &);
 
-    /** TdcSumAccumulator
-     */
-    class TdcSumAccumulator :
-	public AcousticModelTrainer,
-	public Legacy::PhoneticDecisionTreeBase
-    {
-    public:
-	static const Core::ParameterString paramSumFile;
-	static const Core::ParameterString paramOldSumFile;
-	static const Core::ParameterString paramNewSumFile;
-	static const Core::ParameterStringVector paramSumFilesToCombine;
-    private:
-	struct Statistics;
-	Statistics *statistics_;
-    protected:
-	char allophoneBoundaryToBoundaryFlag(u8) const;
-	u8 boundaryFlagToAllophoneBoundary(char c) const;
-	void quantizeCountsToIntegers();
+  virtual void processAlignedFeature(Core::Ref<const Feature> f,
+                                     Am::AllophoneStateIndex e) {
+    accumulate(f->mainStream(), acousticModel()->emissionIndex(e));
+  }
+  virtual void processAlignedFeature(Core::Ref<const Feature> f,
+                                     Am::AllophoneStateIndex e, Mm::Weight w) {
+    accumulate(f->mainStream(), acousticModel()->emissionIndex(e), w);
+  }
 
-	virtual void processAlignedFeature(Core::Ref<const Feature> f, Am::AllophoneStateIndex e, Mm::Weight w);
+public:
+  TextDependentMixtureSetTrainer(const Core::Configuration &);
+  virtual ~TextDependentMixtureSetTrainer() {}
+};
 
-    public:
-	TdcSumAccumulator(const Core::Configuration&);
-	virtual ~TdcSumAccumulator();
+/** TdcSumAccumulator
+ */
+class TdcSumAccumulator : public AcousticModelTrainer,
+                          public Legacy::PhoneticDecisionTreeBase {
+public:
+  static const Core::ParameterString paramSumFile;
+  static const Core::ParameterString paramOldSumFile;
+  static const Core::ParameterString paramNewSumFile;
+  static const Core::ParameterStringVector paramSumFilesToCombine;
 
-	void reset();
+private:
+  struct Statistics;
+  Statistics *statistics_;
 
-	void writeSumFile(std::string = "");
-	void loadSumFile(std::string = "");
+protected:
+  char allophoneBoundaryToBoundaryFlag(u8) const;
+  u8 boundaryFlagToAllophoneBoundary(char c) const;
+  void quantizeCountsToIntegers();
 
-	void addSumFile(const std::string &);
-	void addSumFiles(const std::vector<std::string> &);
-    };
+  virtual void processAlignedFeature(Core::Ref<const Feature> f,
+                                     Am::AllophoneStateIndex e, Mm::Weight w);
+
+public:
+  TdcSumAccumulator(const Core::Configuration &);
+  virtual ~TdcSumAccumulator();
+
+  void reset();
+
+  void writeSumFile(std::string = "");
+  void loadSumFile(std::string = "");
+
+  void addSumFile(const std::string &);
+  void addSumFiles(const std::vector<std::string> &);
+};
 
 } // namespace Speech
 

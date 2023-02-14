@@ -16,13 +16,17 @@
 using namespace Mm;
 
 const Core::ParameterInt DensityClusteringBase::paramNumClusters(
-    "clusters", "number of density clusters to build for density preselection", 256, 1, 256);
+    "clusters", "number of density clusters to build for density preselection",
+    256, 1, 256);
 const Core::ParameterInt DensityClusteringBase::paramSelectClusters(
     "select-clusters",
     "number of clusters to select in density preselection."
-    "when it equals the total number of clusters, no preselection is performed.", 32, 1, 256);
+    "when it equals the total number of clusters, no preselection is "
+    "performed.",
+    32, 1, 256);
 const Core::ParameterString DensityClusteringBase::paramFile(
-    "file", "file where to cache the clustering of the density preselection", "");
+    "file", "file where to cache the clustering of the density preselection",
+    "");
 const Core::ParameterInt DensityClusteringBase::paramClusteringIterations(
     "iterations", "number of clustering iterations", 5);
 const Core::ParameterFloat DensityClusteringBase::paramBackoffScore(
@@ -31,64 +35,58 @@ const Core::ParameterFloat DensityClusteringBase::paramBackoffScore(
 const std::string DensityClusteringBase::FileMagic = "SPRINT-DC";
 const u32 DensityClusteringBase::FileFormatVersion = 2;
 
-DensityClusteringBase::DensityClusteringBase(const Core::Configuration &config) :
-	Core::Component(config),
-	nClusters_(paramNumClusters(config)),
-	nSelected_(paramSelectClusters(config)),
-	dimension_(0), nDensities_(0),
-	backoffScore_(paramBackoffScore(config)) {}
+DensityClusteringBase::DensityClusteringBase(const Core::Configuration &config)
+    : Core::Component(config), nClusters_(paramNumClusters(config)),
+      nSelected_(paramSelectClusters(config)), dimension_(0), nDensities_(0),
+      backoffScore_(paramBackoffScore(config)) {}
 
-
-void DensityClusteringBase::init(u32 dimension, u32 nDensities)
-{
-    dimension_ = dimension;
-    nDensities_ = nDensities;
-    clusterIndexForDensity_.resize(nDensities_, 0);
-    // verification to make sure that ClusterIndex can hold the cluster-indices
-    verify(nClusters_ - 1 <= Core::Type<ClusterIndex>::max);
-    verify(nClusters_ <= nDensities_);
-    verify(nSelected_ <= nClusters_);
+void DensityClusteringBase::init(u32 dimension, u32 nDensities) {
+  dimension_ = dimension;
+  nDensities_ = nDensities;
+  clusterIndexForDensity_.resize(nDensities_, 0);
+  // verification to make sure that ClusterIndex can hold the cluster-indices
+  verify(nClusters_ - 1 <= Core::Type<ClusterIndex>::max);
+  verify(nClusters_ <= nDensities_);
+  verify(nSelected_ <= nClusters_);
 }
 
-
-bool DensityClusteringBase::load(const std::string &filename)
-{
-    Core::BinaryInputStream is(filename);
-    if (!is.isOpen())
-	return false;
-    std::string magic;
-    u32 version;
-    is >> magic >> version;
-    if (magic != FileMagic || version != FileFormatVersion) {
-	warning("wrong file format. expected '%s %d' found '%s %d'",
-		FileMagic.c_str(), FileFormatVersion, magic.c_str(), version);
-	return false;
-    }
-    if (!readTypes(is)) {
-	warning("cannot read type information");
-	return false;
-    }
-    u32 dimension, clusters, densities;
-    is >> dimension >> clusters >> densities;
-    if (dimension != dimension_ || clusters != nClusters_ || densities != nDensities_) {
-	warning("cached density clustering does not match current settings");
-	return false;
-    }
-    is >> clusterIndexForDensity_;
-    return readMeans(is);
+bool DensityClusteringBase::load(const std::string &filename) {
+  Core::BinaryInputStream is(filename);
+  if (!is.isOpen())
+    return false;
+  std::string magic;
+  u32 version;
+  is >> magic >> version;
+  if (magic != FileMagic || version != FileFormatVersion) {
+    warning("wrong file format. expected '%s %d' found '%s %d'",
+            FileMagic.c_str(), FileFormatVersion, magic.c_str(), version);
+    return false;
+  }
+  if (!readTypes(is)) {
+    warning("cannot read type information");
+    return false;
+  }
+  u32 dimension, clusters, densities;
+  is >> dimension >> clusters >> densities;
+  if (dimension != dimension_ || clusters != nClusters_ ||
+      densities != nDensities_) {
+    warning("cached density clustering does not match current settings");
+    return false;
+  }
+  is >> clusterIndexForDensity_;
+  return readMeans(is);
 }
 
-bool DensityClusteringBase::write(const std::string &filename) const
-{
-    Core::BinaryOutputStream os(filename);
-    if (!os.isOpen())
-	return false;
-    os << FileMagic << FileFormatVersion;
-    if (!writeTypes(os))
-	return false;
-    os << dimension_ << nClusters_ << nDensities_;
-    os << clusterIndexForDensity_;
-    if (!writeMeans(os))
-	return false;
-    return os.good();
+bool DensityClusteringBase::write(const std::string &filename) const {
+  Core::BinaryOutputStream os(filename);
+  if (!os.isOpen())
+    return false;
+  os << FileMagic << FileFormatVersion;
+  if (!writeTypes(os))
+    return false;
+  os << dimension_ << nClusters_ << nDensities_;
+  os << clusterIndexForDensity_;
+  if (!writeMeans(os))
+    return false;
+  return os.good();
 }

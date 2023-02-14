@@ -19,29 +19,30 @@
 #include "Lexicon.hh"
 #include "Processor.hh"
 
-
 namespace Flf {
 
-    class Module_ {
-    private:
-	Lexicon *lexicon_;
-    protected:
-	Network *network_;
-	Processor *processor_;
-    public:
-	Module_();
-	~Module_();
-	/*! @todo network, lexicon, processor should not be part of Flf::Module (?) */
-	void init();
-	const Lexicon *lexicon();
-	void setLexicon(Lexicon *l);
-	Network *network();
-	void setNetwork(Network *n);
-	Processor *processor();
-	void setProcessor(Processor *p);
-    };
+class Module_ {
+private:
+  Lexicon *lexicon_;
 
-    typedef Core::SingletonHolder<Module_> Module;
+protected:
+  Network *network_;
+  Processor *processor_;
+
+public:
+  Module_();
+  ~Module_();
+  /*! @todo network, lexicon, processor should not be part of Flf::Module (?) */
+  void init();
+  const Lexicon *lexicon();
+  void setLexicon(Lexicon *l);
+  Network *network();
+  void setNetwork(Network *n);
+  Processor *processor();
+  void setProcessor(Processor *p);
+};
+
+typedef Core::SingletonHolder<Module_> Module;
 } // namespace Flf
 
 #endif // _FLF_MODULE_HH

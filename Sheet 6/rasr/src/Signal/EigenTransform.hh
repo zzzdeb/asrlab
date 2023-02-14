@@ -19,107 +19,117 @@
 
 namespace Signal {
 
-    /**
-     *  Base class for eigen analysis based tranformations.
-     *  Features:
-     *   -Generation of projector matrix.
-     *   -Basic I/O
-     */
-    class EigenTransform : public ScatterTransform {
-	typedef ScatterTransform Precursor;
-    public:
-	typedef Math::EigenvalueProblem::ValueType EigenType;
-    private:
-	static const Core::ParameterInt paramReducedDimension;
-	static const Core::ParameterFloat paramReducedDimensionByThreshold;
-    private:
-	mutable Core::XmlChannel resultsChannel_;
-    protected:
-	Math::Vector<EigenType> eigenvalues_;
-	Math::Matrix<EigenType> eigenvectors_;
-    private:
-	void writeResults(Core::XmlWriter &os) const;
-    protected:
-	/**
-	 *  Performs final steps of calculating the transformation.
-	 *  Steps:
-	 *    -creating projector
-	 */
-	bool work();
+/**
+ *  Base class for eigen analysis based tranformations.
+ *  Features:
+ *   -Generation of projector matrix.
+ *   -Basic I/O
+ */
+class EigenTransform : public ScatterTransform {
+  typedef ScatterTransform Precursor;
 
-	void writeResults() const {
-	    if (resultsChannel_.isOpen()) writeResults(resultsChannel_);
-	}
-	bool createProjector();
-    public:
-	EigenTransform(const Core::Configuration &c);
-	~EigenTransform();
+public:
+  typedef Math::EigenvalueProblem::ValueType EigenType;
 
-	const Math::Vector<EigenType> &eigenvalues() const { return eigenvalues_; }
-	const Math::Matrix<EigenType> &eigenvectors() const { return eigenvectors_; }
-    };
+private:
+  static const Core::ParameterInt paramReducedDimension;
+  static const Core::ParameterFloat paramReducedDimensionByThreshold;
 
-    /**
-     *  Principal Component Analysis.
-     *  Input: total scatter matrices (covariance matrix).
-     *  Ouput: projector matrix.
-     */
-    class PrincipalComponentAnalysis :
-	public EigenTransform
-    {
-	typedef EigenTransform Precursor;
-    private:
-	Math::EigenvalueProblem *eigenvalueProblem_;
-	mutable Core::XmlChannel covarianceMatrixChannel_;
-    public:
-	PrincipalComponentAnalysis(const Core::Configuration &);
-	~PrincipalComponentAnalysis();
-	/**
-	 *  Performs generalized eigenvalue problem on the parameter matrices.
-	 */
-	bool work(const ScatterMatrix &covarianceMatrix);
-	/**
-	 *  Performs generalized eigenvalue problem.
-	 *  covariance matrix are read from files.
-	 */
-	bool work();
-    };
+private:
+  mutable Core::XmlChannel resultsChannel_;
 
-    /**
-     *  Linear Discriminant Analysis
-     *  Input: between class and within class scatter matrices.
-     *  Ouput: projector matrix.
-     */
-    class LinearDiscriminantAnalysis :  public EigenTransform {
-	typedef EigenTransform Precursor;
-    private:
-	/**
-	 *  Generalized eigenvalue problem solver used for calculating LDA matrix.
-	 */
-	Math::GeneralizedEigenvalueProblem *generalizedEigenvalueProblem_;
-	/**
-	 *  Eigenvalue problem solver used when analyzing scatter matrices.
-	 */
-	Math::EigenvalueProblem *eigenvalueProblem_;
+protected:
+  Math::Vector<EigenType> eigenvalues_;
+  Math::Matrix<EigenType> eigenvectors_;
 
-	mutable Core::XmlChannel betweenClassScatterMatrixChannel_;
-	mutable Core::XmlChannel withinClassScatterMatrixChannel_;
-    public:
-	LinearDiscriminantAnalysis(const Core::Configuration &c);
-	~LinearDiscriminantAnalysis();
+private:
+  void writeResults(Core::XmlWriter &os) const;
 
-	/**
-	 *  Performs generalized eigenvalue problem on the parameter matrices.
-	 */
-	bool work(const ScatterMatrix &betweenClassScatterMatrix,
-		  const ScatterMatrix &withinClassScatterMatrix);
-	/**
-	 *  Performs generalized eigenvalue problem.
-	 *  Scatter matrices are read form files.
-	 */
-	bool work();
-    };
+protected:
+  /**
+   *  Performs final steps of calculating the transformation.
+   *  Steps:
+   *    -creating projector
+   */
+  bool work();
 
-} //namespace Signal
+  void writeResults() const {
+    if (resultsChannel_.isOpen())
+      writeResults(resultsChannel_);
+  }
+  bool createProjector();
+
+public:
+  EigenTransform(const Core::Configuration &c);
+  ~EigenTransform();
+
+  const Math::Vector<EigenType> &eigenvalues() const { return eigenvalues_; }
+  const Math::Matrix<EigenType> &eigenvectors() const { return eigenvectors_; }
+};
+
+/**
+ *  Principal Component Analysis.
+ *  Input: total scatter matrices (covariance matrix).
+ *  Ouput: projector matrix.
+ */
+class PrincipalComponentAnalysis : public EigenTransform {
+  typedef EigenTransform Precursor;
+
+private:
+  Math::EigenvalueProblem *eigenvalueProblem_;
+  mutable Core::XmlChannel covarianceMatrixChannel_;
+
+public:
+  PrincipalComponentAnalysis(const Core::Configuration &);
+  ~PrincipalComponentAnalysis();
+  /**
+   *  Performs generalized eigenvalue problem on the parameter matrices.
+   */
+  bool work(const ScatterMatrix &covarianceMatrix);
+  /**
+   *  Performs generalized eigenvalue problem.
+   *  covariance matrix are read from files.
+   */
+  bool work();
+};
+
+/**
+ *  Linear Discriminant Analysis
+ *  Input: between class and within class scatter matrices.
+ *  Ouput: projector matrix.
+ */
+class LinearDiscriminantAnalysis : public EigenTransform {
+  typedef EigenTransform Precursor;
+
+private:
+  /**
+   *  Generalized eigenvalue problem solver used for calculating LDA matrix.
+   */
+  Math::GeneralizedEigenvalueProblem *generalizedEigenvalueProblem_;
+  /**
+   *  Eigenvalue problem solver used when analyzing scatter matrices.
+   */
+  Math::EigenvalueProblem *eigenvalueProblem_;
+
+  mutable Core::XmlChannel betweenClassScatterMatrixChannel_;
+  mutable Core::XmlChannel withinClassScatterMatrixChannel_;
+
+public:
+  LinearDiscriminantAnalysis(const Core::Configuration &c);
+  ~LinearDiscriminantAnalysis();
+
+  /**
+   *  Performs generalized eigenvalue problem on the parameter matrices.
+   */
+  bool work(const ScatterMatrix &betweenClassScatterMatrix,
+            const ScatterMatrix &withinClassScatterMatrix);
+  /**
+   *  Performs generalized eigenvalue problem.
+   *  Scatter matrices are read form files.
+   */
+  bool work();
+};
+
+} // namespace Signal
 
 #endif // _SIGNAL_EIGEN_TRANSFORM_HH

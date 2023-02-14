@@ -18,45 +18,44 @@
 
 namespace Math {
 
-    /** absolute difference function
-     * @return |x - y|
-     */
-    template<class T>
-    struct absoluteDifference : public std::binary_function<T, T, T> {
-	T operator()(T x, T y) { return Core::abs(x - y); }
-    };
+/** absolute difference function
+ * @return |x - y|
+ */
+template <class T>
+struct absoluteDifference : public std::binary_function<T, T, T> {
+  T operator()(T x, T y) { return Core::abs(x - y); }
+};
 
+/** absolute difference to the power function
+ * @return |x - y|^power
+ */
+template <class T>
+class absoluteDifferencePower : public std::binary_function<T, T, T> {
+private:
+  f64 power_;
 
-    /** absolute difference to the power function
-     * @return |x - y|^power
-     */
-    template<class T>
-    class absoluteDifferencePower : public std::binary_function<T, T, T> {
-    private:
-	f64 power_;
-    public:
-	absoluteDifferencePower(const f64 power) : power_(power) {}
+public:
+  absoluteDifferencePower(const f64 power) : power_(power) {}
 
-	T operator()(T x, T y) { return (T)pow(Core::abs(x - y), power_); }
-    };
+  T operator()(T x, T y) { return (T)pow(Core::abs(x - y), power_); }
+};
 
-    /** absolute difference square-root function
-     * @return |x - y|^0.5
-     */
-    template<class T>
-    struct absoluteDifferenceSquareRoot : public std::binary_function<T, T, T> {
-	T operator()(T x, T y) { return (T)sqrt(Core::abs(x - y)); }
-    };
+/** absolute difference square-root function
+ * @return |x - y|^0.5
+ */
+template <class T>
+struct absoluteDifferenceSquareRoot : public std::binary_function<T, T, T> {
+  T operator()(T x, T y) { return (T)sqrt(Core::abs(x - y)); }
+};
 
-    /** absolute difference square function
-     * @return |x - y|^2
-     */
-    template<class T>
-    struct absoluteDifferenceSquare : public std::binary_function<T, T, T> {
-	T operator()(T x, T y) { return (x - y) * (x - y); }
-    };
+/** absolute difference square function
+ * @return |x - y|^2
+ */
+template <class T>
+struct absoluteDifferenceSquare : public std::binary_function<T, T, T> {
+  T operator()(T x, T y) { return (x - y) * (x - y); }
+};
 
 } // namespace Math
 
 #endif // _MATH_UTILITIES_HH
-

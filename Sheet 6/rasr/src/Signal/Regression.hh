@@ -19,42 +19,42 @@
 #include <Flow/Merger.hh>
 #include <Flow/Vector.hh>
 
-
 namespace Signal {
 
-    /**
-     * Dumb port of the old Regression_Module.c
-     */
+/**
+ * Dumb port of the old Regression_Module.c
+ */
 
-    class Regression {
-    protected:
-	typedef std::vector<f32> Frame;
+class Regression {
+protected:
+  typedef std::vector<f32> Frame;
 
-    public:
-	Regression();
-	~Regression();
-	void regressFirstOrder (const std::vector<const Frame*> &in, Frame &out);
-	void regressSecondOrder(const std::vector<const Frame*> &in, Frame &out);
-    };
+public:
+  Regression();
+  ~Regression();
+  void regressFirstOrder(const std::vector<const Frame *> &in, Frame &out);
+  void regressSecondOrder(const std::vector<const Frame *> &in, Frame &out);
+};
 
-    class RegressionNode :
-	public Flow::MergerNode< Flow::Vector<f32>, Flow::Vector<f32> >,
-	private Regression
-    {
-	typedef Flow::MergerNode< Flow::Vector<f32>, Flow::Vector<f32> > Precursor;
-    private:
-	u32 order_;
-    public:
-	static std::string filterName() { return "signal-regression"; }
-	static const Core::ParameterInt parameterOrder;
+class RegressionNode
+    : public Flow::MergerNode<Flow::Vector<f32>, Flow::Vector<f32> >,
+      private Regression {
+  typedef Flow::MergerNode<Flow::Vector<f32>, Flow::Vector<f32> > Precursor;
 
-	RegressionNode(const Core::Configuration &c);
-	virtual ~RegressionNode();
+private:
+  u32 order_;
 
-	virtual bool setParameter(const std::string &name, const std::string &value);
-	virtual Precursor::OutputData *merge(std::vector<Precursor::InputFrame>&);
-    };
+public:
+  static std::string filterName() { return "signal-regression"; }
+  static const Core::ParameterInt parameterOrder;
 
-}
+  RegressionNode(const Core::Configuration &c);
+  virtual ~RegressionNode();
+
+  virtual bool setParameter(const std::string &name, const std::string &value);
+  virtual Precursor::OutputData *merge(std::vector<Precursor::InputFrame> &);
+};
+
+} // namespace Signal
 
 #endif // _SIGNAL_REGRESSION_HH

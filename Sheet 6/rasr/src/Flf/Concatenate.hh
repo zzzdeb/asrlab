@@ -19,9 +19,12 @@
 
 namespace Flf {
 
-    NodeRef createConcatenateLatticesNode(const std::string &name, const Core::Configuration &config);
-    // NodeRef createConcatenateCnsNode(const std::string &name, const Core::Configuration &config);
-    NodeRef createConcatenateFCnsNode(const std::string &name, const Core::Configuration &config);
+NodeRef createConcatenateLatticesNode(const std::string &name,
+                                      const Core::Configuration &config);
+// NodeRef createConcatenateCnsNode(const std::string &name, const
+// Core::Configuration &config);
+NodeRef createConcatenateFCnsNode(const std::string &name,
+                                  const Core::Configuration &config);
 
 } // namespace Flf
 

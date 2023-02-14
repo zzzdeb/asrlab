@@ -23,167 +23,185 @@
 
 namespace Signal {
 
+/** Implementation of bayes decision rule for "simple" distributions.
+ *
+ *  Provides the class k with maximum a-posterioiry probability
+ *    i.e minimum with -log(a-posterioiry probability):
+ *
+ *    argmin_{k} -log( p(k) * p(x|k) )
+ *    where p(k) is the apriori probablity of the classes and
+ *    p(x|k) is the class dependent likelihood function.
+ */
+class BayesClassification : public virtual Core::Component {
+  typedef Component Predecessor;
 
-    /** Implementation of bayes decision rule for "simple" distributions.
-     *
-     *  Provides the class k with maximum a-posterioiry probability
-     *    i.e minimum with -log(a-posterioiry probability):
-     *
-     *    argmin_{k} -log( p(k) * p(x|k) )
-     *    where p(k) is the apriori probablity of the classes and
-     *    p(x|k) is the class dependent likelihood function.
-     */
-    class BayesClassification : public virtual Core::Component {
-	typedef Component Predecessor;
-    public:
-	typedef LikelihoodFunction::Data Data;
-	typedef LikelihoodFunction::Score Score;
-	typedef LikelihoodFunction::ScoreVector ScoreVector;
-	typedef LikelihoodFunction::Weight Weight;
-	typedef Flow::Time Time;
-	typedef std::pair<Time, Time> StartEndTime;
+public:
+  typedef LikelihoodFunction::Data Data;
+  typedef LikelihoodFunction::Score Score;
+  typedef LikelihoodFunction::ScoreVector ScoreVector;
+  typedef LikelihoodFunction::Weight Weight;
+  typedef Flow::Time Time;
+  typedef std::pair<Time, Time> StartEndTime;
 
-	enum AprioriProbabilityType { Uniform };
-	enum LikelihoodFunctionType { IndependentSequence };
-    private:
-	std::vector<std::string> classLabels_;
+  enum AprioriProbabilityType { Uniform };
+  enum LikelihoodFunctionType { IndependentSequence };
 
-	AprioriProbability *aprioriProbability_;
-	LikelihoodFunction *likelihoodFunction_;
+private:
+  std::vector<std::string> classLabels_;
 
-	u32 nFeatures_, nFeaturesBuffered_;
-	u32 delay_;
-	u32 nUsedFeatures_;
-	bool useSlidingWindow_;
+  AprioriProbability *aprioriProbability_;
+  LikelihoodFunction *likelihoodFunction_;
 
-	/** Scores for each feature vector in the sliding window
-	 */
-	SlidingWindow<ScoreVector> scoreWindow_;
-	/** Start and end time of the features in the sliding window
-	 */
-	SlidingWindow<StartEndTime> timeWindow_;
+  u32 nFeatures_, nFeaturesBuffered_;
+  u32 delay_;
+  u32 nUsedFeatures_;
+  bool useSlidingWindow_;
 
-	/** Start-time of the first feature vector since the last successful classification.
-	 */
-	Time firstStartTime_;
-	/** End-time of the last feature vector.
-	 */
-	Time lastEndTime_;
+  /** Scores for each feature vector in the sliding window
+   */
+  SlidingWindow<ScoreVector> scoreWindow_;
+  /** Start and end time of the features in the sliding window
+   */
+  SlidingWindow<StartEndTime> timeWindow_;
 
-	/** function classify returns false if there came no new data since the last call to it.
-	 */
-	bool newData_;
-	bool needInit_;
+  /** Start-time of the first feature vector since the last successful
+   * classification.
+   */
+  Time firstStartTime_;
+  /** End-time of the last feature vector.
+   */
+  Time lastEndTime_;
 
-	mutable Core::XmlChannel statisticsChannel_;
-    private:
-	void init(size_t inputSize);
+  /** function classify returns false if there came no new data since the last
+   * call to it.
+   */
+  bool newData_;
+  bool needInit_;
 
-	/** Bayes decision rule.
-	 *  @return is class label with minimal score.
-	 */
-	const std::string& argMin() const;
-	void writeStatistics(Core::XmlWriter&, u32 minClassIndex, const Core::Statistics<Score>&) const;
+  mutable Core::XmlChannel statisticsChannel_;
 
-	/** Updated firstStartTime_ and lastEndTime_ by using the member newData_.
-	 */
-	void updateTimes(const Flow::Timestamp &timestamp);
-    public:
-	BayesClassification(const Core::Configuration &c);
-	~BayesClassification();
+private:
+  void init(size_t inputSize);
 
-	/** Accumulates the scores for @param featureVector. */
-	void feed(const Flow::Vector<Data> &featureVector, Weight featureScoreWeight = 1);
-	/** Carries out the classification based on accumulated scores.
-	 *  Result of classification is stored in @param classLabel.
-	 *
-	 *  @return is false if no features has been seen or
-	 *    if there came no new data since the last call.
-	 */
-	bool classify(Flow::String& classLabel);
-	/** After updating scores by @param featureVector, classification is carried out.
-	 *  Result of classification is stored in @param classLabel.
-	 *
-	 *  @return is false if decision could not be made yet (@see setDelay) or
-	 *    if there came no new data since the last call.
-	 */
-	bool classify(Flow::String& classLabel,
-		      const Flow::Vector<Data> &featureVector, Weight featureScoreWeight = 1);
+  /** Bayes decision rule.
+   *  @return is class label with minimal score.
+   */
+  const std::string &argMin() const;
+  void writeStatistics(Core::XmlWriter &, u32 minClassIndex,
+                       const Core::Statistics<Score> &) const;
 
-	bool getScores(Flow::Vector<Score> &scores);
-	bool getScores(Flow::Vector<Score> &scores,
-		       const Flow::Vector<Data> &featureVector, Weight featureScoreWeight);
-	/** Clears accumulated results.
-	 */
-	void reset();
+  /** Updated firstStartTime_ and lastEndTime_ by using the member newData_.
+   */
+  void updateTimes(const Flow::Timestamp &timestamp);
 
-	/** Have been sufficient features vectors processed?
-	 */
-	bool needMoreFeatureVectors() const;
+public:
+  BayesClassification(const Core::Configuration &c);
+  ~BayesClassification();
 
-	void setAprioriProbability(AprioriProbabilityType type);
-	void setLikelihoodFunction(LikelihoodFunctionType type);
+  /** Accumulates the scores for @param featureVector. */
+  void feed(const Flow::Vector<Data> &featureVector,
+            Weight featureScoreWeight = 1);
+  /** Carries out the classification based on accumulated scores.
+   *  Result of classification is stored in @param classLabel.
+   *
+   *  @return is false if no features has been seen or
+   *    if there came no new data since the last call.
+   */
+  bool classify(Flow::String &classLabel);
+  /** After updating scores by @param featureVector, classification is carried
+   * out. Result of classification is stored in @param classLabel.
+   *
+   *  @return is false if decision could not be made yet (@see setDelay) or
+   *    if there came no new data since the last call.
+   */
+  bool classify(Flow::String &classLabel,
+                const Flow::Vector<Data> &featureVector,
+                Weight featureScoreWeight = 1);
 
-	void setClassLabels(const std::string &fileName);
-	void setClassLabels(u32 nClasses);
-	void setNumUsedFeatures(u32 nFeatures);
-	void setUseSlidingWindow(bool useWindow, int windowLength, int windowRight);
-	u32 nClasses() const { return classLabels_.size(); }
+  bool getScores(Flow::Vector<Score> &scores);
+  bool getScores(Flow::Vector<Score> &scores,
+                 const Flow::Vector<Data> &featureVector,
+                 Weight featureScoreWeight);
+  /** Clears accumulated results.
+   */
+  void reset();
 
-	/** Decision is made only after @param delay number of features.
-	 */
-	void setDelay(u32 delay);
-    };
+  /** Have been sufficient features vectors processed?
+   */
+  bool needMoreFeatureVectors() const;
 
+  void setAprioriProbability(AprioriProbabilityType type);
+  void setLikelihoodFunction(LikelihoodFunctionType type);
 
-    /** BayesClassificationNode
-     */
-    class BayesClassificationNode : public Flow::SleeveNode, public BayesClassification {
-    public:
-	static const Core::ParameterString paramClassLabelsFileName;
+  void setClassLabels(const std::string &fileName);
+  void setClassLabels(u32 nClasses);
+  void setNumUsedFeatures(u32 nFeatures);
+  void setUseSlidingWindow(bool useWindow, int windowLength, int windowRight);
+  u32 nClasses() const { return classLabels_.size(); }
 
-	static const Core::Choice choiceAprioriProbabilityType;
-	static const Core::ParameterChoice paramAprioriProbabilityType;
+  /** Decision is made only after @param delay number of features.
+   */
+  void setDelay(u32 delay);
+};
 
-	static const Core::Choice choiceLikelihoodFunctionType;
-	static const Core::ParameterChoice paramLikelihoodFunctionType;
+/** BayesClassificationNode
+ */
+class BayesClassificationNode : public Flow::SleeveNode,
+                                public BayesClassification {
+public:
+  static const Core::ParameterString paramClassLabelsFileName;
 
-	static const Core::ParameterInt paramDelay;
-	static const Core::ParameterInt paramNumUsedFeatures;
-	static const Core::ParameterInt paramWindowLength;
-	static const Core::ParameterInt paramWindowRight;
-    protected:
-	Weight featureScoreWeight(const Flow::Timestamp &featureTimestamp);
-    public:
-	static std::string filterName() { return "signal-bayes-classification"; }
+  static const Core::Choice choiceAprioriProbabilityType;
+  static const Core::ParameterChoice paramAprioriProbabilityType;
 
-	BayesClassificationNode(const Core::Configuration &c);
-	virtual ~BayesClassificationNode() {}
+  static const Core::Choice choiceLikelihoodFunctionType;
+  static const Core::ParameterChoice paramLikelihoodFunctionType;
 
-	virtual bool setParameter(const std::string &name, const std::string &value);
-	virtual bool configure();
-	virtual Flow::PortId getInput(const std::string &name);
-	virtual bool work(Flow::PortId p);
-    protected:
-	virtual std::string outputTypeName() { return Flow::String::type()->name(); }
-    };
+  static const Core::ParameterInt paramDelay;
+  static const Core::ParameterInt paramNumUsedFeatures;
+  static const Core::ParameterInt paramWindowLength;
+  static const Core::ParameterInt paramWindowRight;
 
-    class BayesClassificationScoreNode : public BayesClassificationNode {
-	typedef BayesClassificationNode Precursor;
-	typedef BayesClassification::Score Score;
-    public:
-	static const Core::ParameterInt paramNumberOfClasses;
-	static const Core::ParameterBool paramSingleFrameClassification;
-    public:
-	static std::string filterName() { return "signal-bayes-classification-score"; }
-	BayesClassificationScoreNode(const Core::Configuration &c);
-	virtual ~BayesClassificationScoreNode() {}
-	virtual bool work(Flow::PortId p);
-    protected:
-	virtual std::string outputTypeName() { return Flow::Vector<Score>::type()->name(); }
-	bool singleFrames_;
-    };
+protected:
+  Weight featureScoreWeight(const Flow::Timestamp &featureTimestamp);
 
+public:
+  static std::string filterName() { return "signal-bayes-classification"; }
+
+  BayesClassificationNode(const Core::Configuration &c);
+  virtual ~BayesClassificationNode() {}
+
+  virtual bool setParameter(const std::string &name, const std::string &value);
+  virtual bool configure();
+  virtual Flow::PortId getInput(const std::string &name);
+  virtual bool work(Flow::PortId p);
+
+protected:
+  virtual std::string outputTypeName() { return Flow::String::type()->name(); }
+};
+
+class BayesClassificationScoreNode : public BayesClassificationNode {
+  typedef BayesClassificationNode Precursor;
+  typedef BayesClassification::Score Score;
+
+public:
+  static const Core::ParameterInt paramNumberOfClasses;
+  static const Core::ParameterBool paramSingleFrameClassification;
+
+public:
+  static std::string filterName() {
+    return "signal-bayes-classification-score";
+  }
+  BayesClassificationScoreNode(const Core::Configuration &c);
+  virtual ~BayesClassificationScoreNode() {}
+  virtual bool work(Flow::PortId p);
+
+protected:
+  virtual std::string outputTypeName() {
+    return Flow::Vector<Score>::type()->name();
+  }
+  bool singleFrames_;
+};
 
 } // namespace Signal
 

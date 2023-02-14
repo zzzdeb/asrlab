@@ -14,56 +14,59 @@
 #ifndef _AM_CLASSIC_HMM_TOPOLOGY_SET_HH
 #define _AM_CLASSIC_HMM_TOPOLOGY_SET_HH
 
+#include <Bliss/Phoneme.hh>
 #include <Core/Component.hh>
 #include <Core/Dependency.hh>
-#include <Bliss/Phoneme.hh>
 
 namespace Am {
 
-    /**
-     *  ClassicHmmTopology
-     */
-    class ClassicHmmTopology {
-	int nPhoneStates_;
-	int nSubStates_;
-    public:
-	ClassicHmmTopology(int nPhoneStates, int nSubStates) :
-	    nPhoneStates_(nPhoneStates), nSubStates_(nSubStates) {}
-	int nPhoneStates() const { return nPhoneStates_; }
-	int nSubStates() const { return nSubStates_; }
-    };
+/**
+ *  ClassicHmmTopology
+ */
+class ClassicHmmTopology {
+  int nPhoneStates_;
+  int nSubStates_;
 
-    /**
-     *  ClassicHmmTopologySet
-     */
-    class ClassicHmmTopologySet :
-	public virtual Core::Component,
-	public Core::ReferenceCounted  {
-    public:
-	static const Core::ParameterInt paramPhoneStates;
-	static const Core::ParameterInt paramRepeatedStates;
-	static const Core::ParameterBool paramAcrossWordModel;
-    private:
-	Bliss::Phoneme::Id silenceId_;
-	ClassicHmmTopology silence_;
+public:
+  ClassicHmmTopology(int nPhoneStates, int nSubStates)
+      : nPhoneStates_(nPhoneStates), nSubStates_(nSubStates) {}
+  int nPhoneStates() const { return nPhoneStates_; }
+  int nSubStates() const { return nSubStates_; }
+};
 
-	ClassicHmmTopology default_;
+/**
+ *  ClassicHmmTopologySet
+ */
+class ClassicHmmTopologySet : public virtual Core::Component,
+                              public Core::ReferenceCounted {
+public:
+  static const Core::ParameterInt paramPhoneStates;
+  static const Core::ParameterInt paramRepeatedStates;
+  static const Core::ParameterBool paramAcrossWordModel;
 
-	bool isAcrossWordModelEnabled_;
-    public:
-	ClassicHmmTopologySet(const Core::Configuration&, Bliss::Phoneme::Id silenceId);
+private:
+  Bliss::Phoneme::Id silenceId_;
+  ClassicHmmTopology silence_;
 
-	void getDependencies(Core::DependencySet&) const;
+  ClassicHmmTopology default_;
 
-	const ClassicHmmTopology *get(Bliss::Phoneme::Id phoneme) const {
-	    return (phoneme != silenceId_ ? &default_ : &silence_);
-	}
-	const ClassicHmmTopology &getDefault() const { return default_; }
-	const ClassicHmmTopology &getSilence() const { return silence_; }
+  bool isAcrossWordModelEnabled_;
 
-	bool isAcrossWordModelEnabled() const { return isAcrossWordModelEnabled_; }
-    };
-    typedef Core::Ref<const ClassicHmmTopologySet> ClassicHmmTopologySetRef;
+public:
+  ClassicHmmTopologySet(const Core::Configuration &,
+                        Bliss::Phoneme::Id silenceId);
+
+  void getDependencies(Core::DependencySet &) const;
+
+  const ClassicHmmTopology *get(Bliss::Phoneme::Id phoneme) const {
+    return (phoneme != silenceId_ ? &default_ : &silence_);
+  }
+  const ClassicHmmTopology &getDefault() const { return default_; }
+  const ClassicHmmTopology &getSilence() const { return silence_; }
+
+  bool isAcrossWordModelEnabled() const { return isAcrossWordModelEnabled_; }
+};
+typedef Core::Ref<const ClassicHmmTopologySet> ClassicHmmTopologySetRef;
 } // namespace Am
 
 #endif // _AM_CLASSIC_HMM_TOPOLOGY_SET_HH

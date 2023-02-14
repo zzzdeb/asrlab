@@ -16,105 +16,100 @@
 #ifndef _BLISS_LEXICONPARSER_HH
 #define _BLISS_LEXICONPARSER_HH
 
+#include "Lexicon.hh"
 #include <Core/Hash.hh>
 #include <Core/XmlBuilder.hh>
-#include "Lexicon.hh"
 
 namespace Bliss {
 
-    class PhonemeInventoryElement :
-	public Core::XmlBuilderElement<
-	    PhonemeInventory,
-	    Core::XmlRegularElement,
-	    Core::CreateUsingNew>
-    {
-	typedef Core::XmlBuilderElement<
-	    PhonemeInventory,
-	    Core::XmlRegularElement,
-	    Core::CreateUsingNew> Precursor;
-	typedef PhonemeInventoryElement Self;
-    private:
-	Phoneme *phoneme_;
+class PhonemeInventoryElement
+    : public Core::XmlBuilderElement<PhonemeInventory, Core::XmlRegularElement,
+                                     Core::CreateUsingNew> {
+  typedef Core::XmlBuilderElement<PhonemeInventory, Core::XmlRegularElement,
+                                  Core::CreateUsingNew>
+      Precursor;
+  typedef PhonemeInventoryElement Self;
 
-	void startPhonemedef(const Core::XmlAttributes atts) ;
-	void endPhonemedef() ;
-	void phonemedefSymbol(const std::string&);
-	void phonemedefVariation(const std::string&);
-    public:
-	PhonemeInventoryElement(
-	    Core::XmlContext *_context, Handler _handler = 0);
-	virtual void characters(const char*, int);
-    };
+private:
+  Phoneme *phoneme_;
 
-    struct WeightedPhonemeString;
-    class PronunciationElement;
-    class LexiconElement;
-    class LexiconParser;
+  void startPhonemedef(const Core::XmlAttributes atts);
+  void endPhonemedef();
+  void phonemedefSymbol(const std::string &);
+  void phonemedefVariation(const std::string &);
 
-    class LexiconElement :
-	public Core::XmlBuilderElement<
-	    Lexicon,
-	    Core::XmlRegularElement,
-	    Core::CreateByContext>
-    {
-	friend class LexiconParser;
-	typedef Core::XmlBuilderElement<
-	    Lexicon,
-	    Core::XmlRegularElement,
-	    Core::CreateByContext> Precursor;
-	typedef LexiconElement Self;
-    private:
-	Lexicon *lexicon_;
-	Core::StringHashSet whitelist_;
-	Lemma   *lemma_;
-	std::string lemmaName_;
-	std::string specialLemmaName_;
-	std::vector<std::string> orths_;
-	std::vector<std::string> tokSeq_;
-	void addPhonemeInventory(std::auto_ptr<PhonemeInventory>&);
-	void startLemma(const Core::XmlAttributes atts);
-	void addOrth(const std::string&);
-	void addPhon(const WeightedPhonemeString&);
-	void startTokSeq(const Core::XmlAttributes atts);
-	void tok(const std::string&);
-	void endTokSeq();
-	void startSynt(const Core::XmlAttributes atts);
-	void syntTok(const std::string&);
-	void endSynt();
-	void startEval(const Core::XmlAttributes atts);
-	void evalTok(const std::string&);
-	void endEval();
-	void endLemma();
-	static const Core::ParameterBool paramNormalizePronunciation;
-	bool isNormalizePronunciation_;
-    public:
-	LexiconElement(Core::XmlContext*, CreationHandler, const Core::Configuration &c);
-	virtual void characters(const char*, int) {};
-    };
+public:
+  PhonemeInventoryElement(Core::XmlContext *_context, Handler _handler = 0);
+  virtual void characters(const char *, int);
+};
 
+struct WeightedPhonemeString;
+class PronunciationElement;
+class LexiconElement;
+class LexiconParser;
 
-    /**
-     * Parser for Bliss lexicon files.
-     * This class implements parsing of the lexicon XML format
-     * described in <a href="../../doc/Lexicon.pdf">Lexicon File
-     * Format Reference</a>.  It is normally not used directly but
-     * through Lexicon.
-     */
+class LexiconElement
+    : public Core::XmlBuilderElement<Lexicon, Core::XmlRegularElement,
+                                     Core::CreateByContext> {
+  friend class LexiconParser;
+  typedef Core::XmlBuilderElement<Lexicon, Core::XmlRegularElement,
+                                  Core::CreateByContext>
+      Precursor;
+  typedef LexiconElement Self;
 
-    class LexiconParser :
-	public Core::XmlSchemaParser
-    {
-	typedef Core::XmlSchemaParser Precursor;
-	typedef LexiconParser Self;
-    private:
-	Lexicon *lexicon_;
-	Lexicon *pseudoCreateLexicon(Core::XmlAttributes) { return lexicon_; }
-	void loadWhitelist(const Core::Configuration &, Core::StringHashSet &);
-    public:
-	LexiconParser(const Core::Configuration &c, Lexicon*);
-	Lexicon *lexicon() const { return lexicon_; }
-    } ;
+private:
+  Lexicon *lexicon_;
+  Core::StringHashSet whitelist_;
+  Lemma *lemma_;
+  std::string lemmaName_;
+  std::string specialLemmaName_;
+  std::vector<std::string> orths_;
+  std::vector<std::string> tokSeq_;
+  void addPhonemeInventory(std::auto_ptr<PhonemeInventory> &);
+  void startLemma(const Core::XmlAttributes atts);
+  void addOrth(const std::string &);
+  void addPhon(const WeightedPhonemeString &);
+  void startTokSeq(const Core::XmlAttributes atts);
+  void tok(const std::string &);
+  void endTokSeq();
+  void startSynt(const Core::XmlAttributes atts);
+  void syntTok(const std::string &);
+  void endSynt();
+  void startEval(const Core::XmlAttributes atts);
+  void evalTok(const std::string &);
+  void endEval();
+  void endLemma();
+  static const Core::ParameterBool paramNormalizePronunciation;
+  bool isNormalizePronunciation_;
 
-} // namescape Bliss
+public:
+  LexiconElement(Core::XmlContext *, CreationHandler,
+                 const Core::Configuration &c);
+  virtual void characters(const char *, int){};
+};
+
+/**
+ * Parser for Bliss lexicon files.
+ * This class implements parsing of the lexicon XML format
+ * described in <a href="../../doc/Lexicon.pdf">Lexicon File
+ * Format Reference</a>.  It is normally not used directly but
+ * through Lexicon.
+ */
+
+class LexiconParser : public Core::XmlSchemaParser {
+  typedef Core::XmlSchemaParser Precursor;
+  typedef LexiconParser Self;
+
+private:
+  Lexicon *lexicon_;
+  Lexicon *pseudoCreateLexicon(Core::XmlAttributes) { return lexicon_; }
+  void loadWhitelist(const Core::Configuration &, Core::StringHashSet &);
+
+public:
+  LexiconParser(const Core::Configuration &c, Lexicon *);
+  Lexicon *lexicon() const { return lexicon_; }
+};
+
+} // namespace Bliss
 
 #endif // _BLISS_LEXICONPARSER_HH

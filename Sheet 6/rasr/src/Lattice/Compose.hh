@@ -18,35 +18,32 @@
 #include <Fsa/Automaton.hh>
 
 namespace Lm {
-    class ScaledLanguageModel;
+class ScaledLanguageModel;
 }
 
 namespace Lattice {
 
-    /** remember that for the intersection of a word lattice with an automaton
-     *  the automaton needs to be deterministic to avoid path duplicating
-     *  important for word posterior probabilities
-     */
-    ConstWordLatticeRef composeMatching(
-	Fsa::ConstAutomatonRef left,
-	ConstWordLatticeRef right,
-	bool reportUnknowns = true);
+/** remember that for the intersection of a word lattice with an automaton
+ *  the automaton needs to be deterministic to avoid path duplicating
+ *  important for word posterior probabilities
+ */
+ConstWordLatticeRef composeMatching(Fsa::ConstAutomatonRef left,
+                                    ConstWordLatticeRef right,
+                                    bool reportUnknowns = true);
 
-    ConstWordLatticeRef composeMatching(
-	ConstWordLatticeRef left,
-	Fsa::ConstAutomatonRef right,
-	bool reportUnknowns = true);
+ConstWordLatticeRef composeMatching(ConstWordLatticeRef left,
+                                    Fsa::ConstAutomatonRef right,
+                                    bool reportUnknowns = true);
 
-    /**
-     *  Corresponds to Lm::compose but the word boundaries are restored.
-     *  Advantage: no sentence hypotheses are duplicated by construction
-     *  of the Lm::compose and, thus, no determinisation is needed beforehand.
-     *  See Lm/Compose.hh for further comments.
-     */
-    ConstWordLatticeRef composeLm(
-	ConstWordLatticeRef left,
-	Core::Ref<const Lm::ScaledLanguageModel> right,
-	f32 pronunciationScale);
+/**
+ *  Corresponds to Lm::compose but the word boundaries are restored.
+ *  Advantage: no sentence hypotheses are duplicated by construction
+ *  of the Lm::compose and, thus, no determinisation is needed beforehand.
+ *  See Lm/Compose.hh for further comments.
+ */
+ConstWordLatticeRef composeLm(ConstWordLatticeRef left,
+                              Core::Ref<const Lm::ScaledLanguageModel> right,
+                              f32 pronunciationScale);
 
 } // namespace Lattice
 

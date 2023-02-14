@@ -18,7 +18,7 @@
 #include "Types.hh"
 
 namespace Fsa {
-    Property getProperties(ConstAutomatonRef f, Property properties = PropertyAll);
-    bool hasProperties(ConstAutomatonRef f, Property properties);
+Property getProperties(ConstAutomatonRef f, Property properties = PropertyAll);
+bool hasProperties(ConstAutomatonRef f, Property properties);
 } // namespace Fsa
 #endif // _FSA_PROPERTIES_HH

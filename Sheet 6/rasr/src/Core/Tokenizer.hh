@@ -17,85 +17,79 @@
 #include <string>
 #include <vector>
 
-namespace Core
-{
+namespace Core {
 
-    /**
-     * Splits a string in tokens
-     *
-     * The interface is somehow inspired by the StringTokenizer of
-     * the Common C++ Library
-     */
-    class StringTokenizer
-    {
-    public:
-	class Iterator
-	{
-	public:
-	    Iterator();
+/**
+ * Splits a string in tokens
+ *
+ * The interface is somehow inspired by the StringTokenizer of
+ * the Common C++ Library
+ */
+class StringTokenizer {
+public:
+  class Iterator {
+  public:
+    Iterator();
 
-	     bool operator==(const Iterator &rhs) const;
-	     bool operator!=(const Iterator &rhs) const;
+    bool operator==(const Iterator &rhs) const;
+    bool operator!=(const Iterator &rhs) const;
 
-	    Iterator& operator++();
-	    Iterator  operator++(int);
+    Iterator &operator++();
+    Iterator operator++(int);
 
-	    std::string operator*() const;
+    std::string operator*() const;
 
-	private:
-	    typedef std::string::size_type size_type;
+  private:
+    typedef std::string::size_type size_type;
 
-	    const StringTokenizer *parent_;
-	    size_type begin_;
-	    size_type end_;
+    const StringTokenizer *parent_;
+    size_type begin_;
+    size_type end_;
 
-	    size_type findStart(size_type begin) const;
-	    size_type findNext(size_type begin) const;
+    size_type findStart(size_type begin) const;
+    size_type findNext(size_type begin) const;
 
-	    explicit Iterator(const StringTokenizer *parent);
-	    Iterator(const StringTokenizer *parent, size_type begin, size_type end);
+    explicit Iterator(const StringTokenizer *parent);
+    Iterator(const StringTokenizer *parent, size_type begin, size_type end);
 
-	    friend class StringTokenizer;
-	};
+    friend class StringTokenizer;
+  };
 
-    public:
-	StringTokenizer(const std::string &text, const std::string &delimiter, bool trimTokens = false);
-	StringTokenizer(const std::string &text);
+public:
+  StringTokenizer(const std::string &text, const std::string &delimiter,
+                  bool trimTokens = false);
+  StringTokenizer(const std::string &text);
 
-	Iterator begin() const;
-	const Iterator& end() const;
+  Iterator begin() const;
+  const Iterator &end() const;
 
-	std::vector<std::string> operator() () const;
+  std::vector<std::string> operator()() const;
 
-    private:
-	const std::string &str_;
-	/* do no use a reference, because
-	 * delim is often a temporay std::string
-	 * constructed from a const char *
-	 */
-	const std::string delim_;
-	bool trim_;
-	const Iterator endIterator_;
+private:
+  const std::string &str_;
+  /* do no use a reference, because
+   * delim is often a temporay std::string
+   * constructed from a const char *
+   */
+  const std::string delim_;
+  bool trim_;
+  const Iterator endIterator_;
 
-	static const std::string whiteSpace_;
+  static const std::string whiteSpace_;
 
-	friend class Iterator;
-    };
+  friend class Iterator;
+};
 
+// ================================================================
 
-    // ================================================================
-
-
-    inline bool StringTokenizer::Iterator::operator==(const Iterator &rhs) const
-    {
-	return (end_ == rhs.end_ && begin_ == rhs.begin_ && parent_ == rhs.parent_);
-    }
-
-    inline bool StringTokenizer::Iterator::operator!=(const Iterator &rhs) const
-    {
-	return !(*this == rhs);
-    }
-
+inline bool StringTokenizer::Iterator::operator==(const Iterator &rhs) const {
+  return (end_ == rhs.end_ && begin_ == rhs.begin_ && parent_ == rhs.parent_);
 }
+
+inline bool StringTokenizer::Iterator::operator!=(const Iterator &rhs) const {
+  return !(*this == rhs);
+}
+
+} // namespace Core
 
 #endif // _CORE_TOKENIZER_HH

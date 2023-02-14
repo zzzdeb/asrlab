@@ -19,24 +19,25 @@
  */
 
 #include "Sssp4SpecialSymbols.hh"
-#include "tSssp4SpecialSymbols.hh"
 #include "Semiring64.hh"
+#include "tSssp4SpecialSymbols.hh"
 
 namespace Fsa {
 
-
-	ConstAutomatonRef posterior4SpecialSymbols(ConstAutomatonRef f) {
-		return Ftl::posterior4SpecialSymbols<Automaton>(f);
-	}
-
-	ConstAutomatonRef posterior4SpecialSymbols(ConstAutomatonRef f, Weight &totalInv, s32 tol) {
-		if (f->semiring() != Fsa::LogSemiring)
-			return Ftl::posterior4SpecialSymbols<Automaton>(f, totalInv, tol);
-		else
-			return Ftl::posterior4SpecialSymbols<Automaton, Semiring64, Weight64>(f, totalInv, tol);
-	}
-
-	ConstAutomatonRef best4SpecialSymbols(ConstAutomatonRef f) {
-		return Ftl::best4SpecialSymbols<Automaton>(f);
-	}
+ConstAutomatonRef posterior4SpecialSymbols(ConstAutomatonRef f) {
+  return Ftl::posterior4SpecialSymbols<Automaton>(f);
 }
+
+ConstAutomatonRef posterior4SpecialSymbols(ConstAutomatonRef f,
+                                           Weight &totalInv, s32 tol) {
+  if (f->semiring() != Fsa::LogSemiring)
+    return Ftl::posterior4SpecialSymbols<Automaton>(f, totalInv, tol);
+  else
+    return Ftl::posterior4SpecialSymbols<Automaton, Semiring64, Weight64>(
+        f, totalInv, tol);
+}
+
+ConstAutomatonRef best4SpecialSymbols(ConstAutomatonRef f) {
+  return Ftl::best4SpecialSymbols<Automaton>(f);
+}
+} // namespace Fsa

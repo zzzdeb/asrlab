@@ -112,7 +112,7 @@ public:
 };
 
 struct TreeNode {
-  std::map<Phoneme, TreeNode> children;
+  std::map<std::string, TreeNode> children;
   Word endingWord;
   Word word;
   size_t depth = 0;
@@ -123,15 +123,15 @@ TreeLexicon::TreeLexicon(const Lexicon &lexicon)
     : nWords_(lexicon.nWords()), silence_(lexicon.silence()),
       silenceMixture_(lexicon.silenceMixture()) {
   TreeNode root;
-  size_t nodeid = 0;
+  root.mark = "0";
+  size_t nodeid = 1;
   for (Word w = 0; w < nWords_; ++w) {
     std::cout << "Word " << w << " " << lexicon.symbol(w) << std::endl;
     TreeNode *currentNode = &root;
 
     for (int p = 0; p < lexicon.nPhonemes(w); ++p) {
-      Phoneme curPhon = lexicon.getPhoneme(w, p);
-      std::map<Phoneme, TreeNode>::iterator it =
-          currentNode->children.find(curPhon);
+      std::string curAllo = lexicon.format(*lexicon.allophone(w, p));
+      std::map<std::string, TreeNode>::iterator it = currentNode->children.find(curAllo);
       if (it == currentNode->children.end()) {
         TreeNode childNode;
         childNode.endingWord = invalidWord;
@@ -142,54 +142,33 @@ TreeLexicon::TreeLexicon(const Lexicon &lexicon)
           ss << nodeid++;
           childNode.mark = ss.str();
         }
-        currentNode->children[curPhon] = childNode;
+        currentNode->children[lexicon.format(*lexicon.allophone(w, p))] = childNode;
       }
-      currentNode = &currentNode->children[curPhon];
-      std::cout << lexicon.format(*lexicon.allophone(w, p)) << " ";
+      currentNode = &currentNode->children[curAllo];
+      std::cout << curAllo << " ";
     }
-    TreeNode childNode;
-    childNode.endingWord = w;
-    childNode.word = w;
-    childNode.depth = currentNode->depth + 1;
-    childNode.mark = "\"" + lexicon.symbol(w) + "\"";
-    currentNode->children[-1] = childNode;
+    currentNode->word = w;
+    currentNode->endingWord = w;
+    currentNode->mark = "\"" + lexicon.symbol(w) + "\"";
     std::cout << std::endl;
   }
 
   std::queue<TreeNode *> queue;
-  size_t last_arc = 0;
-  size_t current_arc_pos = 0;
-  {
-    std::map<Phoneme, TreeNode>::iterator child = root.children.begin();
-    for (; child != root.children.end(); child++) {
-      queue.push(&child->second);
       MixtureSequence mixtures;
-      treeLexiconArcs_.push_back(
-          TreeLexiconArc(0, 0, child->second.endingWord, mixtures));
-    }
-    last_arc = treeLexiconArcs_.size();
-  }
+  size_t last_arc = 1;
+  queue.push(&root);
 
   while (!queue.empty()) {
     TreeNode &currentNode = *queue.front();
-    std::map<Phoneme, TreeNode>::iterator child = currentNode.children.begin();
-    for (; child != currentNode.children.end(); child++) {
-      queue.push(&child->second);
-
+    size_t numChild = currentNode.children.size();
       MixtureSequence mixtures;
+    if (currentNode.depth > 0)
+      mixtures = *lexicon.mixtures(currentNode.word, currentNode.depth - 1);
       treeLexiconArcs_.push_back(
-          TreeLexiconArc(0, 0, child->second.endingWord, mixtures));
-    }
-    {
-      size_t numChild = currentNode.children.size();
-      TreeLexiconArc &current = treeLexiconArcs_.at(current_arc_pos++);
-      current.succArcBegin = last_arc;
-      current.succArcEnd = current.succArcBegin + numChild;
-      current.endingWord = currentNode.endingWord;
-      if (current.endingWord == lexicon.nWords())
-        current.mixtures =
-            *lexicon.mixtures(currentNode.word, currentNode.depth - 1);
-      last_arc = current.succArcEnd;
+        TreeLexiconArc(last_arc, last_arc+numChild, currentNode.endingWord, mixtures));
+    last_arc += numChild;
+    for (std::map<std::string, TreeNode>::iterator child = currentNode.children.begin(); child != currentNode.children.end(); child++) {
+      queue.push(&child->second);
     }
     queue.pop();
   }
@@ -200,22 +179,17 @@ TreeLexicon::TreeLexicon(const Lexicon &lexicon)
     std::stringstream edges;
     std::queue<TreeNode *> queue;
     {
-      for (std::map<Phoneme, TreeNode>::iterator child = root.children.begin();
-           child != root.children.end(); child++)
-        queue.push(&child->second);
+      queue.push(&root);
       size_t i = 0;
       while (!queue.empty()) {
         TreeNode &currentNode = *queue.front();
         nodes << currentNode.mark << std::endl;
-        for (std::map<Phoneme, TreeNode>::iterator child =
+        for (std::map<std::string, TreeNode>::iterator child =
                  currentNode.children.begin();
              child != currentNode.children.end(); child++) {
           queue.push(&child->second);
           edges << currentNode.mark << " -> " << child->second.mark;
-          edges << " [label=\""
-                << lexicon.format(*lexicon.allophone(child->second.word,
-                                                     child->second.depth - 2))
-                << "\"];" << std::endl;
+            edges << " [label=\"" << child->first << "\"];" << std::endl;
         }
         queue.pop();
       }

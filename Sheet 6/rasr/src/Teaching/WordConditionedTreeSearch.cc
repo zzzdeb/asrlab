@@ -948,6 +948,66 @@ void WordConditionedTreeSearch::SearchSpace::initTimeAlignment(
 // TimeAlignAndUpdate_HypArr
 void WordConditionedTreeSearch::SearchSpace::computeTimeAlignment(
     const Arc arc, const AcousticModelScorer &amScorer, Score amThreshold) {
+  Index arcIndex = activeArcs_->arcHypIndex(arc);
+
+  if (mixtures.size() == 1 && mixtures.at(0) == treeLexicon_.silenceMixture())  // silence
+  {
+//    HmmState state = mixtures.at(0);
+//    if (arcIndex == invalidIndex) {
+//      // starting
+//      Score score = activeArcs_->predecessorScore(arc) + amScorer(mixtures.at(0)) + transitionScores_.at(1).at(0);
+//      Index backpointer = activeArcs_->predecessorBackpointer(arc);
+//      newStateHypotheses_.push_back(StateHypothesis(state, score, backpointer));
+//      return;
+//    }
+//    Index s = arcHypotheses_.at(arcIndex).stateHypEnd;
+//    Score score = stateHypotheses_.at(s).score + amScorer(mixtures.at(0)) + transitionScores_.at(1).at(0);
+//    newStateHypotheses_.push_back(StateHypothesis(state, score, s));
+  }
+
+  if (mixtures.at(0) != treeLexicon_.silenceMixture()) // not silence
+  {
+
+    if (activeArcs_->hasActiveWithinArcStates(arc)) { // no pred and first
+      {
+        HmmState state = mixtures.at(0);
+        std::vector<Score> scores(3);
+        std::vector<Index> backpointers(3);
+        scores.at(0) = activeArcs_->prePredecessorScore(arc) + transitionScores_.at(0).at(2);
+        scores.at(1) = activeArcs_->prePredecessorScore(arc) + transitionScores_.at(0).at(1);
+        StateHypothesis stateHyp = stateHypotheses_.at(arcHypotheses_.at(activeArcs_->arcHypIndex(arc)).stateHypBegin);
+        if (stateHyp.state == 0) {
+          scores.at(2) = stateHyp.score;
+        }
+        std::vector<Score>::iterator min_score = std::min_element(scores.begin(), scores.end());
+        if (*min_score < maxScore) {
+          Score score = amScorer(state) + *min_score;
+          Index backpointer = backpointers.at(min_score - scores.begin());
+          newStateHypotheses_.push_back(StateHypothesis(state, score, backpointer));
+        }
+      }
+    } else { // first
+      HmmState state = mixtures.at(0);
+      std::vector<Score> scores(2, amScorer(state));
+      Score score = amScorer(state);
+      Score scorePrePre = score + activeArcs_->prePredecessorScore(arc) + transitionScores_.at(0).at(2);
+      Score scorePre = activeArcs_->predecessorScore(arc) + transitionScores_.at(0).at(1);
+      Index backpointer;
+      if (scorePrePre > scorePre) {
+        score = scorePrePre;
+        backpointer = activeArcs_->prePredecessorBackpointer(arc);
+      } else {
+        score = scorePre;
+        backpointer = activeArcs_->predecessorBackpointer(arc);
+      }
+      newStateHypotheses_.push_back(StateHypothesis(state, score, backpointer));
+
+      state = mixtures.at(1);
+      score = activeArcs_->predecessorScore(arc) + transitionScores_.at(0).at(2) + amScorer(state) ; // + exit score
+      backpointer = activeArcs_->predecessorBackpointer(arc);
+      newStateHypotheses_.push_back(StateHypothesis(state, score, backpointer));
+    }
+  }
   // TODO
 }
 

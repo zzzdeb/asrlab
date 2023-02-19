@@ -1102,7 +1102,15 @@ void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
 // BigramRecombination
 void WordConditionedTreeSearch::SearchSpace::bigramRecombination(
     const LanguageModelScorer &lmScore) {
-  // TODO
+  const WordHypotheses::iterator wordHypBegin = wordHypotheses_.begin();
+
+  for (WordHypotheses::iterator wordHyp = wordHypBegin;
+       wordHyp != wordHypotheses_.end(); ++wordHyp) {
+    if (wordHyp->word == treeLexicon_.silence())
+      continue;
+    const Word word = nonSilencePredecessorWord(wordHyp->backpointer);
+    wordHyp->score += lmScore(word, wordHyp->word);
+  }
 }
 
 void WordConditionedTreeSearch::SearchSpace::addBookKeepingEntries(Time time) {

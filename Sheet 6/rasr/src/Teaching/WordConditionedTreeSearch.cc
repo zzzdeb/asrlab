@@ -1046,7 +1046,57 @@ void WordConditionedTreeSearch::SearchSpace::writeBackTreeHypothesis(
 // shiftAndPruneAndReportWordEnds
 void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
     Score acousticPruningThreshold) {
-  // TODO
+  bestScore_ = maxScore;
+  for (StateHypotheses::iterator it = newStateHypotheses_.begin(); it < newStateHypotheses_.end(); it++)
+    if (it->score < bestScore_)
+      bestScore_ = it->score;
+
+  treeHypotheses_.clear();
+  arcHypotheses_.clear();
+  stateHypotheses_.clear();
+
+  for (size_t i = 0; i < newTreeHypotheses_.size(); i++) {
+    TreeHypothesis& treeHyp = newTreeHypotheses_.at(i);
+    size_t added_arcs = 0;
+    for (size_t j = treeHyp.arcHypEnd; j < treeHyp.arcHypEnd; j++) {
+      ArcHypothesis& arcHyp = newArcHypotheses_.at(j);
+      size_t added_states = 0;
+      for (size_t k = arcHyp.stateHypBegin; k < arcHyp.stateHypEnd; k++) {
+        StateHypothesis& stateHyp = newStateHypotheses_.at(k);
+        Score threshold = bestScore_ + acousticPruningThreshold;
+        if (stateHyp.score <= threshold) {
+          stateHypotheses_.push_back(stateHyp);
+          added_states++;
+        }
+      }
+      if (added_states > 0) {
+        arcHypotheses_.push_back(ArcHypothesis(arcHyp.arc, stateHypotheses_.size() - added_states, stateHypotheses_.size()));
+        added_arcs++;
+      }
+    }
+    if (added_arcs > 0) {
+      treeHypotheses_.push_back(TreeHypothesis(treeHyp.predecessorWord, arcHypotheses_.size() - added_arcs, arcHypotheses_.size()));
+    }
+  }
+
+  wordHypotheses_.clear();
+
+  for (size_t i = 0; i < arcHypotheses_.size(); i++) {
+    ArcHypothesis& ah = arcHypotheses_.at(i);
+    Word endingWord = treeLexicon_.endingWord(ah.arc);
+    if (endingWord == invalidWord)
+      continue;
+
+    StateHypothesis sh = stateHypotheses_.at(ah.stateHypEnd - 1);
+    if (sh.state < treeLexicon_.nStates(ah.arc))
+      continue;
+    Score exitPenalty = treeLexicon_.silence() == endingWord
+        ? transitionScores_.at(1).at(TransitionModelScorer::exitPenaltyIndex)
+        : transitionScores_.at(0).at(TransitionModelScorer::exitPenaltyIndex);
+    std::cerr << "Word ending " << endingWord << " " << treeLexicon_.silence() << " "  << sh.backpointer << " " << sh.score << " " << exitPenalty << std::endl;
+    WordHypothesis wh(endingWord, sh.score + exitPenalty, sh.backpointer);
+    wordHypotheses_.push_back(wh);
+  }
 }
 
 // BigramRecombination

@@ -14,57 +14,58 @@
 #ifndef _CORE_VECTOR_HH
 #define _CORE_VECTOR_HH
 
-#include <vector>
 #include "Assertions.hh"
+#include <vector>
 
 namespace Core {
 
-    template<class T> class Vector : public std::vector<T> {
-    public:
-	typedef std::vector<T> Precursor;
-	typedef typename Precursor::iterator iterator;
-	typedef typename Precursor::const_iterator const_iterator;
-    public:
-	Vector() : Precursor() {}
-	Vector(size_t size) : Precursor(size) {}
-	Vector(size_t size, const T &def) : Precursor(size, def) {}
-	Vector(const Precursor & vector) : Precursor(vector) {}
+template <class T> class Vector : public std::vector<T> {
+public:
+  typedef std::vector<T> Precursor;
+  typedef typename Precursor::iterator iterator;
+  typedef typename Precursor::const_iterator const_iterator;
 
-	/** grow to size maxId+1. */
-	void grow(size_t maxId, const T &def = T()) {
-	    if (maxId >= this->size()) {
-		if (maxId >= this->capacity()) this->reserve(std::max(2 * this->capacity(), maxId + 1));
-		this->insert(this->end(), maxId - this->size() + 1, def);
-	    }
-	}
+public:
+  Vector() : Precursor() {}
+  Vector(size_t size) : Precursor(size) {}
+  Vector(size_t size, const T &def) : Precursor(size, def) {}
+  Vector(const Precursor &vector) : Precursor(vector) {}
 
-	/** Free over-allocated storage. */
-	void yield() {
-	    std::vector<T> tmp(*this);
-      std::swap(*this, tmp);
-	    ensure(this->capacity() == this->size());
-	}
+  /** grow to size maxId+1. */
+  void grow(size_t maxId, const T &def = T()) {
+    if (maxId >= this->size()) {
+      if (maxId >= this->capacity())
+        this->reserve(std::max(2 * this->capacity(), maxId + 1));
+      this->insert(this->end(), maxId - this->size() + 1, def);
+    }
+  }
 
-	void minimize() {
-		yield();
-	}
+  /** Free over-allocated storage. */
+  void yield() {
+    std::vector<T> tmp(*this);
+    std::swap(*this, tmp);
+    ensure(this->capacity() == this->size());
+  }
 
-	/** safe set*/
-	void set(size_t id, const T &val, const T &def = T()) {
-	    grow(id, def);
-	    (*this)[id] = val;
-	}
+  void minimize() { yield(); }
 
-	/** safe get*/
-	const T& get(size_t id, const T &def = T()) const {
-	    if (id < this->size()) return (*this)[id];
-	    return def;
-	}
+  /** safe set*/
+  void set(size_t id, const T &val, const T &def = T()) {
+    grow(id, def);
+    (*this)[id] = val;
+  }
 
-	size_t getMemoryUsed() const {
-	    return sizeof(T) * this->capacity() + sizeof(*this);
-	}
-    };
+  /** safe get*/
+  const T &get(size_t id, const T &def = T()) const {
+    if (id < this->size())
+      return (*this)[id];
+    return def;
+  }
+
+  size_t getMemoryUsed() const {
+    return sizeof(T) * this->capacity() + sizeof(*this);
+  }
+};
 
 } // namespace Core
 

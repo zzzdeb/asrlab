@@ -14,219 +14,211 @@
 #ifndef _SIGNAL_VECTOR_NORMALIZATION_HH
 #define _SIGNAL_VECTOR_NORMALIZATION_HH
 
-
 #include <Core/Parameter.hh>
 #include <Core/Utility.hh>
 
 #include <Flow/Data.hh>
-#include <Flow/Vector.hh>
 #include <Flow/Node.hh>
-
+#include <Flow/Vector.hh>
 
 namespace Signal {
 
-    /** MeanEnergyVectorNormalization: divides each element by square of frame mean energy
-     *
-     * square of frame mean energy = ( ( sum_{i=0}^{N-1} (x[i]^2) ) / N ) ^ {1/2}
-     *   where N is the number of samples in frame
-     *
-     * Applied normally to amplitude like values.
-     */
+/** MeanEnergyVectorNormalization: divides each element by square of frame mean
+ * energy
+ *
+ * square of frame mean energy = ( ( sum_{i=0}^{N-1} (x[i]^2) ) / N ) ^ {1/2}
+ *   where N is the number of samples in frame
+ *
+ * Applied normally to amplitude like values.
+ */
 
-    template <class T>
-    class MeanEnergyVectorNormalization {
-    public:
+template <class T> class MeanEnergyVectorNormalization {
+public:
+  typedef T Value;
 
-	typedef T Value;
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-mean-energy");
+  }
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-mean-energy");
-	}
+  void operator()(std::vector<Value> &v) {
 
-	void operator()(std::vector<Value>& v) {
+    Value squareMeanEnergy =
+        sqrt(std::inner_product(v.begin(), v.end(), v.begin(), 0.0) / v.size());
 
-	    Value squareMeanEnergy =
-		sqrt(std::inner_product(v.begin(), v.end(), v.begin(), 0.0) / v.size());
+    std::transform(
+        v.begin(), v.end(), v.begin(),
+        std::bind2nd(std::multiplies<T>(), (Value)1 / squareMeanEnergy));
+  }
+};
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::multiplies<T>(), (Value)1 / squareMeanEnergy));
+/** EnergyVectorNormalization: divides each element by square of frame energy
+ *
+ * square of frame energy = ( ( sum_{i=0}^{N-1} (x[i]^2) ) ) ^ {1/2}
+ *   where N is the number of samples in frame
+ *
+ * Applied normally to amplitude like values.
+ */
 
-	}
-    };
+template <class T> class EnergyVectorNormalization {
+public:
+  typedef T Value;
 
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-energy");
+  }
 
-    /** EnergyVectorNormalization: divides each element by square of frame energy
-     *
-     * square of frame energy = ( ( sum_{i=0}^{N-1} (x[i]^2) ) ) ^ {1/2}
-     *   where N is the number of samples in frame
-     *
-     * Applied normally to amplitude like values.
-     */
+  void operator()(std::vector<Value> &v) {
 
-    template <class T>
-    class EnergyVectorNormalization {
-    public:
-	typedef T Value;
+    Value squareEnergy =
+        sqrt(std::inner_product(v.begin(), v.end(), v.begin(), 0.0));
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-energy");
-	}
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::multiplies<T>(), (Value)1 / squareEnergy));
+  }
+};
 
-	void operator()(std::vector<Value>& v) {
+/** AmplitudeSpectrumEnergyVectorNormalization: divides each element by square
+ * of frame energy calculated form (half) amplitude spectrum
+ *
+ *  square of frame energy =
+ *    ( 1 / N * (2 * sum_{omega=1}^{N/2 - 1} (x^2(omega)) + x^2(0) + x^2(N/2)) )
+ * ^{1/2} where N is length of FFT
+ *
+ *
+ * Applied normally to amplitude like values.
+ */
 
-	    Value squareEnergy = sqrt(std::inner_product(v.begin(), v.end(), v.begin(), 0.0));
+template <class T> class AmplitudeSpectrumEnergyVectorNormalization {
+public:
+  typedef T Value;
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::multiplies<T>(), (Value)1 / squareEnergy));
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-amplitude-spectrum-energy");
+  }
 
-	}
-    };
+  void operator()(std::vector<Value> &v) {
 
-    /** AmplitudeSpectrumEnergyVectorNormalization: divides each element by square of frame energy
-     *    calculated form (half) amplitude spectrum
-     *
-     *  square of frame energy =
-     *    ( 1 / N * (2 * sum_{omega=1}^{N/2 - 1} (x^2(omega)) + x^2(0) + x^2(N/2)) ) ^{1/2}
-     *    where N is length of FFT
-     *
-     *
-     * Applied normally to amplitude like values.
-     */
+    hope(!v.empty());
 
-    template <class T>
-    class AmplitudeSpectrumEnergyVectorNormalization {
-    public:
+    Value squareEnergy =
+        sqrt((v.front() * v.front() + v.back() * v.back() +
+              2 * std::inner_product(v.begin() + 1, v.end() - 1, v.begin() + 1,
+                                     0.0)) /
+             T((v.size() - 1) * 2));
 
-	typedef T Value;
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::multiplies<T>(), (Value)1 / squareEnergy));
+  }
+};
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-amplitude-spectrum-energy");
-	}
+/** MeanVectorNormalization */
 
-	void operator()(std::vector<Value>& v) {
+template <class T> class MeanVectorNormalization {
+public:
+  typedef T Value;
 
-	    hope(!v.empty());
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-mean");
+  }
 
-	    Value squareEnergy =
-		sqrt((v.front() * v.front() + v.back() * v.back() +
-		      2 * std::inner_product(v.begin() + 1, v.end() - 1, v.begin() + 1, 0.0)) /
-		     T((v.size() - 1) * 2));
+  void operator()(std::vector<Value> &v) {
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::multiplies<T>(), (Value)1 / squareEnergy));
-	}
-    };
+    Value mean = std::accumulate(v.begin(), v.end(), 0.0) / v.size();
 
-    /** MeanVectorNormalization */
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::plus<T>(), -mean));
+  }
+};
 
-    template <class T>
-    class MeanVectorNormalization {
-    public:
-	typedef T Value;
+/** VarianceVectorNormalization */
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-mean");
-	}
+template <class T> class VarianceVectorNormalization {
+public:
+  typedef T Value;
 
-	void operator()(std::vector<Value>& v) {
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-variance");
+  }
 
-	    Value mean = std::accumulate(v.begin(), v.end(), 0.0) / v.size();
+  void operator()(std::vector<Value> &v) {
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::plus<T>(), -mean));
-	}
-    };
+    Value sum = std::accumulate(v.begin(), v.end(), 0.0);
+    Value sumSquare = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
 
-    /** VarianceVectorNormalization */
+    Value mean = sum / v.size();
+    Value deviation = sqrt((sumSquare - sum * sum / v.size()) / v.size());
 
-    template <class T>
-    class VarianceVectorNormalization {
-    public:
-	typedef T Value;
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::plus<T>(), -mean));
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-variance");
-	}
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::multiplies<T>(), (Value)1 / deviation));
+  }
+};
 
-	void operator()(std::vector<Value>& v) {
+/** MaximumVectorNormalization: divides each element of frame by maximum element
+ */
 
-	    Value sum = std::accumulate(v.begin(), v.end(), 0.0);
-	    Value sumSquare = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+template <class T> class MaximumVectorNormalization {
+public:
+  typedef T Value;
 
-	    Value mean = sum / v.size();
-	    Value deviation = sqrt((sumSquare - sum * sum / v.size()) / v.size());
+  static std::string name() {
+    return Core::Type<Value>::name + std::string("-maximum");
+  }
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::plus<T>(), -mean));
+  void operator()(std::vector<Value> &v) {
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::multiplies<T>(), (Value)1 / deviation));
-	}
-    };
+    Value maximum = *std::max_element(v.begin(), v.end());
 
-    /** MaximumVectorNormalization: divides each element of frame by maximum element */
+    std::transform(v.begin(), v.end(), v.begin(),
+                   std::bind2nd(std::multiplies<T>(), (Value)1 / maximum));
+  }
+};
 
-    template <class T>
-    class MaximumVectorNormalization {
-    public:
-	typedef T Value;
+/** VectorNormalizationNode */
 
-	static std::string name() {
-	    return Core::Type<Value>::name + std::string("-maximum");
-	}
+template <class NormalizationFunction>
+class VectorNormalizationNode : public Flow::SleeveNode {
+private:
+  NormalizationFunction normalizationFunction_;
 
-	void operator()(std::vector<Value>& v) {
+public:
+  static std::string filterName() {
+    return "signal-vector-" + NormalizationFunction::name() + "-normalization";
+  }
 
-	    Value maximum = *std::max_element(v.begin(), v.end());
+  VectorNormalizationNode(const Core::Configuration &c)
+      : Core::Component(c), SleeveNode(c) {}
 
-	    std::transform(v.begin(), v.end(), v.begin(),
-			   std::bind2nd(std::multiplies<T>(), (Value)1 / maximum));
-	}
-    };
+  virtual ~VectorNormalizationNode() {}
 
+  virtual bool setParameter(const std::string &name, const std::string &value) {
+    return false;
+  }
 
-    /** VectorNormalizationNode */
+  virtual bool configure() {
 
-    template<class NormalizationFunction>
-    class VectorNormalizationNode : public Flow::SleeveNode {
-    private:
+    Core::Ref<const Flow::Attributes> a = getInputAttributes(0);
+    if (!configureDatatype(a, Flow::Vector<f32>::type()))
+      return false;
 
-	NormalizationFunction normalizationFunction_;
+    return putOutputAttributes(0, a);
+  }
 
-    public:
+  virtual bool work(Flow::PortId p) {
 
-	static std::string filterName()
-	    { return "signal-vector-" + NormalizationFunction::name() + "-normalization"; }
+    Flow::DataPtr<Flow::Vector<typename NormalizationFunction::Value> > in;
+    if (!getData(0, in))
+      return SleeveNode::putData(0, in.get());
 
-	VectorNormalizationNode(const Core::Configuration &c) : Core::Component(c), SleeveNode(c) {}
+    in.makePrivate();
+    normalizationFunction_(*in);
 
-	virtual ~VectorNormalizationNode() {}
+    return putData(0, in.get());
+  }
+};
 
-	virtual bool setParameter(const std::string &name, const std::string &value) { return false; }
-
-	virtual bool configure() {
-
-	    Core::Ref<const Flow::Attributes> a = getInputAttributes(0);
-	    if (!configureDatatype(a, Flow::Vector<f32>::type()))
-		return false;
-
-	    return putOutputAttributes(0, a);
-	}
-
-	virtual bool work(Flow::PortId p) {
-
-	    Flow::DataPtr<Flow::Vector<typename NormalizationFunction::Value> > in;
-	    if (!getData(0, in))
-		return SleeveNode::putData(0, in.get());
-
-	    in.makePrivate();
-	    normalizationFunction_(*in);
-
-	    return putData(0, in.get());
-	}
-    };
-
-
-}
+} // namespace Signal
 
 #endif // _SIGNAL_VECTOR_NORMALIZATION_HH

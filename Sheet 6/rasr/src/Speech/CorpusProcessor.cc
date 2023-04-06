@@ -11,67 +11,59 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Flow/Types.hh>
 #include "CorpusProcessor.hh"
+#include <Flow/Types.hh>
 
 using namespace Speech;
 
+CorpusProcessor::CorpusProcessor(const Core::Configuration &c)
+    : Component(c), channelTimer_(c, "real-time-factor") {}
 
-CorpusProcessor::CorpusProcessor(const Core::Configuration &c) :
-    Component(c),
-    channelTimer_(c, "real-time-factor")
-{}
+CorpusProcessor::~CorpusProcessor() {}
 
-
-CorpusProcessor::~CorpusProcessor()
-{}
-
-
-void CorpusProcessor::signOn(CorpusVisitor &corpusVisitor)
-{
-    corpusVisitor.signOn(this);
+void CorpusProcessor::signOn(CorpusVisitor &corpusVisitor) {
+  corpusVisitor.signOn(this);
 }
 
-void CorpusProcessor::enterCorpus(Bliss::Corpus*) {}
-void CorpusProcessor::leaveCorpus(Bliss::Corpus*) {}
-void CorpusProcessor::enterRecording(Bliss::Recording*) {}
-void CorpusProcessor::leaveRecording(Bliss::Recording*) {}
+void CorpusProcessor::enterCorpus(Bliss::Corpus *) {}
+void CorpusProcessor::leaveCorpus(Bliss::Corpus *) {}
+void CorpusProcessor::enterRecording(Bliss::Recording *) {}
+void CorpusProcessor::leaveRecording(Bliss::Recording *) {}
 
-void CorpusProcessor::enterSegment(Bliss::Segment*) {
-    timer_.start();
-}
+void CorpusProcessor::enterSegment(Bliss::Segment *) { timer_.start(); }
 
 void CorpusProcessor::enterSpeechSegment(Bliss::SpeechSegment *speechSegment) {
-    enterSegment(speechSegment);
+  enterSegment(speechSegment);
 }
 
-void CorpusProcessor::processSegment(Bliss::Segment*) {}
+void CorpusProcessor::processSegment(Bliss::Segment *) {}
 
-void CorpusProcessor::processSpeechSegment(Bliss::SpeechSegment *speechSegment) {
-    processSegment(speechSegment);
+void CorpusProcessor::processSpeechSegment(
+    Bliss::SpeechSegment *speechSegment) {
+  processSegment(speechSegment);
 }
 
 void CorpusProcessor::reportRealTime(Flow::Time realTime) {
-    timer_.stop();
-    if (channelTimer_.isOpen()) {
-	timer_.write(channelTimer_);
-	channelTimer_
-	    << Core::XmlFull("real-time", realTime)
-	    << Core::XmlFull("real-time-factor", timer_.user() / realTime)
-	     + Core::XmlAttribute("reference", "user time")
-	    << Core::XmlFull("real-time-factor", timer_.elapsed() / realTime)
-	     + Core::XmlAttribute("reference", "elapsed time");
-    }
+  timer_.stop();
+  if (channelTimer_.isOpen()) {
+    timer_.write(channelTimer_);
+    channelTimer_ << Core::XmlFull("real-time", realTime)
+                  << Core::XmlFull("real-time-factor",
+                                   timer_.user() / realTime) +
+                         Core::XmlAttribute("reference", "user time")
+                  << Core::XmlFull("real-time-factor",
+                                   timer_.elapsed() / realTime) +
+                         Core::XmlAttribute("reference", "elapsed time");
+  }
 }
 
-void CorpusProcessor::leaveSegment(Bliss::Segment *s)
-{
-    if (timer_.isRunning()) {
-	timer_.stop();
-	timer_.write(channelTimer_);
-    }
+void CorpusProcessor::leaveSegment(Bliss::Segment *s) {
+  if (timer_.isRunning()) {
+    timer_.stop();
+    timer_.write(channelTimer_);
+  }
 }
 
 void CorpusProcessor::leaveSpeechSegment(Bliss::SpeechSegment *speechSegment) {
-    leaveSegment(speechSegment);
+  leaveSegment(speechSegment);
 }

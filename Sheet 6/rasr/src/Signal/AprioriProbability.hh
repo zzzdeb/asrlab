@@ -18,36 +18,42 @@
 
 namespace Signal {
 
-    /** Base class for a-priory probabity. */
-    class AprioriProbability  : public virtual Core::Component {
-    public:
-	typedef f32 Score;
-    public:
-	AprioriProbability(const Core::Configuration &c) : Component(c) {}
-	virtual ~AprioriProbability() {}
+/** Base class for a-priory probabity. */
+class AprioriProbability : public virtual Core::Component {
+public:
+  typedef f32 Score;
 
-	virtual bool setClasses(const std::vector<std::string> &classLabels) = 0;
+public:
+  AprioriProbability(const Core::Configuration &c) : Component(c) {}
+  virtual ~AprioriProbability() {}
 
-	/** @return is the score -log p(classIndex). */
-	virtual Score operator[](u32 classIndex) = 0;
-    };
+  virtual bool setClasses(const std::vector<std::string> &classLabels) = 0;
 
-    /** Uniform class a-priory probabity. */
-    class UniformAprioriProbability  : public AprioriProbability {
-    private:
-	size_t nClasses_;
-	Score logNClasses_;
-    public:
-	UniformAprioriProbability(const Core::Configuration &c) :
-	    Component(c), AprioriProbability(c), nClasses_(0), logNClasses_(0) {}
-	virtual ~UniformAprioriProbability() {}
+  /** @return is the score -log p(classIndex). */
+  virtual Score operator[](u32 classIndex) = 0;
+};
 
-	virtual bool setClasses(const std::vector<std::string> &classLabels) {
-	    logNClasses_ = std::log((Score)(nClasses_ = classLabels.size())); return true;
-	}
+/** Uniform class a-priory probabity. */
+class UniformAprioriProbability : public AprioriProbability {
+private:
+  size_t nClasses_;
+  Score logNClasses_;
 
-	virtual Score operator[](u32 classIndex) { require_(classIndex < nClasses_); return logNClasses_; }
-    };
+public:
+  UniformAprioriProbability(const Core::Configuration &c)
+      : Component(c), AprioriProbability(c), nClasses_(0), logNClasses_(0) {}
+  virtual ~UniformAprioriProbability() {}
+
+  virtual bool setClasses(const std::vector<std::string> &classLabels) {
+    logNClasses_ = std::log((Score)(nClasses_ = classLabels.size()));
+    return true;
+  }
+
+  virtual Score operator[](u32 classIndex) {
+    require_(classIndex < nClasses_);
+    return logNClasses_;
+  }
+};
 
 } // namespace Signal
 

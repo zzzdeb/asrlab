@@ -36,145 +36,106 @@
  */
 
 #ifndef YY_BISONPARSER_POSITION_HH_INCLUDED
-# define YY_BISONPARSER_POSITION_HH_INCLUDED
+#define YY_BISONPARSER_POSITION_HH_INCLUDED
 
-# include <algorithm> // std::max
-# include <iostream>
-# include <string>
+#include <algorithm> // std::max
+#include <iostream>
+#include <string>
 
-# ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
-#  else
-#   define YY_NULLPTR 0
-#  endif
-# endif
-
+#ifndef YY_NULLPTR
+#if defined __cplusplus && 201103L <= __cplusplus
+#define YY_NULLPTR nullptr
+#else
+#define YY_NULLPTR 0
+#endif
+#endif
 
 namespace BisonParser {
 #line 56 "position.hh" // location.cc:296
-  /// Abstract a position.
-  class position
-  {
-  public:
-    /// Construct a position.
-    explicit position (std::string* f = YY_NULLPTR,
-                       unsigned int l = 1u,
-                       unsigned int c = 1u)
-      : filename (f)
-      , line (l)
-      , column (c)
-    {
+/// Abstract a position.
+class position {
+public:
+  /// Construct a position.
+  explicit position(std::string *f = YY_NULLPTR, unsigned int l = 1u,
+                    unsigned int c = 1u)
+      : filename(f), line(l), column(c) {}
+
+  /// Initialization.
+  void initialize(std::string *fn = YY_NULLPTR, unsigned int l = 1u,
+                  unsigned int c = 1u) {
+    filename = fn;
+    line = l;
+    column = c;
+  }
+
+  /** \name Line and Column related manipulators
+   ** \{ */
+  /// (line related) Advance to the COUNT next lines.
+  void lines(int count = 1) {
+    if (count) {
+      column = 1u;
+      line = add_(line, count, 1);
     }
-
-
-    /// Initialization.
-    void initialize (std::string* fn = YY_NULLPTR,
-                     unsigned int l = 1u,
-                     unsigned int c = 1u)
-    {
-      filename = fn;
-      line = l;
-      column = c;
-    }
-
-    /** \name Line and Column related manipulators
-     ** \{ */
-    /// (line related) Advance to the COUNT next lines.
-    void lines (int count = 1)
-    {
-      if (count)
-        {
-          column = 1u;
-          line = add_ (line, count, 1);
-        }
-    }
-
-    /// (column related) Advance to the COUNT next columns.
-    void columns (int count = 1)
-    {
-      column = add_ (column, count, 1);
-    }
-    /** \} */
-
-    /// File name to which this position refers.
-    std::string* filename;
-    /// Current line number.
-    unsigned int line;
-    /// Current column number.
-    unsigned int column;
-
-  private:
-    /// Compute max(min, lhs+rhs) (provided min <= lhs).
-    static unsigned int add_ (unsigned int lhs, int rhs, unsigned int min)
-    {
-      return (0 < rhs || -static_cast<unsigned int>(rhs) < lhs
-              ? rhs + lhs
-              : min);
-    }
-  };
-
-  /// Add \a width columns, in place.
-  inline position&
-  operator+= (position& res, int width)
-  {
-    res.columns (width);
-    return res;
   }
 
-  /// Add \a width columns.
-  inline position
-  operator+ (position res, int width)
-  {
-    return res += width;
+  /// (column related) Advance to the COUNT next columns.
+  void columns(int count = 1) { column = add_(column, count, 1); }
+  /** \} */
+
+  /// File name to which this position refers.
+  std::string *filename;
+  /// Current line number.
+  unsigned int line;
+  /// Current column number.
+  unsigned int column;
+
+private:
+  /// Compute max(min, lhs+rhs) (provided min <= lhs).
+  static unsigned int add_(unsigned int lhs, int rhs, unsigned int min) {
+    return (0 < rhs || -static_cast<unsigned int>(rhs) < lhs ? rhs + lhs : min);
   }
+};
 
-  /// Subtract \a width columns, in place.
-  inline position&
-  operator-= (position& res, int width)
-  {
-    return res += -width;
-  }
+/// Add \a width columns, in place.
+inline position &operator+=(position &res, int width) {
+  res.columns(width);
+  return res;
+}
 
-  /// Subtract \a width columns.
-  inline position
-  operator- (position res, int width)
-  {
-    return res -= width;
-  }
+/// Add \a width columns.
+inline position operator+(position res, int width) { return res += width; }
 
-  /// Compare two position objects.
-  inline bool
-  operator== (const position& pos1, const position& pos2)
-  {
-    return (pos1.line == pos2.line
-            && pos1.column == pos2.column
-            && (pos1.filename == pos2.filename
-                || (pos1.filename && pos2.filename
-                    && *pos1.filename == *pos2.filename)));
-  }
+/// Subtract \a width columns, in place.
+inline position &operator-=(position &res, int width) { return res += -width; }
 
-  /// Compare two position objects.
-  inline bool
-  operator!= (const position& pos1, const position& pos2)
-  {
-    return !(pos1 == pos2);
-  }
+/// Subtract \a width columns.
+inline position operator-(position res, int width) { return res -= width; }
 
-  /** \brief Intercept output stream redirection.
-   ** \param ostr the destination output stream
-   ** \param pos a reference to the position to redirect
-   */
-  template <typename YYChar>
-  inline std::basic_ostream<YYChar>&
-  operator<< (std::basic_ostream<YYChar>& ostr, const position& pos)
-  {
-    if (pos.filename)
-      ostr << *pos.filename << ':';
-    return ostr << pos.line << '.' << pos.column;
-  }
+/// Compare two position objects.
+inline bool operator==(const position &pos1, const position &pos2) {
+  return (
+      pos1.line == pos2.line && pos1.column == pos2.column &&
+      (pos1.filename == pos2.filename ||
+       (pos1.filename && pos2.filename && *pos1.filename == *pos2.filename)));
+}
 
+/// Compare two position objects.
+inline bool operator!=(const position &pos1, const position &pos2) {
+  return !(pos1 == pos2);
+}
 
-} // BisonParser
+/** \brief Intercept output stream redirection.
+ ** \param ostr the destination output stream
+ ** \param pos a reference to the position to redirect
+ */
+template <typename YYChar>
+inline std::basic_ostream<YYChar> &operator<<(std::basic_ostream<YYChar> &ostr,
+                                              const position &pos) {
+  if (pos.filename)
+    ostr << *pos.filename << ':';
+  return ostr << pos.line << '.' << pos.column;
+}
+
+} // namespace BisonParser
 #line 180 "position.hh" // location.cc:296
-#endif // !YY_BISONPARSER_POSITION_HH_INCLUDED
+#endif                  // !YY_BISONPARSER_POSITION_HH_INCLUDED

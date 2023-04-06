@@ -16,8 +16,8 @@
 #ifndef _ASSERTIONS_H
 #define _ASSERTIONS_H
 
-#include <sys/cdefs.h>
 #include <iostream>
+#include <sys/cdefs.h>
 #ifdef __SUNPRO_CC
 #define __PRETTY_FUNCTION__ "UNKNOWN"
 #endif
@@ -135,22 +135,17 @@
 
 namespace AssertionsPrivate {
 
-    void stackTrace(std::ostream &os, int cutoff = 0);
+void stackTrace(std::ostream &os, int cutoff = 0);
 
-    void assertionFailed(const char *type,
-			 const char *expr,
-			 const char *function,
-			 const char *filename,
-			 unsigned int line)
-	__attribute__ ((noreturn));
+void assertionFailed(const char *type, const char *expr, const char *function,
+                     const char *filename, unsigned int line)
+    __attribute__((noreturn));
 
-    void hopeDisappointed(const char *expr,
-			  const char *function,
-			  const char *filename,
-			  unsigned int line)
-	__attribute__ ((noreturn));
+void hopeDisappointed(const char *expr, const char *function,
+                      const char *filename, unsigned int line)
+    __attribute__((noreturn));
 
-}
+} // namespace AssertionsPrivate
 
 #if !defined(RELEASE)
 /**
@@ -166,11 +161,13 @@ namespace AssertionsPrivate {
  * you may consider to use require_() instead.
  * @see @ref DesignByContract
  */
-#define require(expr)							\
-    ((expr) ? ((void) 0) : AssertionsPrivate::assertionFailed		\
-     ("precondition", __STRING(expr), __PRETTY_FUNCTION__, __FILE__, __LINE__))
+#define require(expr)                                                          \
+  ((expr) ? ((void)0)                                                          \
+          : AssertionsPrivate::assertionFailed("precondition", __STRING(expr), \
+                                               __PRETTY_FUNCTION__, __FILE__,  \
+                                               __LINE__))
 #else
-#define require(expr) ((void) 0)
+#define require(expr) ((void)0)
 #endif
 
 #if !defined(RELEASE)
@@ -178,11 +175,13 @@ namespace AssertionsPrivate {
  * verbose check precodition.   Abort if @c expr is false and print @c comment.
  * @see @ref require(expr)
  */
-#define requirec(expr,comment)							\
-    ((expr) ? ((void) 0) : AssertionsPrivate::assertionFailed		        \
-     ("precondition", __STRING(expr)__STRING(->)__STRING(comment), __PRETTY_FUNCTION__, __FILE__, __LINE__))
+#define requirec(expr, comment)                                                \
+  ((expr) ? ((void)0)                                                          \
+          : AssertionsPrivate::assertionFailed(                                \
+                "precondition", __STRING(expr) __STRING(->) __STRING(comment), \
+                __PRETTY_FUNCTION__, __FILE__, __LINE__))
 #else
-#define requirec(expr,comment) ((void) 0)
+#define requirec(expr, comment) ((void)0)
 #endif
 
 #if defined(DEBUG)
@@ -198,7 +197,7 @@ namespace AssertionsPrivate {
  */
 #define require_(expr) require(expr)
 #else
-#define require_(expr) ((void) 0)
+#define require_(expr) ((void)0)
 #endif
 
 #if !defined(RELEASE)
@@ -214,11 +213,13 @@ namespace AssertionsPrivate {
  * you may consider to use ensure_() instead.
  * @see @ref DesignByContract
  */
-#define ensure(expr)							\
-    ((expr) ? ((void) 0) : AssertionsPrivate::assertionFailed		\
-     ("postcondition", __STRING(expr), __PRETTY_FUNCTION__,  __FILE__, __LINE__))
+#define ensure(expr)                                                           \
+  ((expr) ? ((void)0)                                                          \
+          : AssertionsPrivate::assertionFailed(                                \
+                "postcondition", __STRING(expr), __PRETTY_FUNCTION__,          \
+                __FILE__, __LINE__))
 #else
-#define ensure(expr) ((void) 0)
+#define ensure(expr) ((void)0)
 #endif
 
 #if defined(DEBUG)
@@ -234,7 +235,7 @@ namespace AssertionsPrivate {
  */
 #define ensure_(expr) ensure(expr)
 #else
-#define ensure_(expr) ((void) 0)
+#define ensure_(expr) ((void)0)
 #endif
 
 #if !defined(RELEASE)
@@ -253,11 +254,13 @@ namespace AssertionsPrivate {
  * you may consider to use verify_() instead.
  * @see @ref DesignByContract
  */
-#define verify(expr)							\
-    ((expr) ? ((void) 0) : AssertionsPrivate::assertionFailed		\
-     ("assertion", __STRING(expr), __PRETTY_FUNCTION__,__FILE__, __LINE__))
+#define verify(expr)                                                           \
+  ((expr) ? ((void)0)                                                          \
+          : AssertionsPrivate::assertionFailed("assertion", __STRING(expr),    \
+                                               __PRETTY_FUNCTION__, __FILE__,  \
+                                               __LINE__))
 #else
-#define verify(expr) ((void) 0)
+#define verify(expr) ((void)0)
 #endif
 
 #if defined(DEBUG)
@@ -271,10 +274,8 @@ namespace AssertionsPrivate {
  */
 #define verify_(expr) verify(expr)
 #else
-#define verify_(expr) ((void) 0)
+#define verify_(expr) ((void)0)
 #endif
-
-
 
 #if !defined(RELEASE)
 /**
@@ -285,13 +286,12 @@ namespace AssertionsPrivate {
  * default clauses in a switch statement.
  * @see @ref DesignByContract
  */
-#define defect()                                                 \
-    AssertionsPrivate::assertionFailed("control flow assertion", \
-	"", __PRETTY_FUNCTION__,__FILE__, __LINE__)
+#define defect()                                                               \
+  AssertionsPrivate::assertionFailed("control flow assertion", "",             \
+                                     __PRETTY_FUNCTION__, __FILE__, __LINE__)
 #else
-#define defect()      ((void) 0)
+#define defect() ((void)0)
 #endif
-
 
 // #if defined(DEBUG)
 /**
@@ -320,12 +320,11 @@ namespace AssertionsPrivate {
     ( dynamic_cast<T>(o)                                            \
     ? static_cast<T>(o)                                             \
     : (AssertionsPrivate::assertionFailed(                          \
-	"type cast assertion", #o " -> " #T,                        \
-	__PRETTY_FUNCTION__,  __FILE__, __LINE__), (T)0) )
+        "type cast assertion", #o " -> " #T,                        \
+        __PRETTY_FUNCTION__,  __FILE__, __LINE__), (T)0) )
   #else
 */
-#define required_cast(T, o)                                         \
-    static_cast<T>(o)
+#define required_cast(T, o) static_cast<T>(o)
 // #endif
 
 /**
@@ -346,8 +345,9 @@ namespace AssertionsPrivate {
  * @see @ref DesignByContract
  */
 
-#define hope(expr)							\
-    ((expr) ? (void) 0 : AssertionsPrivate::hopeDisappointed		\
-     (__STRING(expr), __PRETTY_FUNCTION__,__FILE__, __LINE__))
+#define hope(expr)                                                             \
+  ((expr) ? (void)0                                                            \
+          : AssertionsPrivate::hopeDisappointed(                               \
+                __STRING(expr), __PRETTY_FUNCTION__, __FILE__, __LINE__))
 
 #endif // _ASSERTIONS_H

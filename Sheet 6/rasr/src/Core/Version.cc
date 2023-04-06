@@ -16,13 +16,12 @@
 
 using namespace Core;
 
-
 VersionRegistry::VersionRegistry() {}
 
 VersionRegistry::~VersionRegistry() {}
 
 void VersionRegistry::reportVersion(XmlWriter &os) const {
-    os << XmlOpen("version") <<
+  os << XmlOpen("version") <<
 #include "../SourceVersion.cc"
-       << XmlClose("version");
+     << XmlClose("version");
 }

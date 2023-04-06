@@ -14,22 +14,26 @@
 #include "IoUtilities.hh"
 
 namespace Core {
-    /*****************************************************************************/
-    void TimeStampWriter::write(std::ostream &out) const {
-	struct tm * tm_t;
-	tm_t = ::localtime(&t);
+/*****************************************************************************/
+void TimeStampWriter::write(std::ostream &out) const {
+  struct tm *tm_t;
+  tm_t = ::localtime(&t);
 #ifdef _C_STYLE_TIMESTAMP
-	char *s = ctime(&t);
-	for (;*s != '\n'; ++s) out << *s;
+  char *s = ctime(&t);
+  for (; *s != '\n'; ++s)
+    out << *s;
 #else
-	out << tm_t->tm_mday          << '/'
-	    << (tm_t->tm_mon + 1)     << '/'
-	    << (tm_t->tm_year + 1900) << ' ';
-	out << tm_t->tm_hour                                   << ':';
-	if (tm_t->tm_min < 10) out << '0'; out << tm_t->tm_min << ':';
-	if (tm_t->tm_sec < 10) out << '0'; out << tm_t->tm_sec;
+  out << tm_t->tm_mday << '/' << (tm_t->tm_mon + 1) << '/'
+      << (tm_t->tm_year + 1900) << ' ';
+  out << tm_t->tm_hour << ':';
+  if (tm_t->tm_min < 10)
+    out << '0';
+  out << tm_t->tm_min << ':';
+  if (tm_t->tm_sec < 10)
+    out << '0';
+  out << tm_t->tm_sec;
 #endif // _C_STYLE_TIMESTAMP
-    }
-    /*****************************************************************************/
+}
+/*****************************************************************************/
 
 } // namespace Core

@@ -14,41 +14,43 @@
 #ifndef _AM_ADAPTATION_TREE_HH
 #define _AM_ADAPTATION_TREE_HH
 
-#include <Core/ReferenceCounting.hh>
-#include <Core/BinaryTree.hh>
 #include <Am/ClassicStateModel.hh>
+#include <Core/BinaryTree.hh>
+#include <Core/ReferenceCounting.hh>
 #include <Mm/Types.hh>
 
-namespace Am{
+namespace Am {
 
-    class AdaptationTree: public Core::Component, public Core::ReferenceCounted
-    {
-    private:
-	Core::Ref<Core::BinaryTree> tree_;
-	std::set<Mm::MixtureIndex> silenceMixtures_;
-	u16 numberOfBaseClasses_;
-	Core::BinaryTree::LeafIndexVector leafIndex_;
-	u32 nLeafs_;
+class AdaptationTree : public Core::Component, public Core::ReferenceCounted {
+private:
+  Core::Ref<Core::BinaryTree> tree_;
+  std::set<Mm::MixtureIndex> silenceMixtures_;
+  u16 numberOfBaseClasses_;
+  Core::BinaryTree::LeafIndexVector leafIndex_;
+  u32 nLeafs_;
 
-	static const Core::ParameterInt paramNumberOfBaseClasses;
-	mutable Core::Channel treeDumpChannel_;
-    private:
-	void loadLegacyDecisionTree(
-	    const Core::Configuration &config,
-	    const Am::ClassicStateModelRef stateModel,
-	    Bliss::Phoneme::Id silencePhoneme);
-	void loadDecisionTree(
-	    const Core::Configuration &config,
-	    const Am::ClassicStateModelRef stateModel,
-	    Bliss::Phoneme::Id silencePhoneme);
-    public:
-	AdaptationTree(const Core::Configuration&, const Am::ClassicStateModelRef, Bliss::Phoneme::Id);
-	~AdaptationTree();
+  static const Core::ParameterInt paramNumberOfBaseClasses;
+  mutable Core::Channel treeDumpChannel_;
 
-	Core::Ref<Core::BinaryTree> tree() const {return tree_;}
-	std::set<Mm::MixtureIndex> silenceMixtures() const {return silenceMixtures_;}
-	Core::BinaryTree::LeafIndexVector leafIndex() const {return leafIndex_;}
-	u32 nLeafs() const {return nLeafs_;}
-    };
-}
+private:
+  void loadLegacyDecisionTree(const Core::Configuration &config,
+                              const Am::ClassicStateModelRef stateModel,
+                              Bliss::Phoneme::Id silencePhoneme);
+  void loadDecisionTree(const Core::Configuration &config,
+                        const Am::ClassicStateModelRef stateModel,
+                        Bliss::Phoneme::Id silencePhoneme);
+
+public:
+  AdaptationTree(const Core::Configuration &, const Am::ClassicStateModelRef,
+                 Bliss::Phoneme::Id);
+  ~AdaptationTree();
+
+  Core::Ref<Core::BinaryTree> tree() const { return tree_; }
+  std::set<Mm::MixtureIndex> silenceMixtures() const {
+    return silenceMixtures_;
+  }
+  Core::BinaryTree::LeafIndexVector leafIndex() const { return leafIndex_; }
+  u32 nLeafs() const { return nLeafs_; }
+};
+} // namespace Am
 #endif // _AM_ADAPTATION_TREE_HH

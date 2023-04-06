@@ -14,61 +14,64 @@
 #ifndef _SPEECH_FEATURE_HH
 #define _SPEECH_FEATURE_HH
 
-#include <Mm/Feature.hh>
-#include <Flow/Vector.hh>
 #include <Flow/TypedAggregate.hh>
+#include <Flow/Vector.hh>
+#include <Mm/Feature.hh>
 
 namespace Speech {
 
-    /** Interface conversion between Flow::VectorPointer<...> and Mm::Feature.
-     *  Although, Flow::VectorPointer<...> can be accessed by Core::TsRef<...> even outside of Flow,
-     *  Feature copies the elements of Flow::VectorPointer<...> into an Mm::Feature object. Advantage
-     *  is that Mm::Feature is not multithread safe thus it can be accessed by the light-weigt Core::Ref.
-     *  @see Flow::TypedAggregate for more comments.
-     */
-    class Feature : public Mm::Feature {
-	typedef Feature Self;
-	typedef Mm::Feature Precursor;
-    public:
-	typedef Flow::Vector<Mm::FeatureType> FlowVector;
-	typedef Flow::TypedAggregate<FlowVector> FlowFeature;
+/** Interface conversion between Flow::VectorPointer<...> and Mm::Feature.
+ *  Although, Flow::VectorPointer<...> can be accessed by Core::TsRef<...> even
+ * outside of Flow, Feature copies the elements of Flow::VectorPointer<...> into
+ * an Mm::Feature object. Advantage is that Mm::Feature is not multithread safe
+ * thus it can be accessed by the light-weigt Core::Ref.
+ *  @see Flow::TypedAggregate for more comments.
+ */
+class Feature : public Mm::Feature {
+  typedef Feature Self;
+  typedef Mm::Feature Precursor;
 
-    private:
-	/** Remark: Flow::Data part of this data structure is superflouos.
-	 *   Redesign of Flow::Timestamp could solve this problem.
-	 */
-	Flow::Timestamp timestamp_;
-    private:
-	static Core::Ref<const Vector> convert(Flow::DataPtr<FlowVector>&);
+public:
+  typedef Flow::Vector<Mm::FeatureType> FlowVector;
+  typedef Flow::TypedAggregate<FlowVector> FlowFeature;
 
-    public:
-	Feature() {}
-	Feature(Flow::DataPtr<FlowVector> &v) { take(v); }
-	Feature(Flow::DataPtr<FlowFeature> &f) { take(f); }
-	virtual ~Feature() {}
+private:
+  /** Remark: Flow::Data part of this data structure is superflouos.
+   *   Redesign of Flow::Timestamp could solve this problem.
+   */
+  Flow::Timestamp timestamp_;
 
-	/** Converts the content of @param v.
-	 *  Note: content of v gets destroyed (@see convert(..)).
-	 */
-	void take(Flow::DataPtr<FlowVector> &v);
-	/** Converts the content of @param f.
-	 *  Note: content of f gets destroyed (@see  convert(..)).
-	 */
-	void take(Flow::DataPtr<FlowFeature> &f);
+private:
+  static Core::Ref<const Vector> convert(Flow::DataPtr<FlowVector> &);
 
-	/** Converts the content of @param t.
-	 *  Note: content of t gets destroyed (@see convert(...)).
-	 *  @return is false if elements of @param t could not be converted.
-	 */
-	bool take(Flow::DataPtr<Flow::Timestamp> &t);
+public:
+  Feature() {}
+  Feature(Flow::DataPtr<FlowVector> &v) { take(v); }
+  Feature(Flow::DataPtr<FlowFeature> &f) { take(f); }
+  virtual ~Feature() {}
 
-	void setTimestamp(const Flow::Timestamp &t) { timestamp_ = t; }
-	const Flow::Timestamp &timestamp() const { return timestamp_; }
+  /** Converts the content of @param v.
+   *  Note: content of v gets destroyed (@see convert(..)).
+   */
+  void take(Flow::DataPtr<FlowVector> &v);
+  /** Converts the content of @param f.
+   *  Note: content of f gets destroyed (@see  convert(..)).
+   */
+  void take(Flow::DataPtr<FlowFeature> &f);
 
-	virtual Mm::FeatureDescription* getDescription(const Core::Configurable &parent) const;
-    };
+  /** Converts the content of @param t.
+   *  Note: content of t gets destroyed (@see convert(...)).
+   *  @return is false if elements of @param t could not be converted.
+   */
+  bool take(Flow::DataPtr<Flow::Timestamp> &t);
 
-} // namespace Core
+  void setTimestamp(const Flow::Timestamp &t) { timestamp_ = t; }
+  const Flow::Timestamp &timestamp() const { return timestamp_; }
+
+  virtual Mm::FeatureDescription *
+  getDescription(const Core::Configurable &parent) const;
+};
+
+} // namespace Speech
 
 #endif // _SPEECH_FEATURE_HH
-

@@ -18,45 +18,49 @@
 
 namespace Audio {
 
-    /** Flow node for reading Microsoft .WAV RIFF audio files */
-    class WavInputNode :
-	public SourceNode
-    {
-    private:
-	typedef void Handle;
-	Handle *sf_;
+/** Flow node for reading Microsoft .WAV RIFF audio files */
+class WavInputNode : public SourceNode {
+private:
+  typedef void Handle;
+  Handle *sf_;
 
-	virtual bool isFileOpen() const { return sf_ != 0; }
-	virtual bool openFile_();
-	virtual void closeFile_();
-	virtual bool seek(SampleCount newSamplePos);
-	template <typename T> u32 readTyped(u32 nSamples, Flow::Timestamp* &d);
-	virtual u32 read(u32 nSamples, Flow::Timestamp* &d);
-    public:
-	static std::string filterName() { return "audio-input-file-wav"; }
-	WavInputNode(const Core::Configuration &c);
-	virtual ~WavInputNode() { if (isFileOpen()) closeFile_(); }
-    };
+  virtual bool isFileOpen() const { return sf_ != 0; }
+  virtual bool openFile_();
+  virtual void closeFile_();
+  virtual bool seek(SampleCount newSamplePos);
+  template <typename T> u32 readTyped(u32 nSamples, Flow::Timestamp *&d);
+  virtual u32 read(u32 nSamples, Flow::Timestamp *&d);
 
-    /** Flow node for writing Microsoft .WAV RIFF audio files */
-    class WavOutputNode :
-	public SinkNode
-    {
-    private:
-	typedef void Handle;
-	Handle *sf_;
+public:
+  static std::string filterName() { return "audio-input-file-wav"; }
+  WavInputNode(const Core::Configuration &c);
+  virtual ~WavInputNode() {
+    if (isFileOpen())
+      closeFile_();
+  }
+};
 
-	virtual bool isFileOpen() const { return sf_ != 0; }
-	virtual bool openFile_();
-	virtual void closeFile_();
+/** Flow node for writing Microsoft .WAV RIFF audio files */
+class WavOutputNode : public SinkNode {
+private:
+  typedef void Handle;
+  Handle *sf_;
 
-	template <typename T> bool writeTyped(const Flow::Data*);
-	virtual bool write(const Flow::Data*);
-    public:
-	static std::string filterName() { return "audio-output-file-wav"; }
-	WavOutputNode(const Core::Configuration &c);
-    virtual ~WavOutputNode() { if (isFileOpen()) closeFile_(); }
-    };
+  virtual bool isFileOpen() const { return sf_ != 0; }
+  virtual bool openFile_();
+  virtual void closeFile_();
+
+  template <typename T> bool writeTyped(const Flow::Data *);
+  virtual bool write(const Flow::Data *);
+
+public:
+  static std::string filterName() { return "audio-output-file-wav"; }
+  WavOutputNode(const Core::Configuration &c);
+  virtual ~WavOutputNode() {
+    if (isFileOpen())
+      closeFile_();
+  }
+};
 
 } // namespace Audio
 

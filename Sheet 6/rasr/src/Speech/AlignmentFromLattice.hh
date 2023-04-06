@@ -14,36 +14,39 @@
 #ifndef _SPEECH_ALIGNMENT_FROM_LATTICE_HH
 #define _SPEECH_ALIGNMENT_FROM_LATTICE_HH
 
-#include <Flow/Node.hh>
 #include "ModelCombination.hh"
 #include "PhonemeSequenceAlignmentGenerator.hh"
+#include <Flow/Node.hh>
 
-namespace Speech
-{
-    /** AlignmentFromLatticeNode */
-    class AlignmentFromLatticeNode : public Flow::SleeveNode {
-	typedef Flow::SleeveNode Precursor;
-    public:
-	static const Core::ParameterString paramSegmentId;
-    private:
-	std::string segmentId_;
-	bool needInit_;
-	ModelCombinationRef modelCombination_;
-	Core::Ref<PhonemeSequenceAlignmentGenerator> alignmentGenerator_;
-    private:
-	void initialize();
-    public:
-	static std::string filterName() { return "speech-alignment-from-lattice"; }
-	AlignmentFromLatticeNode(const Core::Configuration&);
-	virtual ~AlignmentFromLatticeNode() {}
+namespace Speech {
+/** AlignmentFromLatticeNode */
+class AlignmentFromLatticeNode : public Flow::SleeveNode {
+  typedef Flow::SleeveNode Precursor;
 
-	virtual Flow::PortId getInput(const std::string &name) {
-	    return (name == "features") ? 1 : ((name == "model-combination") ? 2 : 0);
-	}
-	virtual bool setParameter(const std::string &name, const std::string &value);
-	virtual bool configure();
-	virtual bool work(Flow::PortId);
-    };
-}
+public:
+  static const Core::ParameterString paramSegmentId;
+
+private:
+  std::string segmentId_;
+  bool needInit_;
+  ModelCombinationRef modelCombination_;
+  Core::Ref<PhonemeSequenceAlignmentGenerator> alignmentGenerator_;
+
+private:
+  void initialize();
+
+public:
+  static std::string filterName() { return "speech-alignment-from-lattice"; }
+  AlignmentFromLatticeNode(const Core::Configuration &);
+  virtual ~AlignmentFromLatticeNode() {}
+
+  virtual Flow::PortId getInput(const std::string &name) {
+    return (name == "features") ? 1 : ((name == "model-combination") ? 2 : 0);
+  }
+  virtual bool setParameter(const std::string &name, const std::string &value);
+  virtual bool configure();
+  virtual bool work(Flow::PortId);
+};
+} // namespace Speech
 
 #endif

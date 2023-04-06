@@ -21,53 +21,55 @@ namespace Core {
 /**
  * process memory information
  */
-class MemoryInfo
-{
+class MemoryInfo {
 public:
-    typedef u64 SizeType;
+  typedef u64 SizeType;
 
-    MemoryInfo();
+  MemoryInfo();
 
-    /**
-     * update memory information
-     */
-    void update();
+  /**
+   * update memory information
+   */
+  void update();
 
-    /**
-     * total virtual memory size in bytes
-     */
-    SizeType size() const { return size_; }
-    /**
-     * resident set size in bytes
-     */
-    SizeType residentSetSize() const { return rss_; }
-    /**
-     * shared pages
-     */
-    SizeType sharedPages() const { return share_; }
-    /**
-     * code size in bytes
-     */
-    SizeType codeSize() const { return text_; }
-    /**
-     * library size in bytes
-     */
-    SizeType libSize() const { return lib_; }
-    /**
-     * data/stack size in bytes
-     */
-    SizeType dataSize() const { return data_; }
+  /**
+   * total virtual memory size in bytes
+   */
+  SizeType size() const { return size_; }
+  /**
+   * resident set size in bytes
+   */
+  SizeType residentSetSize() const { return rss_; }
+  /**
+   * shared pages
+   */
+  SizeType sharedPages() const { return share_; }
+  /**
+   * code size in bytes
+   */
+  SizeType codeSize() const { return text_; }
+  /**
+   * library size in bytes
+   */
+  SizeType libSize() const { return lib_; }
+  /**
+   * data/stack size in bytes
+   */
+  SizeType dataSize() const { return data_; }
 
-    void write(XmlWriter &os) const;
+  void write(XmlWriter &os) const;
 
 private:
-    void updateLinux();
+  void updateLinux();
 
-    SizeType size_, rss_, share_, text_, lib_, data_;
-    u32 pageSize_;
+  SizeType size_, rss_, share_, text_, lib_, data_;
+  u32 pageSize_;
 };
 
-inline XmlWriter &operator<<(XmlWriter &os, const MemoryInfo &i) { i.write(os); return os; }
+inline XmlWriter &operator<<(XmlWriter &os, const MemoryInfo &i) {
+  i.write(os);
+  return os;
+}
 
 } // namespace Core
 

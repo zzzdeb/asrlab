@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <algorithm>
-#include <iterator>
-#include <iostream>
-#include <Core/Application.hh>
-#include <Core/Extensions.hh>
 #include "Registry.hh"
 #include "Datatype.hh"
+#include <Core/Application.hh>
+#include <Core/Extensions.hh>
+#include <algorithm>
+#include <iostream>
+#include <iterator>
 
 using namespace Flow;
 
@@ -25,55 +25,61 @@ using namespace Flow;
 void Registry_::dumpFilters(std::ostream &o) const
 /*****************************************************************************/
 {
-    transform(filters_.begin(), filters_.end(), std::ostream_iterator<Flow::_Filter*>(o, "\n"),
-	      Core::select2nd<FilterMap::value_type>());
+  transform(filters_.begin(), filters_.end(),
+            std::ostream_iterator<Flow::_Filter *>(o, "\n"),
+            Core::select2nd<FilterMap::value_type>());
 }
 
 /*****************************************************************************/
 void Registry_::registerFilter_(_Filter *f)
 /*****************************************************************************/
 {
-    if (filters_.find(f->getName()) == filters_.end())
-	filters_[f->getName()] = f;
-    else {
-	Core::Application::us()->criticalError("filter '%s' already registered", f->getName().c_str());
-	delete f;
-    }
+  if (filters_.find(f->getName()) == filters_.end())
+    filters_[f->getName()] = f;
+  else {
+    Core::Application::us()->criticalError("filter '%s' already registered",
+                                           f->getName().c_str());
+    delete f;
+  }
 }
 
 /*****************************************************************************/
-const Flow::_Filter* Registry_::getFilter(const std::string &name) const
+const Flow::_Filter *Registry_::getFilter(const std::string &name) const
 /*****************************************************************************/
 {
-    FilterMap::const_iterator found = filters_.find(name);
-    if (found == filters_.end()) return 0;
-    return (*found).second;
+  FilterMap::const_iterator found = filters_.find(name);
+  if (found == filters_.end())
+    return 0;
+  return (*found).second;
 }
 
 /*****************************************************************************/
 void Registry_::registerDatatype_(const Datatype *d)
 /*****************************************************************************/
 {
-    require(d != 0 && !d->name().empty());
+  require(d != 0 && !d->name().empty());
 
-    if (datatypes_.find(d->name()) != datatypes_.end())
-	Core::Application::us()->criticalError("datatype '%s' already registered", d->name().c_str());
-    datatypes_[d->name()] = d;
+  if (datatypes_.find(d->name()) != datatypes_.end())
+    Core::Application::us()->criticalError("datatype '%s' already registered",
+                                           d->name().c_str());
+  datatypes_[d->name()] = d;
 }
 
 /*****************************************************************************/
 void Registry_::dumpDatatypes(std::ostream &o) const
 /*****************************************************************************/
 {
-    transform(datatypes_.begin(), datatypes_.end(), std::ostream_iterator<const Flow::Datatype*>(o, "\n"),
-	      Core::select2nd<DatatypeMap::value_type>());
+  transform(datatypes_.begin(), datatypes_.end(),
+            std::ostream_iterator<const Flow::Datatype *>(o, "\n"),
+            Core::select2nd<DatatypeMap::value_type>());
 }
 
 /*****************************************************************************/
-const Flow::Datatype* Registry_::getDatatype(const std::string &name) const
+const Flow::Datatype *Registry_::getDatatype(const std::string &name) const
 /*****************************************************************************/
 {
-    DatatypeMap::const_iterator found = datatypes_.find(name);
-    if (found == datatypes_.end()) return 0;
-    return (*found).second;
+  DatatypeMap::const_iterator found = datatypes_.find(name);
+  if (found == datatypes_.end())
+    return 0;
+  return (*found).second;
 }

@@ -14,75 +14,74 @@
 #ifndef _AM_MODULE_HH
 #define _AM_MODULE_HH
 
-#include <Core/Factory.hh>
-#include <Core/Singleton.hh>
 #include "AcousticModel.hh"
 #include "ClassicAcousticModel.hh"
+#include <Core/Factory.hh>
+#include <Core/Singleton.hh>
 
 namespace Am {
 
-    class Module_
-    {
-    private:
-	enum Type {
-	    typeClassic,
-	    typeAdapted,
-	    typeFastAdapted,
-	    typeCombined
-	};
+class Module_ {
+private:
+  enum Type { typeClassic, typeAdapted, typeFastAdapted, typeCombined };
 
-	class ClassicStateTyingFactory :
-	    public Core::Factory<ClassicStateTying,
-				 ClassicStateTying* (*)(const Core::Configuration&, ClassicStateModelRef),
-				 ClassicAcousticModel::StateTyingType>
-	{
-	public:
-	    typedef ClassicStateTying* (*CreationFunction)(const Core::Configuration&, ClassicStateModelRef);
-	    typedef ClassicAcousticModel::StateTyingType Identifier;
-	public:
-	    ClassicStateTying* getObject(const Identifier &id, const Core::Configuration &c, ClassicStateModelRef m) {
-		CreationFunction create = getCreationFunction(id);
-		if(create)
-		    return create(c, m);
-		else
-		    return 0;
-	    }
-	    template<class T>
-	    static ClassicStateTying* create(const Core::Configuration &c, ClassicStateModelRef m) {
-		return new T(c, m);
-	    }
-	};
+  class ClassicStateTyingFactory
+      : public Core::Factory<ClassicStateTying,
+                             ClassicStateTying *(*)(const Core::Configuration &,
+                                                    ClassicStateModelRef),
+                             ClassicAcousticModel::StateTyingType> {
+  public:
+    typedef ClassicStateTying *(*CreationFunction)(const Core::Configuration &,
+                                                   ClassicStateModelRef);
+    typedef ClassicAcousticModel::StateTyingType Identifier;
 
-	ClassicStateTyingFactory stateTyingFactory_;
-	static const Core::Choice choiceAmType;
-	static const Core::ParameterChoice paramAmType;
-    public:
-	Module_();
+  public:
+    ClassicStateTying *getObject(const Identifier &id,
+                                 const Core::Configuration &c,
+                                 ClassicStateModelRef m) {
+      CreationFunction create = getCreationFunction(id);
+      if (create)
+        return create(c, m);
+      else
+        return 0;
+    }
+    template <class T>
+    static ClassicStateTying *create(const Core::Configuration &c,
+                                     ClassicStateModelRef m) {
+      return new T(c, m);
+    }
+  };
 
-	/**
-	 * Creates and initializes a AcousticModel as configured.
-	 * @return a newly created instance of AcousticModel or 0 if
-	 * an error occured.
-	 */
-	Core::Ref<AcousticModel> createAcousticModel(
-	    const Core::Configuration&, Bliss::LexiconRef,
-	    AcousticModel::Mode = AcousticModel::complete);
+  ClassicStateTyingFactory stateTyingFactory_;
+  static const Core::Choice choiceAmType;
+  static const Core::ParameterChoice paramAmType;
 
-	template<class T>
-	void registerStateTying(ClassicAcousticModel::StateTyingType id) {
-	    stateTyingFactory_.registerClass(id, ClassicStateTyingFactory::create<T>);
-	}
+public:
+  Module_();
 
-	ClassicStateTying* getStateTying(
-	    ClassicAcousticModel::StateTyingType id,
-	    const Core::Configuration &c, ClassicStateModelRef m) {
-	    return stateTyingFactory_.getObject(id, c, m);
-	}
+  /**
+   * Creates and initializes a AcousticModel as configured.
+   * @return a newly created instance of AcousticModel or 0 if
+   * an error occured.
+   */
+  Core::Ref<AcousticModel>
+  createAcousticModel(const Core::Configuration &, Bliss::LexiconRef,
+                      AcousticModel::Mode = AcousticModel::complete);
 
-    };
+  template <class T>
+  void registerStateTying(ClassicAcousticModel::StateTyingType id) {
+    stateTyingFactory_.registerClass(id, ClassicStateTyingFactory::create<T>);
+  }
 
-    typedef Core::SingletonHolder<Module_> Module;
+  ClassicStateTying *getStateTying(ClassicAcousticModel::StateTyingType id,
+                                   const Core::Configuration &c,
+                                   ClassicStateModelRef m) {
+    return stateTyingFactory_.getObject(id, c, m);
+  }
+};
 
-}
+typedef Core::SingletonHolder<Module_> Module;
+
+} // namespace Am
 
 #endif // _AM_MODULE_HH

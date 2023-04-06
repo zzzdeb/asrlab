@@ -15,40 +15,30 @@
 
 using namespace Flow;
 
-
-RepeaterNode::RepeaterNode(const Core::Configuration &c) :
-    Component(c),
-    Node(c)
-{
-    addOutput(0);
+RepeaterNode::RepeaterNode(const Core::Configuration &c)
+    : Component(c), Node(c) {
+  addOutput(0);
 }
 
-
-PortId RepeaterNode::getInput(const std::string &name)
-{
-    if (name == "data") {
-	addInput(0);
-	return 0;
-    }
-    return IllegalPortId;
+PortId RepeaterNode::getInput(const std::string &name) {
+  if (name == "data") {
+    addInput(0);
+    return 0;
+  }
+  return IllegalPortId;
 }
 
-
-PortId RepeaterNode::getOutput(const std::string &name)
-{
-    if (name == "data")
-	return 0;
-    return IllegalPortId;
+PortId RepeaterNode::getOutput(const std::string &name) {
+  if (name == "data")
+    return 0;
+  return IllegalPortId;
 }
 
+bool RepeaterNode::work(PortId out) {
+  if (nInputs() == 0)
+    return putEos(0);
 
-bool RepeaterNode::work(PortId out)
-{
-    if (nInputs() == 0)
-	return putEos(0);
-
-    DataPtr<Data> d;
-    getData(0, d);
-    return putData(0, d.get());
+  DataPtr<Data> d;
+  getData(0, d);
+  return putData(0, d.get());
 }
-

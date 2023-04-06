@@ -13,9 +13,8 @@
 // limitations under the License.
 #include "AcousticSegmentwiseTrainer.hh"
 
-#include <Modules.hh>
 #include "SegmentwiseGmmTrainer.hh"
-
+#include <Modules.hh>
 
 using namespace Speech;
 
@@ -23,115 +22,100 @@ using namespace Speech;
  *  AbstractSegmentwiseTrainer: base class
  */
 Core::ParameterString AbstractAcousticSegmentwiseTrainer::paramPortName(
-    "port-name",
-    "port name for posteriors",
-    "features");
+    "port-name", "port name for posteriors", "features");
 
 Core::ParameterString AbstractAcousticSegmentwiseTrainer::paramSparsePortName(
-    "sparse-port-name",
-    "sparse port name for posteriors",
-    "");
+    "sparse-port-name", "sparse port name for posteriors", "");
 
-Core::ParameterString AbstractAcousticSegmentwiseTrainer::paramAccumulationPortName(
-    "accumulation-port-name",
-    "port name for accumulation",
-    "features");
+Core::ParameterString
+    AbstractAcousticSegmentwiseTrainer::paramAccumulationPortName(
+        "accumulation-port-name", "port name for accumulation", "features");
 
-Core::ParameterString AbstractAcousticSegmentwiseTrainer::paramAccumulationSparsePortName(
-    "accumulation-sparse-port-name",
-    "sparse port name for accumulation",
-    "");
+Core::ParameterString
+    AbstractAcousticSegmentwiseTrainer::paramAccumulationSparsePortName(
+        "accumulation-sparse-port-name", "sparse port name for accumulation",
+        "");
 
 AbstractAcousticSegmentwiseTrainer::AbstractAcousticSegmentwiseTrainer(
-    const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c),
-    portId_(Flow::IllegalPortId),
-    sparsePortId_(Flow::IllegalPortId),
-    accumulationPortId_(Flow::IllegalPortId),
-    accumulationSparsePortId_(Flow::IllegalPortId)
-{}
+    const Core::Configuration &c)
+    : Core::Component(c), Precursor(c), portId_(Flow::IllegalPortId),
+      sparsePortId_(Flow::IllegalPortId),
+      accumulationPortId_(Flow::IllegalPortId),
+      accumulationSparsePortId_(Flow::IllegalPortId) {}
 
-AbstractAcousticSegmentwiseTrainer::~AbstractAcousticSegmentwiseTrainer()
-{}
+AbstractAcousticSegmentwiseTrainer::~AbstractAcousticSegmentwiseTrainer() {}
 
-ConstSegmentwiseFeaturesRef AbstractAcousticSegmentwiseTrainer::features(
-    Flow::PortId portId, Flow::PortId sparsePortId) const
-{
-    if (segmentwiseFeatureExtractor()) {
+ConstSegmentwiseFeaturesRef
+AbstractAcousticSegmentwiseTrainer::features(Flow::PortId portId,
+                                             Flow::PortId sparsePortId) const {
+  if (segmentwiseFeatureExtractor()) {
 #if 1
-	return segmentwiseFeatureExtractor()->features(portId);
+    return segmentwiseFeatureExtractor()->features(portId);
 #endif
-    } else {
-	return ConstSegmentwiseFeaturesRef();
-    }
+  } else {
+    return ConstSegmentwiseFeaturesRef();
+  }
 }
 
-
 void AbstractAcousticSegmentwiseTrainer::processWordLattice(
-    Lattice::ConstWordLatticeRef lattice, Bliss::SpeechSegment *s)
-{
-    Mm::FeatureDescription description(*this);
-    if (features() and !features()->empty()) {
-	description = Mm::FeatureDescription(*this, *features()->front());
-    }
-    setFeatureDescription(description);
+    Lattice::ConstWordLatticeRef lattice, Bliss::SpeechSegment *s) {
+  Mm::FeatureDescription description(*this);
+  if (features() and !features()->empty()) {
+    description = Mm::FeatureDescription(*this, *features()->front());
+  }
+  setFeatureDescription(description);
 }
 
 void AbstractAcousticSegmentwiseTrainer::setSegmentwiseFeatureExtractor(
-    Core::Ref<Speech::SegmentwiseFeatureExtractor> segmentwiseFeatureExtractor)
-{
-    require(segmentwiseFeatureExtractor);
-    segmentwiseFeatureExtractor_ = segmentwiseFeatureExtractor;
-    const std::string portName = paramPortName(config);
-    if (!portName.empty()) {
-	portId_ = segmentwiseFeatureExtractor_->addPort(portName);
-	if (portId_ == Flow::IllegalPortId) {
-	    criticalError("Failed to retrieve output from flow network.");
-	}
+    Core::Ref<Speech::SegmentwiseFeatureExtractor>
+        segmentwiseFeatureExtractor) {
+  require(segmentwiseFeatureExtractor);
+  segmentwiseFeatureExtractor_ = segmentwiseFeatureExtractor;
+  const std::string portName = paramPortName(config);
+  if (!portName.empty()) {
+    portId_ = segmentwiseFeatureExtractor_->addPort(portName);
+    if (portId_ == Flow::IllegalPortId) {
+      criticalError("Failed to retrieve output from flow network.");
     }
-    const std::string accumulationPortName = paramAccumulationPortName(config);
-    if (!accumulationPortName.empty()) {
-	accumulationPortId_ = segmentwiseFeatureExtractor_->addPort(accumulationPortName);
-	if (accumulationPortId_ == Flow::IllegalPortId) {
-	    criticalError("Failed to retrieve accumulation output from flow network.");
-	}
+  }
+  const std::string accumulationPortName = paramAccumulationPortName(config);
+  if (!accumulationPortName.empty()) {
+    accumulationPortId_ =
+        segmentwiseFeatureExtractor_->addPort(accumulationPortName);
+    if (accumulationPortId_ == Flow::IllegalPortId) {
+      criticalError(
+          "Failed to retrieve accumulation output from flow network.");
     }
-    Precursor::setSegmentwiseFeatureExtractor(segmentwiseFeatureExtractor_);
+  }
+  Precursor::setSegmentwiseFeatureExtractor(segmentwiseFeatureExtractor_);
 }
 
 void AbstractAcousticSegmentwiseTrainer::setAlignmentGenerator(
-    Core::Ref<Speech::PhonemeSequenceAlignmentGenerator> alignmentGenerator)
-{
-    require(alignmentGenerator);
-    alignmentGenerator_ = alignmentGenerator;
-    Precursor::setAlignmentGenerator(alignmentGenerator);
+    Core::Ref<Speech::PhonemeSequenceAlignmentGenerator> alignmentGenerator) {
+  require(alignmentGenerator);
+  alignmentGenerator_ = alignmentGenerator;
+  Precursor::setAlignmentGenerator(alignmentGenerator);
 }
 
 /**
  * factory
  */
 Core::Choice AbstractAcousticSegmentwiseTrainer::choiceModelType(
-    "gaussian-mixture", gaussianMixture,
-    "maximum-entropy", maximumEntropy,
+    "gaussian-mixture", gaussianMixture, "maximum-entropy", maximumEntropy,
     Core::Choice::endMark());
 
 Core::ParameterChoice AbstractAcousticSegmentwiseTrainer::paramModelType(
-    "model-type",
-    &choiceModelType,
-    "type of model",
-    gaussianMixture);
+    "model-type", &choiceModelType, "type of model", gaussianMixture);
 
-AbstractAcousticSegmentwiseTrainer*
+AbstractAcousticSegmentwiseTrainer *
 AbstractAcousticSegmentwiseTrainer::createAbstractAcousticSegmentwiseTrainer(
-    const Core::Configuration &config)
-{
-    switch (paramModelType(config)) {
-    case gaussianMixture:
-	return SegmentwiseGmmTrainer::createSegmentwiseGmmTrainer(config);
-	break;
-    default:
-	defect();
-    }
-    return 0;
+    const Core::Configuration &config) {
+  switch (paramModelType(config)) {
+  case gaussianMixture:
+    return SegmentwiseGmmTrainer::createSegmentwiseGmmTrainer(config);
+    break;
+  default:
+    defect();
+  }
+  return 0;
 }

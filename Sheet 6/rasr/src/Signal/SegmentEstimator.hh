@@ -17,118 +17,140 @@
 #include <Core/Types.hh>
 #include <vector>
 
-namespace Signal
-{
+namespace Signal {
 
-    // SegmentwiseEstimator
-    ///////////////////////
+// SegmentwiseEstimator
+///////////////////////
 
-    class SegmentwiseEstimator
-    {
-    public:
-	typedef f32 _float;
-    protected:
-	s32 current_segment_begin_;
-	s32 current_segment_end_;
+class SegmentwiseEstimator {
+public:
+  typedef f32 _float;
 
-    public:
-	SegmentwiseEstimator() : current_segment_begin_(-1), current_segment_end_(-1) {};
-	virtual ~SegmentwiseEstimator() {};
+protected:
+  s32 current_segment_begin_;
+  s32 current_segment_end_;
 
-	bool setSegment(s32 segment_begin, s32 segment_end)
-	    {
-		current_segment_begin_ = segment_begin;
-		current_segment_end_ = segment_end;
-		return checkSegment();
-	    };
+public:
+  SegmentwiseEstimator()
+      : current_segment_begin_(-1), current_segment_end_(-1){};
+  virtual ~SegmentwiseEstimator(){};
 
-	bool checkSegment() const
-	    {
-		s32 max_segment_value = getMaxSegmentValue();
-		return ((current_segment_begin_ >= 0 && current_segment_begin_ <= max_segment_value) &&
-			(current_segment_end_ >= 0 && current_segment_end_ <= max_segment_value) &&
-			(current_segment_begin_ < current_segment_end_));
-	    };
+  bool setSegment(s32 segment_begin, s32 segment_end) {
+    current_segment_begin_ = segment_begin;
+    current_segment_end_ = segment_end;
+    return checkSegment();
+  };
 
-	virtual bool work(_float& estimation_error) = 0;
-	virtual bool work(_float* estimation_error, std::vector<_float>* theta, _float* energy) = 0;
-	virtual bool setSignal(const std::vector<_float>& y) = 0;
-	virtual void setOrder(u8 order) = 0;
-	virtual s32 getMaxSegmentValue() const = 0;
-    };
+  bool checkSegment() const {
+    s32 max_segment_value = getMaxSegmentValue();
+    return ((current_segment_begin_ >= 0 &&
+             current_segment_begin_ <= max_segment_value) &&
+            (current_segment_end_ >= 0 &&
+             current_segment_end_ <= max_segment_value) &&
+            (current_segment_begin_ < current_segment_end_));
+  };
 
-    // DynamicProgramingSegmentEstimator
-    ////////////////////////////////////
+  virtual bool work(_float &estimation_error) = 0;
+  virtual bool work(_float *estimation_error, std::vector<_float> *theta,
+                    _float *energy) = 0;
+  virtual bool setSignal(const std::vector<_float> &y) = 0;
+  virtual void setOrder(u8 order) = 0;
+  virtual s32 getMaxSegmentValue() const = 0;
+};
 
-    class DynamicProgramingSegmentEstimator
-    {
-    public:
-	typedef f32 _float;
-	static const _float infinite;
-    private:
-	SegmentwiseEstimator* segmentwise_estimator_;
+// DynamicProgramingSegmentEstimator
+////////////////////////////////////
 
-	_float* segment_error_;
-	_float* error_matrix_;
-	s32* back_pointer_;
-	s32 row_size_;
+class DynamicProgramingSegmentEstimator {
+public:
+  typedef f32 _float;
+  static const _float infinite;
 
-	u8 max_nr_segment_;
+private:
+  SegmentwiseEstimator *segmentwise_estimator_;
 
-	s32 step_;
+  _float *segment_error_;
+  _float *error_matrix_;
+  s32 *back_pointer_;
+  s32 row_size_;
 
-	float search_interval_;
-	s32 max_segment_value_;
+  u8 max_nr_segment_;
 
-	bool need_init_;
-	bool need_realloc_;
+  s32 step_;
 
-	_float& segmentError__(s32 i, s32 j) { return segment_error_[i * row_size_ + j]; };
-	_float& errorMatrix__(s32 i, s32 j) { return error_matrix_[i * row_size_ + j]; };
-	s32& backPointer__(s32 i, s32 j) { return back_pointer_[i * row_size_ + j]; };
+  float search_interval_;
+  s32 max_segment_value_;
 
-	bool init() {
-	    if (segmentwise_estimator_ == 0) return false;
-	    max_segment_value_ = (s32)((float)segmentwise_estimator_->getMaxSegmentValue() * search_interval_);
-	    return !(need_init_ = (!precalculateSegmentError() || !buildBackPointerMatrix())); }
+  bool need_init_;
+  bool need_realloc_;
 
-	bool reallocateBuffers();
-	void freeBuffers();
+  _float &segmentError__(s32 i, s32 j) {
+    return segment_error_[i * row_size_ + j];
+  };
+  _float &errorMatrix__(s32 i, s32 j) {
+    return error_matrix_[i * row_size_ + j];
+  };
+  s32 &backPointer__(s32 i, s32 j) { return back_pointer_[i * row_size_ + j]; };
 
-	bool precalculateSegmentError();
-	bool buildBackPointerMatrix();
+  bool init() {
+    if (segmentwise_estimator_ == 0)
+      return false;
+    max_segment_value_ =
+        (s32)((float)segmentwise_estimator_->getMaxSegmentValue() *
+              search_interval_);
+    return !(need_init_ =
+                 (!precalculateSegmentError() || !buildBackPointerMatrix()));
+  }
 
-    public:
-	DynamicProgramingSegmentEstimator() :
-	    segmentwise_estimator_(0), segment_error_(0), error_matrix_(0), back_pointer_(0), row_size_(0),
-	    max_nr_segment_(0), step_(1), search_interval_(1.0), max_segment_value_(-1),
-	    need_init_(true), need_realloc_(true) {}
-	virtual ~DynamicProgramingSegmentEstimator() { freeBuffers(); }
+  bool reallocateBuffers();
+  void freeBuffers();
 
-	void setSegmentwiseEstimator(SegmentwiseEstimator* segmentwise_estimator)
-	    { if (!segmentwise_estimator_ ||
-		  segmentwise_estimator_->getMaxSegmentValue() != segmentwise_estimator->getMaxSegmentValue())
-		need_realloc_ = true;
-	    segmentwise_estimator_ = segmentwise_estimator; need_init_ = true; }
+  bool precalculateSegmentError();
+  bool buildBackPointerMatrix();
 
-	void setMaxNumberOfSegments(u8 max_nr_segment){
-	    if (max_nr_segment_ != max_nr_segment) { max_nr_segment_ = max_nr_segment; need_realloc_ = true;
-	    }
-	}
+public:
+  DynamicProgramingSegmentEstimator()
+      : segmentwise_estimator_(0), segment_error_(0), error_matrix_(0),
+        back_pointer_(0), row_size_(0), max_nr_segment_(0), step_(1),
+        search_interval_(1.0), max_segment_value_(-1), need_init_(true),
+        need_realloc_(true) {}
+  virtual ~DynamicProgramingSegmentEstimator() { freeBuffers(); }
 
-	void setStep(s32 step) { if (step_ != step) { step_ = step; need_init_ = true; } }
+  void setSegmentwiseEstimator(SegmentwiseEstimator *segmentwise_estimator) {
+    if (!segmentwise_estimator_ ||
+        segmentwise_estimator_->getMaxSegmentValue() !=
+            segmentwise_estimator->getMaxSegmentValue())
+      need_realloc_ = true;
+    segmentwise_estimator_ = segmentwise_estimator;
+    need_init_ = true;
+  }
 
-	bool setSearchInterval(float search_interval) {
-	    if (search_interval <= 0.0 || search_interval > 1.0) return false;
-	    if (search_interval_ != search_interval) {
-		search_interval_ = search_interval; need_init_ = true;
-	    }
-	    return true;
-	}
+  void setMaxNumberOfSegments(u8 max_nr_segment) {
+    if (max_nr_segment_ != max_nr_segment) {
+      max_nr_segment_ = max_nr_segment;
+      need_realloc_ = true;
+    }
+  }
 
-	bool work(std::vector<s32>& segments);
-    };
-}
+  void setStep(s32 step) {
+    if (step_ != step) {
+      step_ = step;
+      need_init_ = true;
+    }
+  }
 
+  bool setSearchInterval(float search_interval) {
+    if (search_interval <= 0.0 || search_interval > 1.0)
+      return false;
+    if (search_interval_ != search_interval) {
+      search_interval_ = search_interval;
+      need_init_ = true;
+    }
+    return true;
+  }
+
+  bool work(std::vector<s32> &segments);
+};
+} // namespace Signal
 
 #endif // _SIGNAL_SEGMENTESTIMATOR_HH

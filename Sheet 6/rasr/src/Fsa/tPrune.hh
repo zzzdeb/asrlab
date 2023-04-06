@@ -17,20 +17,24 @@
 
 namespace Ftl {
 
-    template<class _Automaton>
-    typename _Automaton::ConstRef prunePosterior
-    (typename _Automaton::ConstRef f, const typename _Automaton::Weight &threshold, bool relative = true);
+template <class _Automaton>
+typename _Automaton::ConstRef
+prunePosterior(typename _Automaton::ConstRef f,
+               const typename _Automaton::Weight &threshold,
+               bool relative = true);
 
-    template<class _Automaton>
-    typename _Automaton::ConstRef prunePosterior
-    (typename _Automaton::ConstRef f, const typename _Automaton::Weight &threshold,
-     const StatePotentials<typename _Automaton::Weight> &fw,
-     const StatePotentials<typename _Automaton::Weight> &bw,
-     bool relative = true);
+template <class _Automaton>
+typename _Automaton::ConstRef
+prunePosterior(typename _Automaton::ConstRef f,
+               const typename _Automaton::Weight &threshold,
+               const StatePotentials<typename _Automaton::Weight> &fw,
+               const StatePotentials<typename _Automaton::Weight> &bw,
+               bool relative = true);
 
-    template<class _Automaton>
-    typename _Automaton::ConstRef pruneSync
-    (typename _Automaton::ConstRef f, const typename _Automaton::Weight &threshold);
+template <class _Automaton>
+typename _Automaton::ConstRef
+pruneSync(typename _Automaton::ConstRef f,
+          const typename _Automaton::Weight &threshold);
 
 } // namespace Ftl
 

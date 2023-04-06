@@ -29,69 +29,60 @@
 // ===========================================================================
 // Application
 
-	/**
-	 * queue:
-	 * - end of queue is defined as self-referencing state id
-	 **/
-	class SsspQueue {
-	protected:
-		Fsa::StateId head_;
-		Core::Vector<Fsa::StateId> queue_;
-	public:
-		SsspQueue() :
-			head_(Fsa::InvalidStateId) {
-		}
-		bool empty() const {
-			return head_ == Fsa::InvalidStateId;
-		}
-		Fsa::StateId dequeue() {
-			require_(!empty());
-			Fsa::StateId s = head_;
-			head_ = queue_[s];
-			if (head_ == s)
-				head_ = Fsa::InvalidStateId;
-			queue_[s] = Fsa::InvalidStateId;
-			return s;
-		}
-		Fsa::StateId maxStateId() const {
-			return Fsa::InvalidStateId;
-		}
-	};
+/**
+ * queue:
+ * - end of queue is defined as self-referencing state id
+ **/
+class SsspQueue {
+protected:
+  Fsa::StateId head_;
+  Core::Vector<Fsa::StateId> queue_;
 
-	class FifoSsspQueue : public SsspQueue {
-	public:
-		void enqueue(Fsa::StateId s) {
-			queue_.grow(s, Fsa::InvalidStateId);
-			if (queue_[s] == Fsa::InvalidStateId) {
-				if (head_ != Fsa::InvalidStateId)
-					queue_[s] = head_;
-				else
-					queue_[s] = s;
-				head_ = s;
-			}
-		}
-	};
+public:
+  SsspQueue() : head_(Fsa::InvalidStateId) {}
+  bool empty() const { return head_ == Fsa::InvalidStateId; }
+  Fsa::StateId dequeue() {
+    require_(!empty());
+    Fsa::StateId s = head_;
+    head_ = queue_[s];
+    if (head_ == s)
+      head_ = Fsa::InvalidStateId;
+    queue_[s] = Fsa::InvalidStateId;
+    return s;
+  }
+  Fsa::StateId maxStateId() const { return Fsa::InvalidStateId; }
+};
 
+class FifoSsspQueue : public SsspQueue {
+public:
+  void enqueue(Fsa::StateId s) {
+    queue_.grow(s, Fsa::InvalidStateId);
+    if (queue_[s] == Fsa::InvalidStateId) {
+      if (head_ != Fsa::InvalidStateId)
+        queue_[s] = head_;
+      else
+        queue_[s] = s;
+      head_ = s;
+    }
+  }
+};
 
 class MyApplication : public Fsa::Application {
 public:
-    std::string getUsage() const {
-	return "...";
+  std::string getUsage() const { return "..."; }
+
+  int main(const std::vector<std::string> &arguments) {
+
+    FifoSsspQueue q;
+    for (Fsa::StateId i = 1; i < 20; ++i)
+      q.enqueue(i);
+    while (!q.empty()) {
+      Fsa::StateId s = q.dequeue();
+      std::cout << s << std::endl;
     }
 
-    int main(const std::vector<std::string> &arguments) {
-
-
-	FifoSsspQueue q;
-	for(Fsa::StateId i=1; i<20; ++i)
-		q.enqueue(i);
-	while(!q.empty()) {
-		Fsa::StateId s = q.dequeue();
-		std::cout << s << std::endl;
-	}
-
-	return 0;
-    }
+    return 0;
+  }
 } app; // <- You have to create ONE instance of the application
 
 APPLICATION

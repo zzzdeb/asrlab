@@ -14,72 +14,67 @@
 #ifndef _AM_ADAPTED_ACOUSTIC_MODEL_HH
 #define _AM_ADAPTED_ACOUSTIC_MODEL_HH
 
-#include <Core/ObjectCache.hh>
-#include <Core/IoRef.hh>
-#include <Am/ClassicAcousticModel.hh>
-#include <Mm/MllrAdaptation.hh>
-#include <Bliss/CorpusDescription.hh>
 #include <Am/AdaptationTree.hh>
-#include <Speech/CorpusVisitor.hh>
+#include <Am/ClassicAcousticModel.hh>
+#include <Bliss/CorpusDescription.hh>
 #include <Bliss/CorpusKey.hh>
+#include <Core/IoRef.hh>
+#include <Core/ObjectCache.hh>
+#include <Mm/MllrAdaptation.hh>
 #include <Modules.hh>
+#include <Speech/CorpusVisitor.hh>
 
 namespace Am {
 
-    /** AdaptedAcousticModel
-     */
-    class AdaptedAcousticModel : public ClassicAcousticModel {
-	    typedef ClassicAcousticModel Precursor;
-    protected:
+/** AdaptedAcousticModel
+ */
+class AdaptedAcousticModel : public ClassicAcousticModel {
+  typedef ClassicAcousticModel Precursor;
 
-	typedef Core::ObjectCache<Core::MruObjectCacheList<
-	    std::string,
-	    Core::IoRef<Mm::Adaptor>,
-	    Core::StringHash,
-	    Core::StringEquality
-	> > AdaptorCache;
+protected:
+  typedef Core::ObjectCache<
+      Core::MruObjectCacheList<std::string, Core::IoRef<Mm::Adaptor>,
+                               Core::StringHash, Core::StringEquality> >
+      AdaptorCache;
 
-	typedef Core::ObjectCache<Core::MruObjectCacheList<
-	    std::string,
-	    Core::IoRef<Mm::AdaptorEstimator>,
-	    Core::StringHash,
-	    Core::StringEquality
-	> > AdaptorEstimatorCache;
+  typedef Core::ObjectCache<
+      Core::MruObjectCacheList<std::string, Core::IoRef<Mm::AdaptorEstimator>,
+                               Core::StringHash, Core::StringEquality> >
+      AdaptorEstimatorCache;
 
-	Core::Configuration adaptationConfiguration_;
+  Core::Configuration adaptationConfiguration_;
 
-	AdaptorCache adaptorCache_;
-	AdaptorEstimatorCache adaptorEstimatorCache_;
+  AdaptorCache adaptorCache_;
+  AdaptorEstimatorCache adaptorEstimatorCache_;
 
-	bool useCorpusKey_;
+  bool useCorpusKey_;
 
-	Core::Ref<Bliss::CorpusKey> corpusKey_;
-	Core::StringHashMap<std::string> corpusKeyMap_;
+  Core::Ref<Bliss::CorpusKey> corpusKey_;
+  Core::StringHashMap<std::string> corpusKeyMap_;
 
-	std::string currentKey_;
-	std::string currentMappedKey_;
+  std::string currentKey_;
+  std::string currentMappedKey_;
 
-	Core::Ref<Am::AdaptationTree> adaptationTree_;
-	Core::Ref<Mm::MixtureSet> adaptMixtureSet_;
+  Core::Ref<Am::AdaptationTree> adaptationTree_;
+  Core::Ref<Mm::MixtureSet> adaptMixtureSet_;
 
-	virtual void loadCorpusKeyMap();
-	virtual void checkIfModelNeedsUpdate();
-    public:
-	static const Core::ParameterString paramCorpusKeyMap;
-	static const Core::ParameterBool paramReuseAdaptors;
+  virtual void loadCorpusKeyMap();
+  virtual void checkIfModelNeedsUpdate();
 
-	AdaptedAcousticModel(const Core::Configuration &, Bliss::LexiconRef);
-	virtual ~AdaptedAcousticModel();
+public:
+  static const Core::ParameterString paramCorpusKeyMap;
+  static const Core::ParameterBool paramReuseAdaptors;
 
-	virtual Core::Ref<Mm::MixtureSet> mixtureSet();
+  AdaptedAcousticModel(const Core::Configuration &, Bliss::LexiconRef);
+  virtual ~AdaptedAcousticModel();
 
-	virtual Core::Ref<const Mm::ScaledFeatureScorer> featureScorer();
+  virtual Core::Ref<Mm::MixtureSet> mixtureSet();
 
-	virtual void signOn(Speech::CorpusVisitor &corpusVisitor);
-	virtual bool setKey(const std::string &key);
+  virtual Core::Ref<const Mm::ScaledFeatureScorer> featureScorer();
 
-    };
-
+  virtual void signOn(Speech::CorpusVisitor &corpusVisitor);
+  virtual bool setKey(const std::string &key);
+};
 
 } // namespace Am
 

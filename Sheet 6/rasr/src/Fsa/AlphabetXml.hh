@@ -14,32 +14,33 @@
 #ifndef _FSA_ALPHABET_XML_HH
 #define _FSA_ALPHABET_XML_HH
 
+#include "Alphabet.hh"
 #include <Core/XmlBuilder.hh>
 #include <Core/XmlParser.hh>
-#include "Alphabet.hh"
 
 namespace Fsa {
 
-    /**
-     * The Alphabet XML parser. This class is used when reading an automaton
-     * from an XML formatted stream.
-     */
-    class AlphabetXmlParser : public Core::XmlRegularElement {
-    private:
-	typedef AlphabetXmlParser Self;
-	Core::Ref<StaticAlphabet> a_;
-	long index_;
-	std::string symbol_;
-	bool isDisambiguator_;
+/**
+ * The Alphabet XML parser. This class is used when reading an automaton
+ * from an XML formatted stream.
+ */
+class AlphabetXmlParser : public Core::XmlRegularElement {
+private:
+  typedef AlphabetXmlParser Self;
+  Core::Ref<StaticAlphabet> a_;
+  long index_;
+  std::string symbol_;
+  bool isDisambiguator_;
 
-	void symbolStart(const Core::XmlAttributes atts);
-	void symbolEnd();
-	void symbolDisambiguatorStart(const Core::XmlAttributes atts);
-	void alphabetCharacters(const char *ch, int len);
+  void symbolStart(const Core::XmlAttributes atts);
+  void symbolEnd();
+  void symbolDisambiguatorStart(const Core::XmlAttributes atts);
+  void alphabetCharacters(const char *ch, int len);
 
-    public:
-	AlphabetXmlParser(const char *name, Core::XmlContext *context, Core::Ref<StaticAlphabet> a);
-    };
+public:
+  AlphabetXmlParser(const char *name, Core::XmlContext *context,
+                    Core::Ref<StaticAlphabet> a);
+};
 
 } // namespace Fsa
 

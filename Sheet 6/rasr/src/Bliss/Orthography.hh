@@ -24,117 +24,124 @@
 
 namespace Bliss {
 
-    class OrthographicPrefixTree {
-    private:
-	typedef std::pair<const OrthographicForm::Char*, const Lemma*> ListItem;
-	typedef std::vector<ListItem> List;
-	typedef PrefixTree< const char*, ListItem, Core::select1st<ListItem> > Tree;
+class OrthographicPrefixTree {
+private:
+  typedef std::pair<const OrthographicForm::Char *, const Lemma *> ListItem;
+  typedef std::vector<ListItem> List;
+  typedef PrefixTree<const char *, ListItem, Core::select1st<ListItem> > Tree;
 
-	List list_;
-	Tree tree_;
-    public:
-	typedef Tree::ItemRange ItemRange;
-	typedef Tree::ItemLocation ItemLocation;
+  List list_;
+  Tree tree_;
 
-	void build(LexiconRef lexicon);
-/*
-	ItemRange lookup(const std::string &seq, int &maxLen) const {
-	    return tree_.lookup(seq.c_str(), maxLen);
-	}
-*/
-	ItemRange lookup(const char *seq, int &maxLen) const {
-	    return tree_.lookup(seq, maxLen);
-	}
-    };
+public:
+  typedef Tree::ItemRange ItemRange;
+  typedef Tree::ItemLocation ItemLocation;
 
-    /** Parses an orthographic sentence into lemmas. */
+  void build(LexiconRef lexicon);
+  /*
+          ItemRange lookup(const std::string &seq, int &maxLen) const {
+              return tree_.lookup(seq.c_str(), maxLen);
+          }
+  */
+  ItemRange lookup(const char *seq, int &maxLen) const {
+    return tree_.lookup(seq, maxLen);
+  }
+};
 
-    class OrthographicParser :
-	public Core::ReferenceCounted, Core::Component
-    {
-    private:
-	Core::Ref<const Lexicon> lexicon_;
-	const Lemma *unknownLemma_;
-	OrthographicPrefixTree prefixTree_;
-	bool allowForSilenceRepetitions_;
+/** Parses an orthographic sentence into lemmas. */
 
-    public:
-	Core::Ref<const Lexicon> lexicon() const { return lexicon_; }
-	const Lemma *unknownLemma() const { return unknownLemma_; }
+class OrthographicParser : public Core::ReferenceCounted, Core::Component {
+private:
+  Core::Ref<const Lexicon> lexicon_;
+  const Lemma *unknownLemma_;
+  OrthographicPrefixTree prefixTree_;
+  bool allowForSilenceRepetitions_;
 
-	typedef void *Node;
+public:
+  Core::Ref<const Lexicon> lexicon() const { return lexicon_; }
+  const Lemma *unknownLemma() const { return unknownLemma_; }
 
-	class Handler {
-	protected:
-	    const OrthographicParser *parser_;
-	public:
-	    virtual ~Handler() {};
-	    virtual void initialize(const OrthographicParser*);
-	    virtual Node newNode() = 0;
-	    virtual void newEdge(Node from, Node to, const Lemma *lemma) = 0;
-	    virtual void newSilenceEdge(Node from, Node to, const Lemma *silenceLemma, bool isFinal) {
-		newEdge(from, to, silenceLemma);
-	    }
-	    virtual void newUnmatchableEdge(Node from, Node to, const std::string &orth);
-	    virtual void finalize(Node intial, Node final) = 0;
-	};
+  typedef void *Node;
 
-    public:
-	OrthographicParser(
-	    const Core::Configuration&,
-	    Core::Ref<const Lexicon>);
+  class Handler {
+  protected:
+    const OrthographicParser *parser_;
 
-	~OrthographicParser();
+  public:
+    virtual ~Handler(){};
+    virtual void initialize(const OrthographicParser *);
+    virtual Node newNode() = 0;
+    virtual void newEdge(Node from, Node to, const Lemma *lemma) = 0;
+    virtual void newSilenceEdge(Node from, Node to, const Lemma *silenceLemma,
+                                bool isFinal) {
+      newEdge(from, to, silenceLemma);
+    }
+    virtual void newUnmatchableEdge(Node from, Node to,
+                                    const std::string &orth);
+    virtual void finalize(Node intial, Node final) = 0;
+  };
 
-	void suppressSilenceRepetitions() {
-	    allowForSilenceRepetitions_ = false;
-	}
+public:
+  OrthographicParser(const Core::Configuration &, Core::Ref<const Lexicon>);
 
-	/**
-	 * Parse an orthographic string and make appropriate calls the
-	 * the given handler.
-	 */
-	void parse(
-	    const std::string &orth,
-	    Handler &handler) const;
+  ~OrthographicParser();
 
-	/**
-	 * Parse a string and return two iterators, the begin and the end of the matching lemmas.
-	 * This way it can be used to resolve orthographic symbols.
-	 */
-	class LemmaIterator {
-	    typedef OrthographicPrefixTree::ItemLocation ItemIterator;
-	    ItemIterator itemIt_;
-	public:
-	    LemmaIterator() : itemIt_(0) {}
-	    LemmaIterator(ItemIterator itemIt) : itemIt_(itemIt) {}
-	    const Lemma * operator* () { return itemIt_->second; }
-	    const Lemma * operator->() { return itemIt_->second; }
-	    void operator++ () { ++itemIt_; }
-	    bool operator== (const LemmaIterator & l) const { return itemIt_ == l.itemIt_; }
-	    bool operator!= (const LemmaIterator & l) const { return itemIt_ != l.itemIt_; }
-	};
-	typedef std::pair<LemmaIterator, LemmaIterator> LemmaRange;
-	LemmaRange lemmas(std::string &orth) const;
+  void suppressSilenceRepetitions() { allowForSilenceRepetitions_ = false; }
 
-	Core::Ref<LemmaAcceptor> createLemmaAcceptor(const std::string &orth) const;
-    };
+  /**
+   * Parse an orthographic string and make appropriate calls the
+   * the given handler.
+   */
+  void parse(const std::string &orth, Handler &handler) const;
 
-    class LemmaAcceptorBuilder : public OrthographicParser::Handler {
-	typedef OrthographicParser::Handler Precursor;
-    private:
-	Core::Ref<LemmaAcceptor> result_;
-    public:
-	virtual void initialize(const OrthographicParser*);
-	virtual OrthographicParser::Node newNode();
-	virtual void newEdge(OrthographicParser::Node from, OrthographicParser::Node to, const Lemma *lemma);
-	virtual void newSilenceEdge(OrthographicParser::Node from, OrthographicParser::Node to, const Lemma *silenceLemma, bool isFinal);
-	virtual void finalize(OrthographicParser::Node intial, OrthographicParser::Node final);
+  /**
+   * Parse a string and return two iterators, the begin and the end of the
+   * matching lemmas. This way it can be used to resolve orthographic symbols.
+   */
+  class LemmaIterator {
+    typedef OrthographicPrefixTree::ItemLocation ItemIterator;
+    ItemIterator itemIt_;
 
-	LemmaAcceptorBuilder();
-	~LemmaAcceptorBuilder();
-	Core::Ref<LemmaAcceptor> product() const { return result_; }
-    };
+  public:
+    LemmaIterator() : itemIt_(0) {}
+    LemmaIterator(ItemIterator itemIt) : itemIt_(itemIt) {}
+    const Lemma *operator*() { return itemIt_->second; }
+    const Lemma *operator->() { return itemIt_->second; }
+    void operator++() { ++itemIt_; }
+    bool operator==(const LemmaIterator &l) const {
+      return itemIt_ == l.itemIt_;
+    }
+    bool operator!=(const LemmaIterator &l) const {
+      return itemIt_ != l.itemIt_;
+    }
+  };
+  typedef std::pair<LemmaIterator, LemmaIterator> LemmaRange;
+  LemmaRange lemmas(std::string &orth) const;
+
+  Core::Ref<LemmaAcceptor> createLemmaAcceptor(const std::string &orth) const;
+};
+
+class LemmaAcceptorBuilder : public OrthographicParser::Handler {
+  typedef OrthographicParser::Handler Precursor;
+
+private:
+  Core::Ref<LemmaAcceptor> result_;
+
+public:
+  virtual void initialize(const OrthographicParser *);
+  virtual OrthographicParser::Node newNode();
+  virtual void newEdge(OrthographicParser::Node from,
+                       OrthographicParser::Node to, const Lemma *lemma);
+  virtual void newSilenceEdge(OrthographicParser::Node from,
+                              OrthographicParser::Node to,
+                              const Lemma *silenceLemma, bool isFinal);
+  virtual void finalize(OrthographicParser::Node intial,
+                        OrthographicParser::Node final);
+
+  LemmaAcceptorBuilder();
+  ~LemmaAcceptorBuilder();
+  Core::Ref<LemmaAcceptor> product() const { return result_; }
+};
 
 } // namespace Bliss
 

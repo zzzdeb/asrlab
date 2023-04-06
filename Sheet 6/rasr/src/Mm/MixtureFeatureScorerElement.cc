@@ -17,19 +17,18 @@
 
 using namespace Mm;
 
-void MixtureFeatureScorerElement::operator=(const Mixture &mixture)
-{
+void MixtureFeatureScorerElement::operator=(const Mixture &mixture) {
 
-    densityIndices_ = mixture.densityIndices();
+  densityIndices_ = mixture.densityIndices();
 
-    minus2LogWeights_.resize(mixture.nDensities());
-    for (DensityIndex dnsInMix = 0; dnsInMix < mixture.nDensities(); ++ dnsInMix) {
-	minus2LogWeights_[dnsInMix] = -2 * mixture.logWeight(dnsInMix);
-    }
+  minus2LogWeights_.resize(mixture.nDensities());
+  for (DensityIndex dnsInMix = 0; dnsInMix < mixture.nDensities(); ++dnsInMix) {
+    minus2LogWeights_[dnsInMix] = -2 * mixture.logWeight(dnsInMix);
+  }
 }
 
-void MixtureFeatureScorerElement::scale(Score scale)
-{
-    std::transform(minus2LogWeights_.begin(), minus2LogWeights_.end(),
-		   minus2LogWeights_.begin(), std::bind2nd(std::multiplies<Score>(), scale));
+void MixtureFeatureScorerElement::scale(Score scale) {
+  std::transform(minus2LogWeights_.begin(), minus2LogWeights_.end(),
+                 minus2LogWeights_.begin(),
+                 std::bind2nd(std::multiplies<Score>(), scale));
 }

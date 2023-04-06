@@ -17,14 +17,14 @@
 #include "tStatic.hh"
 
 namespace Ftl {
-    template<class _Automaton>
-    void removeNonAccessibleStates(Core::Ref<StaticAutomaton<_Automaton> > s);
+template <class _Automaton>
+void removeNonAccessibleStates(Core::Ref<StaticAutomaton<_Automaton> > s);
 
-    template<class _Automaton>
-    void trimInPlace(Core::Ref<StaticAutomaton<_Automaton> > s);
+template <class _Automaton>
+void trimInPlace(Core::Ref<StaticAutomaton<_Automaton> > s);
 
-    template<class _Automaton>
-    void removeInvalidArcsInPlace(Core::Ref<StaticAutomaton<_Automaton> > s);
+template <class _Automaton>
+void removeInvalidArcsInPlace(Core::Ref<StaticAutomaton<_Automaton> > s);
 
 } // namespace Ftl
 

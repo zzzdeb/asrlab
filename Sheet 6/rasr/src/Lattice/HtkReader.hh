@@ -28,191 +28,182 @@
 
 namespace Lattice {
 
+/**
+ * Parse a lattice in HTK SLF format.
+ *
+ */
+class HtkReader : Core::Component {
+private:
+  typedef HtkReader Self;
+  typedef Core::Component Precursor;
+  typedef std::pair<std::string, std::string> StringPair;
+  typedef std::vector<StringPair> StringPairList;
+  typedef Bliss::OrthographicParser::LemmaIterator LemmaIterator;
+  typedef Bliss::OrthographicParser::LemmaRange LemmaRange;
+
+  struct Node {
+    u32 id;
+    Speech::TimeframeIndex timeframeIndex;
+    std::string label;
+    LemmaRange lemmas;
+    bool hasLemmas() const { return lemmas.first != lemmas.second; }
+  };
+
+  struct Link {
     /**
-     * Parse a lattice in HTK SLF format.
-     *
+     * J=...
      */
-    class HtkReader :
-	Core::Component {
-    private:
-	typedef HtkReader Self;
-	typedef Core::Component Precursor;
-	typedef std::pair<std::string, std::string> StringPair;
-	typedef std::vector<StringPair>             StringPairList;
-	typedef Bliss::OrthographicParser::LemmaIterator LemmaIterator;
-	typedef Bliss::OrthographicParser::LemmaRange LemmaRange;
+    u32 id;
+    /**
+     * S=... & E=...
+     */
+    size_t sourceState, targetState;
+    /**
+     * a=... & l=...
+     */
+    f64 amScore, lmScore;
+    /**
+     * W=... std::string representation
+     */
+    std::string label;
+    LemmaRange lemmas;
+    bool hasLemmas() const { return lemmas.first != lemmas.second; }
+  };
 
-	struct Node {
-	    u32 id;
-	    Speech::TimeframeIndex timeframeIndex;
-	    std::string label;
-	    LemmaRange lemmas;
-	    bool hasLemmas() const { return lemmas.first != lemmas.second; }
-	};
+  struct State {
+    Fsa::State *fsaState;
+    std::string label;
+    LemmaRange lemmas;
+    bool hasLemmas() const { return lemmas.first != lemmas.second; }
+  };
+  typedef std::vector<State> StateList;
 
-	struct Link {
-		/**
-		 * J=...
-		 */
-	    u32 id;
-	    /**
-	     * S=... & E=...
-	     */
-	    size_t sourceState, targetState;
-	    /**
-	     * a=... & l=...
-	     */
-	    f64 amScore, lmScore;
-	    /**
-	     * W=... std::string representation
-	     */
-	    std::string label;
-	    LemmaRange lemmas;
-	    bool hasLemmas() const { return lemmas.first != lemmas.second; }
-	};
+protected:
+  typedef enum StatusEnum {
+    htkOk = 0,
+    htkPropertyParseError,
+    htkUnexpectedLine,
+    htkUnexpectedNode,
+    htkParseNodeError,
+    htkAddNodeError,
+    htkParseLinkError,
+    htkAddLinkError,
+    htkNoInitialStateError,
+    htkNoFinalStateError
+  } Status;
 
-	struct State {
-	    Fsa::State * fsaState;
-	    std::string label;
-	    LemmaRange lemmas;
-	    bool hasLemmas() const { return lemmas.first != lemmas.second; }
-	};
-	typedef std::vector<State> StateList;
+private:
+  Bliss::LexiconRef lexiconRef_;
+  f64 amScale_;
+  f64 lmScale_;
+  f64 penaltyScale_;
+  bool keepVariants_;
+  f64 wordPenalty_;
+  f64 silPenalty_;
+  bool isCapitalize_;
 
-    protected:
-	typedef enum StatusEnum {
-	    htkOk = 0,
-	    htkPropertyParseError,
-	    htkUnexpectedLine,
-	    htkUnexpectedNode,
-	    htkParseNodeError,
-	    htkAddNodeError,
-	    htkParseLinkError,
-	    htkAddLinkError,
-	    htkNoInitialStateError,
-	    htkNoFinalStateError
-	} Status;
+  Fsa::LabelId unkLemmaId_;
+  Fsa::LabelId silLemmaId_;
 
-    private:
-	Bliss::LexiconRef lexiconRef_;
-	f64 amScale_;
-	f64 lmScale_;
-	f64 penaltyScale_;
-	bool keepVariants_;
-	f64 wordPenalty_;
-	f64 silPenalty_;
-	bool isCapitalize_;
+  Fsa::StorageAutomaton *lattice_;
+  WordBoundaries *wordBoundaries_;
+  StateList states_;
 
-	Fsa::LabelId unkLemmaId_;
-	Fsa::LabelId silLemmaId_;
+  static const Core::ParameterFloat paramTimeframeIndexScale;
+  f64 timeframeIndexScale_;
+  mutable f64 timeOffset_;
 
-	Fsa::StorageAutomaton * lattice_;
-	WordBoundaries * wordBoundaries_;
-	StateList states_;
+  Fsa::ConstAlphabetRef htkAlphabetRef_;
+  Fsa::ConstAutomatonRef lemmaPronunciationToHtkTransducerRef_;
+  Bliss::OrthographicParser *orthParser_;
 
-	static const Core::ParameterFloat paramTimeframeIndexScale;
-	f64 timeframeIndexScale_;
-	mutable f64 timeOffset_;
+  u32 line_;
+  Status status_;
 
-	Fsa::ConstAlphabetRef htkAlphabetRef_;
-	Fsa::ConstAutomatonRef lemmaPronunciationToHtkTransducerRef_;
-	Bliss::OrthographicParser * orthParser_;
+private:
+  void nextLine(std::istream &is, std::string &s);
 
-	u32 line_;
-	Status status_;
+  Speech::TimeframeIndex timeframeIndex(f64 time) const {
+    if (timeOffset_ == Core::Type<f64>::min)
+      timeOffset_ = time;
+    return static_cast<Speech::TimeframeIndex>(
+        round((time - timeOffset_) * timeframeIndexScale_));
+  }
 
-    private:
-	void nextLine(std::istream & is, std::string & s);
+protected:
+  // conversion to fsa
+  Fsa::Weight getWeight(const Link &, Fsa::LabelId);
+  Fsa::StateId getStateId(u32);
 
-	Speech::TimeframeIndex timeframeIndex(f64 time) const {
-	    if (timeOffset_ == Core::Type<f64>::min) timeOffset_ = time;
-	    return static_cast<Speech::TimeframeIndex>(round((time - timeOffset_) * timeframeIndexScale_));
-	}
+  bool checkStatus(Status status);
 
-    protected:
-	// conversion to fsa
-	Fsa::Weight  getWeight (const Link &, Fsa::LabelId);
-	Fsa::StateId getStateId(u32);
+  Status init();
+  Status addState(Node &node);
+  Status addArc(Link &link);
+  Status setInitialState();
+  Status setFinalStates();
 
-	bool checkStatus(Status status);
+  // handle
+  void comment(const std::string &s) { log("comment: ") << s.c_str(); }
 
-	Status init();
-	Status addState(Node & node);
-	Status addArc(Link & link);
-	Status setInitialState();
-	Status setFinalStates();
+  Status start() { return init(); }
 
-	// handle
-	void comment(const std::string & s) {
-	    log("comment: ") << s.c_str();
-	}
+  Status header(const StringPairList &props) {
+    std::ostringstream oss;
+    for (StringPairList::const_iterator it = props.begin(); it != props.end();
+         ++it)
+      oss << it->first << ": " << it->second << std::endl;
+    log(oss.str().c_str());
+    return htkOk;
+  }
 
-	Status start() { return init(); }
+  Status node(Node &node) { return addState(node); }
 
-	Status header(const StringPairList & props) {
-	    std::ostringstream oss;
-	    for (StringPairList::const_iterator it = props.begin();
-		 it != props.end(); ++it)
-		oss << it->first << ": " << it->second << std::endl;
-	    log(oss.str().c_str());
-	    return htkOk;
-	}
+  Status link(Link &link) { return addArc(link); }
 
-	Status node(Node & node) { return addState(node); }
+  Status end() {
+    Status status = setInitialState();
+    return (status == htkOk) ? setFinalStates() : status;
+  }
 
-	Status link(Link & link) { return addArc(link); }
+  // parse
+  Status add(const std::string &s, StringPairList &props);
 
-	Status end() {
-	    Status status = setInitialState();
-	    return (status == htkOk) ? setFinalStates() : status;
-	}
+  LemmaRange parseLabel(std::string &label, const std::string &variant = "");
 
-	// parse
-	Status add(const std::string  & s, StringPairList & props);
+  Status set(const StringPairList &props, Node &node);
 
-	LemmaRange parseLabel(std::string & label, const std::string & variant = "");
+  Status set(const StringPairList &props, Link &link);
 
-	Status set(const StringPairList & props, Node & node);
+public:
+  HtkReader(const Core::Configuration &config, Bliss::LexiconRef lexiconRef,
+            f64 amScale, f64 lmScale, f64 penaltyScale, f64 pronunciationScale,
+            bool keepVariants);
 
-	Status set(const StringPairList & props, Link & link);
+  ~HtkReader();
 
-    public:
-	HtkReader(
-	    const Core::Configuration & config,
-	    Bliss::LexiconRef lexiconRef,
-	    f64 amScale,
-	    f64 lmScale,
-	    f64 penaltyScale,
-	    f64 pronunciationScale,
-	    bool keepVariants);
+  void setWordPenalty(f64 penalty) {
+    wordPenalty_ = penalty;
+    log("htk lattice settings:\nword-penalty : %f", wordPenalty_);
+  }
 
-	~HtkReader();
+  void setCapitalize(bool isCapitalize) {
+    isCapitalize_ = isCapitalize;
+    if (isCapitalize_)
+      log("capitalization activated");
+    else
+      log("capitalization deactivated");
+  }
 
-	void setWordPenalty(f64 penalty) {
-	    wordPenalty_ = penalty;
-	    log("htk lattice settings:\nword-penalty : %f",
-		wordPenalty_);
-	}
+  void setSilencePenalty(f64 penalty) {
+    silPenalty_ = penalty;
+    log("htk lattice settings:\nsilence-penalty : %f", silPenalty_);
+  }
 
-	void setCapitalize(bool isCapitalize) {
-	    isCapitalize_ = isCapitalize;
-	    if (isCapitalize_) log("capitalization activated");
-	    else log("capitalization deactivated");
-	}
+  Fsa::ConstAlphabetRef getAlphabet() { return htkAlphabetRef_; }
 
-	void setSilencePenalty(f64 penalty) {
-	    silPenalty_ = penalty;
-	    log("htk lattice settings:\nsilence-penalty : %f",
-		silPenalty_);
-	}
-
-	Fsa::ConstAlphabetRef getAlphabet() {
-	    return htkAlphabetRef_;
-	}
-
-	ConstWordLatticeRef read(std::istream &);
-    };
-
+  ConstWordLatticeRef read(std::istream &);
+};
 
 } // namespace Lattice
 

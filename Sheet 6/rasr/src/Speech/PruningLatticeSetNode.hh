@@ -18,28 +18,30 @@
 
 namespace Speech {
 
-    /**
-     * pruning node
-     */
-    class PruningLatticeSetNode : public LatticeSetProcessor
-    {
-	typedef LatticeSetProcessor Precursor;
-    private:
-	static const Core::ParameterFloat paramThreshold;
-	static const Core::ParameterBool paramThresholdIsRelative;
-	Fsa::Weight threshold_;
-	bool thresholdIsRelative_;
-	enum PruningType { forwardBackward, forward };
-	static Core::Choice choicePruningType;
-	static const Core::ParameterChoice paramPruningType;
-	PruningType pruningType_;
-    public:
-	PruningLatticeSetNode(const Core::Configuration &);
-	virtual ~PruningLatticeSetNode();
+/**
+ * pruning node
+ */
+class PruningLatticeSetNode : public LatticeSetProcessor {
+  typedef LatticeSetProcessor Precursor;
 
-	virtual void processWordLattice(Lattice::ConstWordLatticeRef, Bliss::SpeechSegment *);
-    };
+private:
+  static const Core::ParameterFloat paramThreshold;
+  static const Core::ParameterBool paramThresholdIsRelative;
+  Fsa::Weight threshold_;
+  bool thresholdIsRelative_;
+  enum PruningType { forwardBackward, forward };
+  static Core::Choice choicePruningType;
+  static const Core::ParameterChoice paramPruningType;
+  PruningType pruningType_;
 
-}
+public:
+  PruningLatticeSetNode(const Core::Configuration &);
+  virtual ~PruningLatticeSetNode();
+
+  virtual void processWordLattice(Lattice::ConstWordLatticeRef,
+                                  Bliss::SpeechSegment *);
+};
+
+} // namespace Speech
 
 #endif // _SPEECH_PRUNING_LATTICE_SET_NODE

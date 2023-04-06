@@ -14,61 +14,63 @@
 #ifndef _SPEECH_COVARIANCE_ESTIMATOR_HH
 #define _SPEECH_COVARIANCE_ESTIMATOR_HH
 
-#include <Signal/EigenTransform.hh>
 #include "DataExtractor.hh"
+#include <Signal/EigenTransform.hh>
 
 namespace Speech {
 
-class CovarianceEstimator :
-public FeatureExtractor,
-public Signal::TotalScatterMatrixEstimator
-{
-    typedef FeatureExtractor Extractor;
-    typedef Signal::TotalScatterMatrixEstimator Estimator;
+class CovarianceEstimator : public FeatureExtractor,
+                            public Signal::TotalScatterMatrixEstimator {
+  typedef FeatureExtractor Extractor;
+  typedef Signal::TotalScatterMatrixEstimator Estimator;
+
 protected:
-    virtual void processFeature(Core::Ref<const Feature> feature);
-    virtual void setFeatureDescription(const Mm::FeatureDescription &description);
+  virtual void processFeature(Core::Ref<const Feature> feature);
+  virtual void setFeatureDescription(const Mm::FeatureDescription &description);
+
 public:
-    CovarianceEstimator(const Core::Configuration &c);
-    ~CovarianceEstimator() {}
+  CovarianceEstimator(const Core::Configuration &c);
+  ~CovarianceEstimator() {}
+
 private:
-    bool needResize_;
+  bool needResize_;
 };
 
-
 /** accumulation of mean and diagonal variance only
- *  Accumulation of diagonal variance is much faster for highdimensional features than accumulation of
- *  the whole covariance matrix.
- *  Internally uses double precision, output is single precision.
+ *  Accumulation of diagonal variance is much faster for highdimensional
+ * features than accumulation of the whole covariance matrix. Internally uses
+ * double precision, output is single precision.
  */
-class MeanAndDiagonalCovarianceEstimator :
-public FeatureExtractor
-{
-    typedef FeatureExtractor Extractor;
+class MeanAndDiagonalCovarianceEstimator : public FeatureExtractor {
+  typedef FeatureExtractor Extractor;
+
 protected:
-    Math::Vector<f64> squareSum_;
-    Math::Vector<f64> sum_;
-    Math::Vector<f32> mean_;
-    Math::Vector<f32> variance_;
-    u32 count_;
-    bool finalized_;
-    static const Core::ParameterString paramVarianceFilename;
-    static const Core::ParameterString paramStandardDeviationFilename;
-    static const Core::ParameterString paramMeanFilename;
-    static const Core::ParameterFloat paramElementThresholdMin;
-    static const Core::ParameterInt paramOutputPrecision;
+  Math::Vector<f64> squareSum_;
+  Math::Vector<f64> sum_;
+  Math::Vector<f32> mean_;
+  Math::Vector<f32> variance_;
+  u32 count_;
+  bool finalized_;
+  static const Core::ParameterString paramVarianceFilename;
+  static const Core::ParameterString paramStandardDeviationFilename;
+  static const Core::ParameterString paramMeanFilename;
+  static const Core::ParameterFloat paramElementThresholdMin;
+  static const Core::ParameterInt paramOutputPrecision;
+
 protected:
-    virtual void processFeature(Core::Ref<const Feature> feature);
-    virtual void setFeatureDescription(const Mm::FeatureDescription &description);
-    virtual void finalize();
+  virtual void processFeature(Core::Ref<const Feature> feature);
+  virtual void setFeatureDescription(const Mm::FeatureDescription &description);
+  virtual void finalize();
+
 public:
-    MeanAndDiagonalCovarianceEstimator(const Core::Configuration &c);
-    ~MeanAndDiagonalCovarianceEstimator() {}
-    /**
-     * mean, variance and standard-deviation are stored to a file if the respective parameters are set
-     * @return true, if write was successful
-     */
-    virtual bool write();
+  MeanAndDiagonalCovarianceEstimator(const Core::Configuration &c);
+  ~MeanAndDiagonalCovarianceEstimator() {}
+  /**
+   * mean, variance and standard-deviation are stored to a file if the
+   * respective parameters are set
+   * @return true, if write was successful
+   */
+  virtual bool write();
 };
 
 } // namespace Speech

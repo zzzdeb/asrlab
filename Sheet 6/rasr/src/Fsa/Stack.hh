@@ -18,24 +18,31 @@
 
 namespace Fsa {
 
-    template<class T> class Stack : public std::vector<T> {
-    public:
-	typedef std::vector<T> Precursor;
-	typedef typename Precursor::reverse_iterator iterator;
-	typedef typename Precursor::const_reverse_iterator const_iterator;
-    public:
-	void clear() { erase(Precursor::begin(), Precursor::end()); }
-	bool isEmpty() const { return (this->size() == 0); }
-	void push(const T &t) { push_back(t); }
-	void push(const std::vector<T> &t) { insert(Precursor::end(), t.begin(), t.end()); }
-	T top() const { return this->back(); }
-	T pop() { T t = this->back(); erase(Precursor::end() - 1, Precursor::end()); return t; }
-	iterator begin() { return this->rbegin(); }
-	const_iterator begin() const { return this->rbegin(); }
-	iterator end() { return this->rend(); }
-	const_iterator end() const { return this->rend(); }
-	size_t getMemoryUsed() const { return sizeof(T) * this->size(); }
-    };
+template <class T> class Stack : public std::vector<T> {
+public:
+  typedef std::vector<T> Precursor;
+  typedef typename Precursor::reverse_iterator iterator;
+  typedef typename Precursor::const_reverse_iterator const_iterator;
+
+public:
+  void clear() { erase(Precursor::begin(), Precursor::end()); }
+  bool isEmpty() const { return (this->size() == 0); }
+  void push(const T &t) { push_back(t); }
+  void push(const std::vector<T> &t) {
+    insert(Precursor::end(), t.begin(), t.end());
+  }
+  T top() const { return this->back(); }
+  T pop() {
+    T t = this->back();
+    erase(Precursor::end() - 1, Precursor::end());
+    return t;
+  }
+  iterator begin() { return this->rbegin(); }
+  const_iterator begin() const { return this->rbegin(); }
+  iterator end() { return this->rend(); }
+  const_iterator end() const { return this->rend(); }
+  size_t getMemoryUsed() const { return sizeof(T) * this->size(); }
+};
 
 } // namespace Fsa
 

@@ -14,32 +14,30 @@
 #ifndef _AM_HMM_TOPOLOGY_SET_PARSER_HH
 #define _AM_HMM_TOPOLOGY_SET_PARSER_HH
 
-
-#include <Core/XmlParser.hh>
 #include "HmmTopologySet.hh"
+#include <Core/XmlParser.hh>
 
 namespace Am {
 
-    class HmmTopologySetParser : public Core::XmlSchemaParser {
-    private:
-	typedef HmmTopologySetParser Self;
+class HmmTopologySetParser : public Core::XmlSchemaParser {
+private:
+  typedef HmmTopologySetParser Self;
 
-	HmmTopologySet &hset_;
+  HmmTopologySet &hset_;
 
-	void end_hmm_topology_set(const Core::XmlAttributes atts);
-	void start_hmm_topology(const Core::XmlAttributes atts);
-	void end_hmm_topology(const Core::XmlAttributes atts);
-	void start_default_silence(const Core::XmlAttributes atts);
-	void start_default_acoustic_unit(const Core::XmlAttributes atts);
+  void end_hmm_topology_set(const Core::XmlAttributes atts);
+  void start_hmm_topology(const Core::XmlAttributes atts);
+  void end_hmm_topology(const Core::XmlAttributes atts);
+  void start_default_silence(const Core::XmlAttributes atts);
+  void start_default_acoustic_unit(const Core::XmlAttributes atts);
 
-    public:
-	HmmTopologySetParser(HmmTopologySet &hset, const Core::Configuration &c);
+public:
+  HmmTopologySetParser(HmmTopologySet &hset, const Core::Configuration &c);
 
-	bool buildFromString(const std::string &str);
-	bool buildFromFile(const std::string &filename);
-    };
+  bool buildFromString(const std::string &str);
+  bool buildFromFile(const std::string &filename);
+};
 
-}
-
+} // namespace Am
 
 #endif // _AM_HMM_TOPOLOGY_SET_PARSER_HH

@@ -16,26 +16,24 @@
 
 #include <fstream>
 
-
 namespace Core {
 
+/**
+ * This is just a wrapper class for std::filebuf which grants
+ * public access to the file descriptor of the associated file.
+ * This hack is needed because the brain-damaged C++ standard says
+ * we're not supposed to assume that file descriptors do exist.
+ */
 
-    /**
-     * This is just a wrapper class for std::filebuf which grants
-     * public access to the file descriptor of the associated file.
-     * This hack is needed because the brain-damaged C++ standard says
-     * we're not supposed to assume that file descriptors do exist.
-     */
-
-    class FileStreamBuffer : public std::filebuf {
-    public:
+class FileStreamBuffer : public std::filebuf {
+public:
 #ifdef __SUNPRO_CC
-	int fd() { return std::filebuf::fd(); }
+  int fd() { return std::filebuf::fd(); }
 #else
-	int fd() { return _M_file.fd(); }
+  int fd() { return _M_file.fd(); }
 #endif
-    };
+};
 
 } // namespace Core
 
-#endif //CORE_FILESTREAM_HH
+#endif // CORE_FILESTREAM_HH

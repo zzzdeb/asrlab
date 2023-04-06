@@ -20,60 +20,64 @@
 #include "tSemiring.hh"
 
 namespace Fsa {
-    class Weight {
-	friend class Ftl::Semiring<Weight>;
-    private:
-	union Value {
-	    s32 s;
-	    u32 u;
-	    f32 f;
-	};
-	Value value_;
+class Weight {
+  friend class Ftl::Semiring<Weight>;
 
-    public:
-	Weight() {}
-	explicit Weight(s32 value) { value_.s = value; }
-	explicit Weight(u32 value) { value_.u = value; }
-	explicit Weight(f32 value) { value_.f = value; }
-	explicit Weight(double value) { value_.f = value; }
+private:
+  union Value {
+    s32 s;
+    u32 u;
+    f32 f;
+  };
+  Value value_;
 
-	operator int() { return value_.s; }
-	operator int() const { return value_.s; }
-	operator u32() { return value_.u; }
-	operator u32() const { return value_.u; }
-	operator float() { return value_.f; }
-	operator float() const { return value_.f; }
-	const Weight& operator= (const Weight &w) { value_ = w.value_; return *this; }
+public:
+  Weight() {}
+  explicit Weight(s32 value) { value_.s = value; }
+  explicit Weight(u32 value) { value_.u = value; }
+  explicit Weight(f32 value) { value_.f = value; }
+  explicit Weight(double value) { value_.f = value; }
 
-	bool operator== (const Weight &w) const {
-	    return memcmp(&value_, &w.value_, sizeof(Value)) == 0;
-	}
+  operator int() { return value_.s; }
+  operator int() const { return value_.s; }
+  operator u32() { return value_.u; }
+  operator u32() const { return value_.u; }
+  operator float() { return value_.f; }
+  operator float() const { return value_.f; }
+  const Weight &operator=(const Weight &w) {
+    value_ = w.value_;
+    return *this;
+  }
 
-	bool operator!= (const Weight &w) const {
-	    return memcmp(&value_, &w.value_, sizeof(Value)) != 0;
-	}
+  bool operator==(const Weight &w) const {
+    return memcmp(&value_, &w.value_, sizeof(Value)) == 0;
+  }
 
-	bool operator< (const Weight &w) const {
-	    return memcmp(&value_, &w.value_, sizeof(Value)) < 0;
-	}
-    };
+  bool operator!=(const Weight &w) const {
+    return memcmp(&value_, &w.value_, sizeof(Value)) != 0;
+  }
 
-    typedef Ftl::Accumulator<Weight> Accumulator;
-    typedef Ftl::Semiring<Weight> Semiring;
-    typedef Semiring::Ref SemiringRef;
-    typedef Semiring::ConstRef ConstSemiringRef;
+  bool operator<(const Weight &w) const {
+    return memcmp(&value_, &w.value_, sizeof(Value)) < 0;
+  }
+};
 
-    extern ConstSemiringRef UnknownSemiring;
-    extern ConstSemiringRef LogSemiring;
-    extern ConstSemiringRef TropicalSemiring;
-    extern ConstSemiringRef TropicalIntegerSemiring;
-    extern ConstSemiringRef CountSemiring;
-    extern ConstSemiringRef ProbabilitySemiring;
+typedef Ftl::Accumulator<Weight> Accumulator;
+typedef Ftl::Semiring<Weight> Semiring;
+typedef Semiring::Ref SemiringRef;
+typedef Semiring::ConstRef ConstSemiringRef;
 
-    extern Core::Choice SemiringTypeChoice;
+extern ConstSemiringRef UnknownSemiring;
+extern ConstSemiringRef LogSemiring;
+extern ConstSemiringRef TropicalSemiring;
+extern ConstSemiringRef TropicalIntegerSemiring;
+extern ConstSemiringRef CountSemiring;
+extern ConstSemiringRef ProbabilitySemiring;
 
-    extern ConstSemiringRef getSemiring(SemiringType type);
-    extern SemiringType getSemiringType(ConstSemiringRef semiring);
+extern Core::Choice SemiringTypeChoice;
+
+extern ConstSemiringRef getSemiring(SemiringType type);
+extern SemiringType getSemiringType(ConstSemiringRef semiring);
 } // namespace Fsa
 
 #endif // _FSA_SEMIRING_HH

@@ -14,11 +14,11 @@
 #ifndef _FSA_CACHE_HH
 #define _FSA_CACHE_HH
 
-#include <Core/Types.hh>
 #include "Automaton.hh"
+#include <Core/Types.hh>
 
 namespace Fsa {
-    ConstAutomatonRef cache(ConstAutomatonRef f, u32 maxAge = 10000);
+ConstAutomatonRef cache(ConstAutomatonRef f, u32 maxAge = 10000);
 } // namespace Fsa
 
 #endif // _FSA_CACHE_HH

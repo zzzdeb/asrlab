@@ -19,17 +19,16 @@ using namespace Flow;
 // FeatureExtractor
 ///////////////////
 
-void FeatureExtractor::processSegment(Bliss::Segment *segment)
-{
-    std::string frameShift = dataSource()->getAttribute(dataSource()->mainPortId(), "frame-shift");
+void FeatureExtractor::processSegment(Bliss::Segment *segment) {
+  std::string frameShift =
+      dataSource()->getAttribute(dataSource()->mainPortId(), "frame-shift");
 
-    if (!frameShift.empty()) {
-	Flow::Time tmp = atof(frameShift.c_str());
-	if (tmp != frameShift_)
-	    log("frame shift changed to %f", tmp);
-	frameShift_ = tmp;
-    }
+  if (!frameShift.empty()) {
+    Flow::Time tmp = atof(frameShift.c_str());
+    if (tmp != frameShift_)
+      log("frame shift changed to %f", tmp);
+    frameShift_ = tmp;
+  }
 
-    Precursor::processSegment(segment);
+  Precursor::processSegment(segment);
 }
-

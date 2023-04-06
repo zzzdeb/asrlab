@@ -19,27 +19,28 @@
 
 namespace Search {
 
-    class SearchAlgorithm;
+class SearchAlgorithm;
 
-    enum SearchType {
-	WordConditionedTreeSearchType,
-	AdvancedTreeSearch,
-	TeachingWordConditionedTreeSearchType,
-	FsaSearchType,
-	LinearSearchType,
-	ExpandingFsaSearchType,
-	TeachingLinearSearchType,
-	LinearSignLanguageSearchType
-    };
+enum SearchType {
+  WordConditionedTreeSearchType,
+  AdvancedTreeSearch,
+  TeachingWordConditionedTreeSearchType,
+  FsaSearchType,
+  LinearSearchType,
+  ExpandingFsaSearchType,
+  TeachingLinearSearchType,
+  LinearSignLanguageSearchType
+};
 
-    class Module_ {
-    public:
-	Module_();
+class Module_ {
+public:
+  Module_();
 
-	SearchAlgorithm* createRecognizer(SearchType type, const Core::Configuration &config) const;
-    };
+  SearchAlgorithm *createRecognizer(SearchType type,
+                                    const Core::Configuration &config) const;
+};
 
-    typedef Core::SingletonHolder<Module_> Module;
-}
+typedef Core::SingletonHolder<Module_> Module;
+} // namespace Search
 
 #endif // _SEARCH_MODULE_HH

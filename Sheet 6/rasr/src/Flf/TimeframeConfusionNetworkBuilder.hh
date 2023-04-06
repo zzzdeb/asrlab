@@ -18,19 +18,20 @@
 #include "FwdBwd.hh"
 #include "Network.hh"
 
-
 namespace Flf {
 
-    /**
-     * Build framewise posterior CN from fwd/bwd scores
-     **/
-    ConstPosteriorCnRef buildFramePosteriorCn(ConstLatticeRef l, ConstFwdBwdRef fwdBwd);
-    /**
-     * Build framewise posterior CN from scores stored in dimension "id"
-     **/
-    ConstPosteriorCnRef buildFramePosteriorCn(ConstLatticeRef l, ScoreId id);
+/**
+ * Build framewise posterior CN from fwd/bwd scores
+ **/
+ConstPosteriorCnRef buildFramePosteriorCn(ConstLatticeRef l,
+                                          ConstFwdBwdRef fwdBwd);
+/**
+ * Build framewise posterior CN from scores stored in dimension "id"
+ **/
+ConstPosteriorCnRef buildFramePosteriorCn(ConstLatticeRef l, ScoreId id);
 
-    NodeRef createFramePosteriorCnBuilderNode(const std::string &name, const Core::Configuration &config);
+NodeRef createFramePosteriorCnBuilderNode(const std::string &name,
+                                          const Core::Configuration &config);
 
 } // namespace Flf
 

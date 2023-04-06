@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "RemoveEpsilons.hh"
-#include <Fsa/RemoveEpsilons.hh>
 #include "Basic.hh"
+#include <Fsa/RemoveEpsilons.hh>
 
 namespace Lattice {
 
-    struct Remover
-    {
-	Remover() {}
-	Fsa::ConstAutomatonRef modify(Fsa::ConstAutomatonRef fsa) {
-	    return Fsa::removeEpsilons(fsa);
-	}
-    };
+struct Remover {
+  Remover() {}
+  Fsa::ConstAutomatonRef modify(Fsa::ConstAutomatonRef fsa) {
+    return Fsa::removeEpsilons(fsa);
+  }
+};
 
-    ConstWordLatticeRef removeEpsilons(ConstWordLatticeRef l)
-    {
-	Remover r;
-	return apply(l, r);
-    }
+ConstWordLatticeRef removeEpsilons(ConstWordLatticeRef l) {
+  Remover r;
+  return apply(l, r);
+}
 
-} //namespace Lattice
+} // namespace Lattice

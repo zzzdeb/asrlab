@@ -19,52 +19,51 @@
 
 namespace Lattice {
 
-    template <class Modifier>
-    ConstWordLatticeRef apply(
-	ConstWordLatticeRef lattice, Modifier &m)
-    {
-	if (lattice) {
-	    WordLattice *l = new WordLattice;
-	    l->setWordBoundaries(lattice->wordBoundaries());
-	    for (size_t i = 0; i < lattice->nParts(); ++ i) {
-		l->setFsa(m.modify(lattice->part(i)),
-			  lattice->name(i));
-	    }
-	    return ConstWordLatticeRef(l);
-	}
-	return ConstWordLatticeRef();
+template <class Modifier>
+ConstWordLatticeRef apply(ConstWordLatticeRef lattice, Modifier &m) {
+  if (lattice) {
+    WordLattice *l = new WordLattice;
+    l->setWordBoundaries(lattice->wordBoundaries());
+    for (size_t i = 0; i < lattice->nParts(); ++i) {
+      l->setFsa(m.modify(lattice->part(i)), lattice->name(i));
     }
-
-    ConstWordLatticeRef normalize(ConstWordLatticeRef);
-    ConstWordLatticeRef trim(ConstWordLatticeRef l, bool progress = false);
-    ConstWordLatticeRef partial(ConstWordLatticeRef l, Fsa::StateId initial);
-    ConstWordLatticeRef partial(ConstWordLatticeRef l, Fsa::StateId initial, Fsa::Weight additionalFinalWeight);
-    ConstWordLatticeRef changeSemiring(ConstWordLatticeRef, Fsa::ConstSemiringRef);
-
-    bool isEmpty(ConstWordLatticeRef l);
-
-    /**
-     * number of arcs per timeframe
-     */
-    f32 density(ConstWordLatticeRef);
-    std::pair<u32, u32> densityInfo(ConstWordLatticeRef);
-
-    typedef Fsa::SsspArcFilter Predicate;
-    class IsInputLabel : public Predicate
-    {
-    public:
-	typedef Core::hash_set<Fsa::LabelId> LabelSet;
-    private:
-	const LabelSet &labels_;
-    public:
-	IsInputLabel(const LabelSet &labels) : labels_(labels) {}
-	virtual bool operator() (const Fsa::Arc &a) const {
-	    return labels_.find(a.input()) != labels_.end();
-	}
-    };
-
-    u32 nArcs(ConstWordLatticeRef, Predicate);
-    std::pair<Fsa::Weight,Fsa::Weight> minMaxWeights(ConstWordLatticeRef);
+    return ConstWordLatticeRef(l);
+  }
+  return ConstWordLatticeRef();
 }
+
+ConstWordLatticeRef normalize(ConstWordLatticeRef);
+ConstWordLatticeRef trim(ConstWordLatticeRef l, bool progress = false);
+ConstWordLatticeRef partial(ConstWordLatticeRef l, Fsa::StateId initial);
+ConstWordLatticeRef partial(ConstWordLatticeRef l, Fsa::StateId initial,
+                            Fsa::Weight additionalFinalWeight);
+ConstWordLatticeRef changeSemiring(ConstWordLatticeRef, Fsa::ConstSemiringRef);
+
+bool isEmpty(ConstWordLatticeRef l);
+
+/**
+ * number of arcs per timeframe
+ */
+f32 density(ConstWordLatticeRef);
+std::pair<u32, u32> densityInfo(ConstWordLatticeRef);
+
+typedef Fsa::SsspArcFilter Predicate;
+class IsInputLabel : public Predicate {
+public:
+  typedef Core::hash_set<Fsa::LabelId> LabelSet;
+
+private:
+  const LabelSet &labels_;
+
+public:
+  IsInputLabel(const LabelSet &labels) : labels_(labels) {}
+  virtual bool operator()(const Fsa::Arc &a) const {
+    return labels_.find(a.input()) != labels_.end();
+  }
+};
+
+u32 nArcs(ConstWordLatticeRef, Predicate);
+std::pair<Fsa::Weight, Fsa::Weight> minMaxWeights(ConstWordLatticeRef);
+} // namespace Lattice
 
 #endif // _LATTICE_BASIC_HH

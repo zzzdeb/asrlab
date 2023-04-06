@@ -26,4 +26,4 @@ using __gnu_cxx::temporary_buffer;
 
 #endif
 
-#endif //CORE_TEMPORARY_BUFFER
+#endif // CORE_TEMPORARY_BUFFER

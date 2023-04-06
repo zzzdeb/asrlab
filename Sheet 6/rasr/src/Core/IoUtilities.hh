@@ -15,113 +15,105 @@
 #define _CORE_IOUTILITIES_HH_
 
 #include <iostream>
-#include <time.h>
 #include <list>
 #include <set>
+#include <time.h>
 #include <vector>
 
 namespace Core {
-    /*****************************************************************************/
-    struct OStreamWriter {
-	virtual ~OStreamWriter() {}
-	virtual void write(std::ostream & out) const = 0;
-    };
+/*****************************************************************************/
+struct OStreamWriter {
+  virtual ~OStreamWriter() {}
+  virtual void write(std::ostream &out) const = 0;
+};
 
-    /*****************************************************************************/
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*
+  Prints a timestamp.
+*/
+struct TimeStampWriter : public OStreamWriter {
+  time_t t;
 
-    /*****************************************************************************/
-    /*
-      Prints a timestamp.
-    */
-    struct TimeStampWriter :
-	public OStreamWriter {
-	time_t t;
+  TimeStampWriter() { ::time(&t); }
+  TimeStampWriter(const time_t &t) : t(t) {}
 
-	TimeStampWriter() {
-	    ::time(&t);
-	}
-	TimeStampWriter(const time_t & t) :
-	    t(t) {}
+  void write(std::ostream &out) const;
+};
 
-	void write(std::ostream &out) const;
-    };
+inline std::ostream &timestamp(std::ostream &out) {
+  Core::TimeStampWriter w;
+  w.write(out);
+  return out;
+}
 
+/*****************************************************************************/
 
-    inline std::ostream & timestamp(std::ostream &out) {
-	Core::TimeStampWriter w;
-	w.write(out);
-	return out;
+/*****************************************************************************/
+/*
+  Prints a list of values.
+  Use either ListWriter directly or
+  for vector, list, and set you may use the function
+  str returning a streamable object.
+*/
+template <class InputIterator> struct ListWriter : public OStreamWriter {
+
+  const InputIterator begin;
+  const InputIterator end;
+  const std::string delim;
+  const std::string openingBracket;
+  const std::string closingBracket;
+
+  ListWriter(const InputIterator &begin, const InputIterator &end,
+             const std::string &delim = ", ",
+             const std::string &openingBracket = "",
+             const std::string &closingBracket = "")
+      : begin(begin), end(end), delim(delim), openingBracket(openingBracket),
+        closingBracket(closingBracket) {}
+
+  void write(std::ostream &out) const {
+    out << openingBracket;
+    if (begin != end) {
+      InputIterator it = begin;
+      out << *(it++);
+      for (; it != end; ++it)
+        out << delim << *it;
     }
+    out << closingBracket;
+  }
+};
 
-    /*****************************************************************************/
+template <typename T>
+ListWriter<typename std::vector<T>::const_iterator>
+str(const std::vector<T> &v, const std::string &delim = ", ") {
+  return ListWriter<typename std::vector<T>::const_iterator>(v.begin(), v.end(),
+                                                             delim, "[", "]");
+}
 
+template <typename T>
+ListWriter<typename std::set<T>::const_iterator>
+str(const std::set<T> &v, const std::string &delim = ", ") {
+  return ListWriter<typename std::set<T>::const_iterator>(v.begin(), v.end(),
+                                                          delim, "{", "}");
+}
 
-    /*****************************************************************************/
-    /*
-      Prints a list of values.
-      Use either ListWriter directly or
-      for vector, list, and set you may use the function
-      str returning a streamable object.
-    */
-    template<class InputIterator>
-    struct ListWriter :
-	public OStreamWriter {
+template <typename T>
+ListWriter<typename std::list<T>::const_iterator>
+str(const std::list<T> &v, const std::string &delim = ", ") {
+  return ListWriter<typename std::list<T>::const_iterator>(v.begin(), v.end(),
+                                                           delim, "[", "]");
+}
 
-	const InputIterator begin;
-	const InputIterator end;
-	const std::string delim;
-	const std::string openingBracket;
-	const std::string closingBracket;
-
-	ListWriter(
-	    const InputIterator & begin,
-	    const InputIterator & end,
-	    const std::string & delim = ", ",
-	    const std::string & openingBracket = "",
-	    const std::string & closingBracket = ""
-	    ) :
-	    begin(begin),
-	    end(end), delim(delim),
-	    openingBracket(openingBracket), closingBracket(closingBracket) {
-	}
-
-	void write(std::ostream &out) const {
-	    out << openingBracket;
-	    if (begin != end) {
-		InputIterator it = begin;
-		out << *(it++);
-		for(; it != end; ++it)
-		    out << delim << *it;
-	    }
-	    out << closingBracket;
-	}
-    };
-
-    template<typename T>
-	ListWriter<typename std::vector<T>::const_iterator> str(const std::vector<T> & v, const std::string & delim = ", ") {
-	return ListWriter<typename std::vector<T>::const_iterator>(v.begin(), v.end(), delim, "[", "]");
-    }
-
-   template<typename T>
-	ListWriter<typename std::set<T>::const_iterator> str(const std::set<T> & v, const std::string & delim = ", ") {
-	return ListWriter<typename std::set<T>::const_iterator>(v.begin(), v.end(), delim, "{", "}");
-    }
-
-    template<typename T>
-	ListWriter<typename std::list<T>::const_iterator> str(const std::list<T> & v, const std::string & delim = ", ") {
-	return ListWriter<typename std::list<T>::const_iterator>(v.begin(), v.end(), delim, "[", "]");
-    }
-
-    /*****************************************************************************/
+/*****************************************************************************/
 
 } // namespace Core
 
-
 /*********************************************************************************/
-inline std::ostream & operator<<(std::ostream & out, const Core::OStreamWriter & w) {
-    w.write(out);
-    return out;
+inline std::ostream &operator<<(std::ostream &out,
+                                const Core::OStreamWriter &w) {
+  w.write(out);
+  return out;
 }
 /*********************************************************************************/
 

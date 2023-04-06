@@ -18,15 +18,14 @@
 
 namespace Audio {
 
-    /** audio flow node registration */
+/** audio flow node registration */
 
-    class Module_ {
-    public:
-	Module_();
-    };
+class Module_ {
+public:
+  Module_();
+};
 
-    typedef Core::SingletonHolder<Module_> Module;
-}
-
+typedef Core::SingletonHolder<Module_> Module;
+} // namespace Audio
 
 #endif // _AUDIO_MODULE_HH

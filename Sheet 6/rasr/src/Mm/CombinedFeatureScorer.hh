@@ -20,56 +20,63 @@
 
 namespace Mm {
 
-    class CombinedFeatureScorer : public ScaledFeatureScorer {
-	typedef ScaledFeatureScorer Precursor;
-    public:
-	typedef std::vector<MixtureIndex> MixtureIndexTableRow;
-	typedef std::vector<MixtureIndexTableRow> MixtureIndexTable;
-    protected:
-	class CombinedContextScorer : public ContextScorer {
-	private:
-	    friend class CombinedFeatureScorer;
-	    const CombinedFeatureScorer *combinedFeatureScorer_;
-	    std::vector<Scorer> contextScorers_;
-	    const MixtureIndexTable &mixtureIndexTable_;
-	public:
-	    CombinedContextScorer(Core::Ref<const Feature>,
-				  const CombinedFeatureScorer *);
-	    CombinedContextScorer(const FeatureVector &,
-				  const CombinedFeatureScorer *);
-	    virtual Score score(EmissionIndex e) const;
-	    virtual EmissionIndex nEmissions() const { return combinedFeatureScorer_->nEmissions(); }
-	};
-	friend class CombinedContextScorer;
-    private:
-	std::vector<Core::Ref<ScaledFeatureScorer> > featureScorers_;
-	const MixtureIndexTable &mixtureIndexTable_;
-	size_t nModels_;
-    private:
-	bool verifyMixtureIndexTable();
-	EmissionIndex nEmissions() const { return mixtureIndexTable_.size(); }
-	size_t nModels() const { return nModels_; }
-    public:
-	CombinedFeatureScorer(const Core::Configuration &configuration,
-			      const std::vector<Core::Ref<ScaledFeatureScorer > > &featureScorers,
-			      const MixtureIndexTable &mixtureTable);
-	virtual ~CombinedFeatureScorer();
+class CombinedFeatureScorer : public ScaledFeatureScorer {
+  typedef ScaledFeatureScorer Precursor;
 
-	virtual void distributeScaleUpdate(const Mc::ScaleUpdate &scaleUpdate);
+public:
+  typedef std::vector<MixtureIndex> MixtureIndexTableRow;
+  typedef std::vector<MixtureIndexTableRow> MixtureIndexTable;
 
-	virtual EmissionIndex nMixtures() const { return nEmissions(); }
-	virtual void getFeatureDescription(FeatureDescription &description) const;
-	virtual void getDependencies(Core::DependencySet &dependencies) const;
+protected:
+  class CombinedContextScorer : public ContextScorer {
+  private:
+    friend class CombinedFeatureScorer;
+    const CombinedFeatureScorer *combinedFeatureScorer_;
+    std::vector<Scorer> contextScorers_;
+    const MixtureIndexTable &mixtureIndexTable_;
 
-	virtual Scorer getScorer(Core::Ref<const Feature> f) const {
-	    return Scorer(new CombinedContextScorer(f, this));
-	}
-	virtual Scorer getScorer(const FeatureVector &featureVector) const {
-	    return Scorer(new CombinedContextScorer(featureVector, this));
-	}
+  public:
+    CombinedContextScorer(Core::Ref<const Feature>,
+                          const CombinedFeatureScorer *);
+    CombinedContextScorer(const FeatureVector &, const CombinedFeatureScorer *);
+    virtual Score score(EmissionIndex e) const;
+    virtual EmissionIndex nEmissions() const {
+      return combinedFeatureScorer_->nEmissions();
+    }
+  };
+  friend class CombinedContextScorer;
 
-    }; // class CombinedFeatureScorer
+private:
+  std::vector<Core::Ref<ScaledFeatureScorer> > featureScorers_;
+  const MixtureIndexTable &mixtureIndexTable_;
+  size_t nModels_;
+
+private:
+  bool verifyMixtureIndexTable();
+  EmissionIndex nEmissions() const { return mixtureIndexTable_.size(); }
+  size_t nModels() const { return nModels_; }
+
+public:
+  CombinedFeatureScorer(
+      const Core::Configuration &configuration,
+      const std::vector<Core::Ref<ScaledFeatureScorer> > &featureScorers,
+      const MixtureIndexTable &mixtureTable);
+  virtual ~CombinedFeatureScorer();
+
+  virtual void distributeScaleUpdate(const Mc::ScaleUpdate &scaleUpdate);
+
+  virtual EmissionIndex nMixtures() const { return nEmissions(); }
+  virtual void getFeatureDescription(FeatureDescription &description) const;
+  virtual void getDependencies(Core::DependencySet &dependencies) const;
+
+  virtual Scorer getScorer(Core::Ref<const Feature> f) const {
+    return Scorer(new CombinedContextScorer(f, this));
+  }
+  virtual Scorer getScorer(const FeatureVector &featureVector) const {
+    return Scorer(new CombinedContextScorer(featureVector, this));
+  }
+
+}; // class CombinedFeatureScorer
 } // namespace Mm
-
 
 #endif // _MM_COMBINED_FEATURE_SCORER_HH

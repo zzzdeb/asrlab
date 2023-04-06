@@ -15,15 +15,15 @@
 #define _BLISS_UNKNOWN_HH
 
 #include <Fsa/Automaton.hh>
-namespace Bliss { class Lexicon; }
+namespace Bliss {
+class Lexicon;
+}
 
 namespace Bliss {
 
-    Fsa::ConstAutomatonRef createAnyPhonemeToUnknownTransducer(
-	Core::Ref<const Lexicon>,
-	f32 weight = 0.0);
+Fsa::ConstAutomatonRef
+createAnyPhonemeToUnknownTransducer(Core::Ref<const Lexicon>, f32 weight = 0.0);
 
 } // namespace Bliss
-
 
 #endif // _BLISS_UNKNOWN_HH

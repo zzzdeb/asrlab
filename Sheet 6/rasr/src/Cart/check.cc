@@ -19,9 +19,11 @@
 
 class TestApplication : public Core::Application {
 public:
-    TestApplication() : Core::Application() { setTitle("check"); }
-    virtual std::string getUsage() const { return "short program to test Cart\n"; }
-    int main(const std::vector<std::string> &arguments);
+  TestApplication() : Core::Application() { setTitle("check"); }
+  virtual std::string getUsage() const {
+    return "short program to test Cart\n";
+  }
+  int main(const std::vector<std::string> &arguments);
 } app;
 
 using namespace Cart;
@@ -30,9 +32,9 @@ using namespace Cart;
 int TestApplication::main(const std::vector<std::string> &argv)
 /*****************************************************************************/
 {
-    require(!argv.empty());
-    DecisionTree dt(config);
-    return 0;
+  require(!argv.empty());
+  DecisionTree dt(config);
+  return 0;
 }
 
 APPLICATION

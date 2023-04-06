@@ -14,21 +14,22 @@
 #ifndef _FSA_INPUT_HH
 #define _FSA_INPUT_HH
 
+#include "Storage.hh"
 #include <iostream>
 #include <string>
-#include "Storage.hh"
 
 namespace Fsa {
-    ConstAutomatonRef read(const std::string &file, ConstSemiringRef semiring = TropicalSemiring);
+ConstAutomatonRef read(const std::string &file,
+                       ConstSemiringRef semiring = TropicalSemiring);
 
-    bool read(StorageAutomaton *f, const std::string &file);
-    bool read(StorageAutomaton *f, const std::string &format, std::istream &i);
+bool read(StorageAutomaton *f, const std::string &file);
+bool read(StorageAutomaton *f, const std::string &format, std::istream &i);
 
-    bool readAtt(StorageAutomaton *f, std::istream &i);
-    bool readBinary(StorageAutomaton *f, std::istream &i);
-    bool readLinear(StorageAutomaton *f, std::istream &i);
-    bool readXml(StorageAutomaton *f, std::istream &i);
+bool readAtt(StorageAutomaton *f, std::istream &i);
+bool readBinary(StorageAutomaton *f, std::istream &i);
+bool readLinear(StorageAutomaton *f, std::istream &i);
+bool readXml(StorageAutomaton *f, std::istream &i);
 
-} // namespace
+} // namespace Fsa
 
 #endif // _FSA_INPUT_HH

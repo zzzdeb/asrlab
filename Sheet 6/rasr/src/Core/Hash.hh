@@ -28,69 +28,61 @@
 #include <backward/hash_set>
 #else
 // gcc < 4.3
-#include <ext/hash_set>
 #include <ext/hash_map>
+#include <ext/hash_set>
 #endif // gcc >= 4.3
 #else
 // gcc <= 3
-#include <ext/stl_hash_fun.h>
-#include <ext/hash_set>
 #include <ext/hash_map>
+#include <ext/hash_set>
+#include <ext/stl_hash_fun.h>
 #endif
 
 #endif // __SUNPROC_CC
-#include <string>
 #include <cstring>
+#include <string>
 
 namespace Core {
 
-    using __gnu_cxx::hash;
-    using __gnu_cxx::hash_set;
-    using __gnu_cxx::hash_map;
-    using __gnu_cxx::hash_multimap;
+using __gnu_cxx::hash;
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash_multimap;
+using __gnu_cxx::hash_set;
 
-    template<class T> struct PointerHash {
-	size_t operator() (const T *p) const {
-	    return reinterpret_cast<size_t>(p);
-	}
-    };
+template <class T> struct PointerHash {
+  size_t operator()(const T *p) const { return reinterpret_cast<size_t>(p); }
+};
 
-    struct StringHash {
-	size_t operator() (const char *s) const {
-	    size_t result = 0;
-	    while (*s) result = 5 * result + size_t(*s++);
-	    return result;
-	}
-	size_t operator() (const std::string &s) const {
-	    return (*this)(s.c_str());
-	}
-    };
+struct StringHash {
+  size_t operator()(const char *s) const {
+    size_t result = 0;
+    while (*s)
+      result = 5 * result + size_t(*s++);
+    return result;
+  }
+  size_t operator()(const std::string &s) const { return (*this)(s.c_str()); }
+};
 
-    struct StringEquality :
-	std::binary_function<const char*, const char*, bool>
-    {
-	bool operator() (const char *s, const char *t) const {
-	    return (s == t) || (std::strcmp(s, t) == 0);
-	}
-	bool operator() (const std::string &s, const std::string &t) const {
-	    return (s == t);
-	}
-    };
+struct StringEquality : std::binary_function<const char *, const char *, bool> {
+  bool operator()(const char *s, const char *t) const {
+    return (s == t) || (std::strcmp(s, t) == 0);
+  }
+  bool operator()(const std::string &s, const std::string &t) const {
+    return (s == t);
+  }
+};
 
-    class StringHashSet :
-	public hash_set<std::string, StringHash, StringEquality>
-    {};
+class StringHashSet : public hash_set<std::string, StringHash, StringEquality> {
+};
 
-    template <typename T>
-    class StringHashMap :
-	public hash_map<std::string, T, StringHash, StringEquality>
-    {};
+template <typename T>
+class StringHashMap
+    : public hash_map<std::string, T, StringHash, StringEquality> {};
 
-    //typedef hash_map HashMap;
-	template <typename T_Key, typename T_Value, typename HashFcn = hash<T_Key>, typename EqualKey = std::equal_to<T_Key> >
-	class HashMap :
-	public hash_map<T_Key, T_Value, HashFcn, EqualKey>
-	{};
-}
+// typedef hash_map HashMap;
+template <typename T_Key, typename T_Value, typename HashFcn = hash<T_Key>,
+          typename EqualKey = std::equal_to<T_Key> >
+class HashMap : public hash_map<T_Key, T_Value, HashFcn, EqualKey> {};
+} // namespace Core
 
 #endif // _CORE_HASH_HH

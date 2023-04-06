@@ -11,34 +11,36 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "Basic.hh"
 #include "TopologicalOrderQueue.hh"
+#include "Basic.hh"
 
 namespace Flf {
 
-    // -------------------------------------------------------------------------
-    TopologicalOrderQueueRef createTopologicalOrderQueue(
-	ConstLatticeRef l, ConstStateMapRef topologicalOrder) {
-	if (!topologicalOrder) {
-	    topologicalOrder = findTopologicalOrder(l);
-	    verify(topologicalOrder);
-	}
-	WeakTopologicalOrder orderFcn(topologicalOrder);
-	return TopologicalOrderQueueRef(new TopologicalOrderQueue(orderFcn));
-    }
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+TopologicalOrderQueueRef
+createTopologicalOrderQueue(ConstLatticeRef l,
+                            ConstStateMapRef topologicalOrder) {
+  if (!topologicalOrder) {
+    topologicalOrder = findTopologicalOrder(l);
+    verify(topologicalOrder);
+  }
+  WeakTopologicalOrder orderFcn(topologicalOrder);
+  return TopologicalOrderQueueRef(new TopologicalOrderQueue(orderFcn));
+}
+// -------------------------------------------------------------------------
 
-
-    // -------------------------------------------------------------------------
-    ReverseTopologicalOrderQueueRef createReverseTopologicalOrderQueue(
-	ConstLatticeRef l, ConstStateMapRef topologicalOrder) {
-	if (!topologicalOrder) {
-	    topologicalOrder = findTopologicalOrder(l);
-	    verify(topologicalOrder);
-	}
-	WeakReverseTopologicalOrder orderFcn(topologicalOrder);
-	return ReverseTopologicalOrderQueueRef(new ReverseTopologicalOrderQueue(orderFcn));
-    }
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+ReverseTopologicalOrderQueueRef
+createReverseTopologicalOrderQueue(ConstLatticeRef l,
+                                   ConstStateMapRef topologicalOrder) {
+  if (!topologicalOrder) {
+    topologicalOrder = findTopologicalOrder(l);
+    verify(topologicalOrder);
+  }
+  WeakReverseTopologicalOrder orderFcn(topologicalOrder);
+  return ReverseTopologicalOrderQueueRef(
+      new ReverseTopologicalOrderQueue(orderFcn));
+}
+// -------------------------------------------------------------------------
 
 } // namespace Flf

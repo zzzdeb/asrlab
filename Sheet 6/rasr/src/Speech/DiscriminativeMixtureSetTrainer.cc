@@ -19,53 +19,46 @@ using namespace Speech;
 /**
  *  Discriminative mixture set trainer
  */
-DiscriminativeMixtureSetTrainer::DiscriminativeMixtureSetTrainer(const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c)
-{}
+DiscriminativeMixtureSetTrainer::DiscriminativeMixtureSetTrainer(
+    const Core::Configuration &c)
+    : Core::Component(c), Precursor(c) {}
 
-DiscriminativeMixtureSetTrainer::~DiscriminativeMixtureSetTrainer()
-{}
+DiscriminativeMixtureSetTrainer::~DiscriminativeMixtureSetTrainer() {}
 
 void DiscriminativeMixtureSetTrainer::accumulateDenominator(
-    Core::Ref<const Feature::Vector> f, Mm::MixtureIndex m, Mm::Weight w)
-{
-    required_cast(Mm::DiscriminativeMixtureSetEstimator*, estimator_)->accumulateDenominator(m, f, w);
+    Core::Ref<const Feature::Vector> f, Mm::MixtureIndex m, Mm::Weight w) {
+  required_cast(Mm::DiscriminativeMixtureSetEstimator *, estimator_)
+      ->accumulateDenominator(m, f, w);
 }
-void DiscriminativeMixtureSetTrainer::accumulateObjectiveFunction(Mm::Score f)
-{
-    required_cast(Mm::DiscriminativeMixtureSetEstimator*, estimator_)->accumulateObjectiveFunction(f);
+void DiscriminativeMixtureSetTrainer::accumulateObjectiveFunction(Mm::Score f) {
+  required_cast(Mm::DiscriminativeMixtureSetEstimator *, estimator_)
+      ->accumulateObjectiveFunction(f);
 }
-
 
 /**
  *  Convert mixture set trainer
  */
-ConvertMixtureSetTrainer::ConvertMixtureSetTrainer(const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c)
-{
-    estimator_ = 0;
+ConvertMixtureSetTrainer::ConvertMixtureSetTrainer(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c) {
+  estimator_ = 0;
 }
 
-ConvertMixtureSetTrainer::~ConvertMixtureSetTrainer()
-{}
+ConvertMixtureSetTrainer::~ConvertMixtureSetTrainer() {}
 
-Mm::ConvertMixtureSetEstimator* ConvertMixtureSetTrainer::createMixtureSetEstimator() const
-{
-    return new Mm::ConvertMixtureSetEstimator(config);
+Mm::ConvertMixtureSetEstimator *
+ConvertMixtureSetTrainer::createMixtureSetEstimator() const {
+  return new Mm::ConvertMixtureSetEstimator(config);
 }
 
-void ConvertMixtureSetTrainer::read()
-{
-    verify(!estimator_);
-    Core::Ref<Mm::MixtureSet> mixtureSet =
-	Mm::Module::instance().readMixtureSet(config);
-    if (mixtureSet) {
-	Mm::ConvertMixtureSetEstimator *estimator = createMixtureSetEstimator();
-	estimator->setMixtureSet(mixtureSet);
-	estimator_ = estimator;
-    } else {
-	criticalError("Could not read mixture set.");
-    }
+void ConvertMixtureSetTrainer::read() {
+  verify(!estimator_);
+  Core::Ref<Mm::MixtureSet> mixtureSet =
+      Mm::Module::instance().readMixtureSet(config);
+  if (mixtureSet) {
+    Mm::ConvertMixtureSetEstimator *estimator = createMixtureSetEstimator();
+    estimator->setMixtureSet(mixtureSet);
+    estimator_ = estimator;
+  } else {
+    criticalError("Could not read mixture set.");
+  }
 }

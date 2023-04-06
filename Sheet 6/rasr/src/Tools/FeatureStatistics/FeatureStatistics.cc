@@ -15,162 +15,158 @@
 #include <Audio/Module.hh>
 #include <Core/Application.hh>
 #include <Flow/Module.hh>
+#include <Flow/Registry.hh>
 #include <Lm/Module.hh>
 #include <Math/Module.hh>
 #include <Mm/Module.hh>
 #include <Signal/Module.hh>
 #include <Speech/Module.hh>
-#include <Flow/Registry.hh>
 
 #include "FeatureStatistics.hh"
 #include <Speech/CovarianceEstimator.hh>
 
 const Core::Choice FeatureStatistics::choiceAction(
-    "not-given", actionNotGiven,
-    "find-maximum", actionFindMaximum,
+    "not-given", actionNotGiven, "find-maximum", actionFindMaximum,
     "estimate-histograms", actionEstimateHistograms,
     "estimate-sequence-selection-ratio", actionEstimateSequenceSelectionRatio,
-    "estimate-mean", actionEstimateMean,
-    "estimate-covariance", actionEstimateCovariance,
-    "estimate-mean-and-diagonal-variance", actionEstimateMeanAndDiagonalCovariance,
-    "estimate-pca", actionEstimatePca,
+    "estimate-mean", actionEstimateMean, "estimate-covariance",
+    actionEstimateCovariance, "estimate-mean-and-diagonal-variance",
+    actionEstimateMeanAndDiagonalCovariance, "estimate-pca", actionEstimatePca,
     "estimate-covariance-and-pca", actionEstimateCovarianceAndPca,
-    "calculate-covariance-diagonal-normalization", actionCalculateCovarianceDiagonalNormalization,
-    "number-of-active-elements", actionNumberOfActiveElements,
-    Core::Choice::endMark());
-const Core::ParameterChoice FeatureStatistics::paramAction(
-    "action", &choiceAction, "operation to perfom", actionNotGiven);
+    "calculate-covariance-diagonal-normalization",
+    actionCalculateCovarianceDiagonalNormalization, "number-of-active-elements",
+    actionNumberOfActiveElements, Core::Choice::endMark());
+const Core::ParameterChoice
+    FeatureStatistics::paramAction("action", &choiceAction,
+                                   "operation to perfom", actionNotGiven);
 
 APPLICATION(FeatureStatistics)
 
-FeatureStatistics::FeatureStatistics()
-{
-    INIT_MODULE(Am);
-    INIT_MODULE(Audio);
-    INIT_MODULE(Flow);
-    INIT_MODULE(Lm);
-    INIT_MODULE(Math);
-    INIT_MODULE(Mm);
-    INIT_MODULE(Signal);
-    INIT_MODULE(Speech);
-    setTitle("feature-statistics");
+FeatureStatistics::FeatureStatistics() {
+  INIT_MODULE(Am);
+  INIT_MODULE(Audio);
+  INIT_MODULE(Flow);
+  INIT_MODULE(Lm);
+  INIT_MODULE(Math);
+  INIT_MODULE(Mm);
+  INIT_MODULE(Signal);
+  INIT_MODULE(Speech);
+  setTitle("feature-statistics");
 }
 
-int FeatureStatistics::main(const std::vector<std::string> &arguments)
-{
-    switch ((Action)paramAction(config)) {
-    case actionFindMaximum: findMaximum();
-	break;
-    case actionEstimateHistograms: estimateHistograms();
-	break;
-    case actionEstimateSequenceSelectionRatio: estimateSequenceSelectionRatio();
-	break;
-    case actionEstimateMean: estimateMean();
-	break;
-    case actionEstimateCovariance: estimateCovariance();
-	break;
-    case actionEstimateMeanAndDiagonalCovariance: estimateMeanAndDiagonalCovariance();
-	break;
-    case actionEstimatePca: estimatePca();
-	break;
-    case actionEstimateCovarianceAndPca: estimateCovarianceAndPca();
-	break;
-    case actionCalculateCovarianceDiagonalNormalization: calculateCovarianceDiagonalNormalization();
-	break;
-    case actionNumberOfActiveElements: calculateNumberOfActiveElements();
-	break;
-    default:
-	criticalError("Action not given.");
-    };
+int FeatureStatistics::main(const std::vector<std::string> &arguments) {
+  switch ((Action)paramAction(config)) {
+  case actionFindMaximum:
+    findMaximum();
+    break;
+  case actionEstimateHistograms:
+    estimateHistograms();
+    break;
+  case actionEstimateSequenceSelectionRatio:
+    estimateSequenceSelectionRatio();
+    break;
+  case actionEstimateMean:
+    estimateMean();
+    break;
+  case actionEstimateCovariance:
+    estimateCovariance();
+    break;
+  case actionEstimateMeanAndDiagonalCovariance:
+    estimateMeanAndDiagonalCovariance();
+    break;
+  case actionEstimatePca:
+    estimatePca();
+    break;
+  case actionEstimateCovarianceAndPca:
+    estimateCovarianceAndPca();
+    break;
+  case actionCalculateCovarianceDiagonalNormalization:
+    calculateCovarianceDiagonalNormalization();
+    break;
+  case actionNumberOfActiveElements:
+    calculateNumberOfActiveElements();
+    break;
+  default:
+    criticalError("Action not given.");
+  };
 
-    return 0;
+  return 0;
 }
 
-
-void FeatureStatistics::findMaximum()
-{
+void FeatureStatistics::findMaximum() {
 #if 1
-    criticalError("Module SPEECH_ADVANCED is not available");
+  criticalError("Module SPEECH_ADVANCED is not available");
 #endif
 }
 
-void FeatureStatistics::calculateNumberOfActiveElements()
-{
+void FeatureStatistics::calculateNumberOfActiveElements() {
 #if 1
-    criticalError("Module SPARSE is not available");
+  criticalError("Module SPARSE is not available");
 #endif
 }
 
-
-void FeatureStatistics::estimateHistograms()
-{
+void FeatureStatistics::estimateHistograms() {
 #if 1
-    criticalError("Module SIGNAL_ADVANCED is not available");
+  criticalError("Module SIGNAL_ADVANCED is not available");
 #endif
 }
 
-void FeatureStatistics::estimateSequenceSelectionRatio()
-{
+void FeatureStatistics::estimateSequenceSelectionRatio() {
 #if 1
-    criticalError("Module SPEECH_ADVANCED is not available");
+  criticalError("Module SPEECH_ADVANCED is not available");
 #endif
 }
 
-void FeatureStatistics::estimateMean()
-{
+void FeatureStatistics::estimateMean() {
 #if 1
-    criticalError("Module SIGNAL_ADVANCED is not available");
+  criticalError("Module SIGNAL_ADVANCED is not available");
 #endif
 }
 
-void FeatureStatistics::estimateCovariance()
-{
-    Speech::CovarianceEstimator covarianceEstimator(select("covariance-estimator"));
-    visitCorpus(covarianceEstimator);
-    covarianceEstimator.write();
+void FeatureStatistics::estimateCovariance() {
+  Speech::CovarianceEstimator covarianceEstimator(
+      select("covariance-estimator"));
+  visitCorpus(covarianceEstimator);
+  covarianceEstimator.write();
 }
 
-void FeatureStatistics::estimateMeanAndDiagonalCovariance()
-{
-    Speech::MeanAndDiagonalCovarianceEstimator covarianceEstimator(select("covariance-estimator"));
-    visitCorpus(covarianceEstimator);
-    covarianceEstimator.write();
+void FeatureStatistics::estimateMeanAndDiagonalCovariance() {
+  Speech::MeanAndDiagonalCovarianceEstimator covarianceEstimator(
+      select("covariance-estimator"));
+  visitCorpus(covarianceEstimator);
+  covarianceEstimator.write();
 }
 
-
-void FeatureStatistics::estimatePca()
-{
-    Signal::PrincipalComponentAnalysis pca(select("pca-estimator"));
-    pca.work();
-    pca.write();
+void FeatureStatistics::estimatePca() {
+  Signal::PrincipalComponentAnalysis pca(select("pca-estimator"));
+  pca.work();
+  pca.write();
 }
 
-void FeatureStatistics::estimateCovarianceAndPca()
-{
-    Speech::CovarianceEstimator covarianceEstimator(select("covariance-estimator"));
-    visitCorpus(covarianceEstimator);
-    Signal::ScatterMatrix covarianceMatrix;
-    covarianceEstimator.finalize(covarianceMatrix);
-    Signal::PrincipalComponentAnalysis pca(select("pca-estimator"));
-    pca.work(covarianceMatrix);
-    pca.write();
+void FeatureStatistics::estimateCovarianceAndPca() {
+  Speech::CovarianceEstimator covarianceEstimator(
+      select("covariance-estimator"));
+  visitCorpus(covarianceEstimator);
+  Signal::ScatterMatrix covarianceMatrix;
+  covarianceEstimator.finalize(covarianceMatrix);
+  Signal::PrincipalComponentAnalysis pca(select("pca-estimator"));
+  pca.work(covarianceMatrix);
+  pca.write();
 }
 
-void FeatureStatistics::calculateCovarianceDiagonalNormalization()
-{
-    Signal::ScatterDiagonalNormalization scatterDiagonalNormalization(
-	select("covariance-diagonal-normalization"));
-    scatterDiagonalNormalization.work();
-    scatterDiagonalNormalization.write();
+void FeatureStatistics::calculateCovarianceDiagonalNormalization() {
+  Signal::ScatterDiagonalNormalization scatterDiagonalNormalization(
+      select("covariance-diagonal-normalization"));
+  scatterDiagonalNormalization.work();
+  scatterDiagonalNormalization.write();
 }
 
-void FeatureStatistics::visitCorpus(Speech::CorpusProcessor &corpusProcessor)
-{
-    Speech::CorpusVisitor corpusVisitor(select("coprus-visitor"));
-    corpusProcessor.signOn(corpusVisitor);
+void FeatureStatistics::visitCorpus(Speech::CorpusProcessor &corpusProcessor) {
+  Speech::CorpusVisitor corpusVisitor(select("coprus-visitor"));
+  corpusProcessor.signOn(corpusVisitor);
 
-    Bliss::CorpusDescription corpusDescription(select("corpus"));
-    corpusDescription.accept(&corpusVisitor);
+  Bliss::CorpusDescription corpusDescription(select("corpus"));
+  corpusDescription.accept(&corpusVisitor);
 
-    corpusProcessor.respondToDelayedErrors();
+  corpusProcessor.respondToDelayedErrors();
 }

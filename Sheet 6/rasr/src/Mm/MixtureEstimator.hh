@@ -14,95 +14,105 @@
 #ifndef _MM_MIXTURE_ESTIMATOR_HH
 #define _MM_MIXTURE_ESTIMATOR_HH
 
-#include <Core/ReferenceCounting.hh>
-#include "Mixture.hh"
 #include "GaussDensityEstimator.hh"
+#include "Mixture.hh"
+#include <Core/ReferenceCounting.hh>
 #include <numeric>
 
 namespace Mm {
 
-    /**
-     *  AbstractMixtureEstimator: base class
-     */
-    class AbstractMixtureEstimator : public Core::ReferenceCounted
-    {
-    public:
-	friend class MixtureSetEstimatorIndexMap;
-	typedef std::vector<Core::Ref<GaussDensityEstimator> > DensityEstimators;
-    protected:
-	DensityEstimators densityEstimators_;
-	std::vector<Weight> weights_;
-    protected:
-	DensityIndex densityIndexWithMaxWeight() const;
-	virtual void removeDensity(DensityIndex indexInMixture);
-    public:
-	AbstractMixtureEstimator() {}
-	virtual ~AbstractMixtureEstimator() {}
+/**
+ *  AbstractMixtureEstimator: base class
+ */
+class AbstractMixtureEstimator : public Core::ReferenceCounted {
+public:
+  friend class MixtureSetEstimatorIndexMap;
+  typedef std::vector<Core::Ref<GaussDensityEstimator> > DensityEstimators;
 
-	virtual void addDensity(Core::Ref<GaussDensityEstimator> densityEstimator);
-	virtual void clear();
-	/** Removes densities whose mean estimator has weight 0.0.
-	 *  If all densities have weight 0.0, the first is kept.
-	 */
-	void removeDensitiesWithZeroWeight();
-	/** Removes densities whose absolute mixture weight has less weight than
-	 *  @param minObservationWeight, or whose relative mixture weight is
-	 *  less than @param minRelativeWeight. The density with the most
-	 *  density(!)-weight is kept by all means.
-	 */
-	virtual void removeDensitiesWithLowWeight(
-	    Weight minObservationWeight, Weight minRelativeWeight = 0);
+protected:
+  DensityEstimators densityEstimators_;
+  std::vector<Weight> weights_;
 
-	void accumulate(DensityIndex, const FeatureVector &);
-	void accumulate(DensityIndex, const FeatureVector &, Weight);
-	virtual void accumulate(const AbstractMixtureEstimator &toAdd);
-	virtual void reset();
+protected:
+  DensityIndex densityIndexWithMaxWeight() const;
+  virtual void removeDensity(DensityIndex indexInMixture);
 
-	virtual Mixture* estimate(const ReferenceIndexMap<GaussDensityEstimator>& densityMap, bool normalizeWeights = true);
-	Weight getWeight() const { return std::accumulate(weights_.begin(), weights_.end(), 0.0); }
-	size_t nDensities() const { return densityEstimators_.size(); }
-	const DensityEstimators& densityEstimators() const { return densityEstimators_; }
-	std::vector<Weight>& weights() { return weights_; }
-	const std::vector<Weight>& weights() const { return weights_; }
+public:
+  AbstractMixtureEstimator() {}
+  virtual ~AbstractMixtureEstimator() {}
 
-	void setDensityEstimators(DensityEstimators estimators) {
-	    densityEstimators_ = estimators;
-	}
+  virtual void addDensity(Core::Ref<GaussDensityEstimator> densityEstimator);
+  virtual void clear();
+  /** Removes densities whose mean estimator has weight 0.0.
+   *  If all densities have weight 0.0, the first is kept.
+   */
+  void removeDensitiesWithZeroWeight();
+  /** Removes densities whose absolute mixture weight has less weight than
+   *  @param minObservationWeight, or whose relative mixture weight is
+   *  less than @param minRelativeWeight. The density with the most
+   *  density(!)-weight is kept by all means.
+   */
+  virtual void removeDensitiesWithLowWeight(Weight minObservationWeight,
+                                            Weight minRelativeWeight = 0);
 
-	bool checkEventsWithZeroWeight(std::string &message);
+  void accumulate(DensityIndex, const FeatureVector &);
+  void accumulate(DensityIndex, const FeatureVector &, Weight);
+  virtual void accumulate(const AbstractMixtureEstimator &toAdd);
+  virtual void reset();
 
-	virtual void read(Core::BinaryInputStream&,
-			  const std::vector<Core::Ref<GaussDensityEstimator> >&,
-			  u32 version);
-	virtual void write(Core::BinaryOutputStream&,
-			   const ReferenceIndexMap<GaussDensityEstimator>&) const;
-	virtual void write(Core::XmlWriter&,
-			   const ReferenceIndexMap<GaussDensityEstimator>&) const;
+  virtual Mixture *
+  estimate(const ReferenceIndexMap<GaussDensityEstimator> &densityMap,
+           bool normalizeWeights = true);
+  Weight getWeight() const {
+    return std::accumulate(weights_.begin(), weights_.end(), 0.0);
+  }
+  size_t nDensities() const { return densityEstimators_.size(); }
+  const DensityEstimators &densityEstimators() const {
+    return densityEstimators_;
+  }
+  std::vector<Weight> &weights() { return weights_; }
+  const std::vector<Weight> &weights() const { return weights_; }
 
-	bool equalTopology(const AbstractMixtureEstimator &toCompare,
-			   const ReferenceIndexMap<GaussDensityEstimator> &densityMap,
-			   const ReferenceIndexMap<GaussDensityEstimator> &densityMapToCompare) const;
-	virtual bool equalWeights(const AbstractMixtureEstimator &toCompare) const {
-	    return weights_ == toCompare.weights_;
-	}
+  void setDensityEstimators(DensityEstimators estimators) {
+    densityEstimators_ = estimators;
+  }
 
-	void addMixture(const AbstractMixtureEstimator &toAdd);
+  bool checkEventsWithZeroWeight(std::string &message);
 
-	static DensityIndex accumulate(Core::BinaryInputStreams &is, Core::BinaryOutputStream &os);
-    };
+  virtual void read(Core::BinaryInputStream &,
+                    const std::vector<Core::Ref<GaussDensityEstimator> > &,
+                    u32 version);
+  virtual void write(Core::BinaryOutputStream &,
+                     const ReferenceIndexMap<GaussDensityEstimator> &) const;
+  virtual void write(Core::XmlWriter &,
+                     const ReferenceIndexMap<GaussDensityEstimator> &) const;
 
-    /**
-     *  maximum likelihood MixtureEstimator
-     */
-    class MixtureEstimator : public AbstractMixtureEstimator
-    {
-	friend class MixtureSetEstimatorIndexMap;
-	typedef AbstractMixtureEstimator Precursor;
-    public:
-	MixtureEstimator() {}
-	virtual ~MixtureEstimator() {}
-    };
+  bool equalTopology(const AbstractMixtureEstimator &toCompare,
+                     const ReferenceIndexMap<GaussDensityEstimator> &densityMap,
+                     const ReferenceIndexMap<GaussDensityEstimator>
+                         &densityMapToCompare) const;
+  virtual bool equalWeights(const AbstractMixtureEstimator &toCompare) const {
+    return weights_ == toCompare.weights_;
+  }
 
-} //namespace Mm
+  void addMixture(const AbstractMixtureEstimator &toAdd);
+
+  static DensityIndex accumulate(Core::BinaryInputStreams &is,
+                                 Core::BinaryOutputStream &os);
+};
+
+/**
+ *  maximum likelihood MixtureEstimator
+ */
+class MixtureEstimator : public AbstractMixtureEstimator {
+  friend class MixtureSetEstimatorIndexMap;
+  typedef AbstractMixtureEstimator Precursor;
+
+public:
+  MixtureEstimator() {}
+  virtual ~MixtureEstimator() {}
+};
+
+} // namespace Mm
 
 #endif //_MM_MIXTURE_ESTIMATOR_HH

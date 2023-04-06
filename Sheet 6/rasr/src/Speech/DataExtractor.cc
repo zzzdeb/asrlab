@@ -17,108 +17,101 @@
 
 using namespace Speech;
 
-
-DataExtractor::DataExtractor(const Core::Configuration &c) :
-    Component(c),
-    Precursor(c),
-    statisticsChannel_(c, "statistics"),
-    nRecordings_(0), nSegments_(0)
-{
-    setDataSource(Core::Ref<Speech::DataSource>(Speech::Module::instance().createDataSource(select("feature-extraction"))));
-    dataSource_->respondToDelayedErrors();
+DataExtractor::DataExtractor(const Core::Configuration &c)
+    : Component(c), Precursor(c), statisticsChannel_(c, "statistics"),
+      nRecordings_(0), nSegments_(0) {
+  setDataSource(
+      Core::Ref<Speech::DataSource>(Speech::Module::instance().createDataSource(
+          select("feature-extraction"))));
+  dataSource_->respondToDelayedErrors();
 }
 
-void DataExtractor::signOn(CorpusVisitor &corpusVisitor)
-{
-    corpusVisitor.signOn(dataSource_);
-    Precursor::signOn(corpusVisitor);
+void DataExtractor::signOn(CorpusVisitor &corpusVisitor) {
+  corpusVisitor.signOn(dataSource_);
+  Precursor::signOn(corpusVisitor);
 }
 
-void DataExtractor::enterCorpus(Bliss::Corpus *c)
-{
-    Precursor::enterCorpus(c);
+void DataExtractor::enterCorpus(Bliss::Corpus *c) {
+  Precursor::enterCorpus(c);
 
-    if (!c->level()) {
-	nRecordings_ = nSegments_ = 0;
-	nFrames_.clear();
+  if (!c->level()) {
+    nRecordings_ = nSegments_ = 0;
+    nFrames_.clear();
+  }
+}
+
+void DataExtractor::leaveCorpus(Bliss::Corpus *c) {
+  if (c->level() == 0 && statisticsChannel_.isOpen()) {
+    statisticsChannel_ << Core::XmlOpen("statistics");
+    statisticsChannel_ << Core::XmlEmpty("recordings") +
+                              Core::XmlAttribute("number", nRecordings_);
+    statisticsChannel_ << Core::XmlEmpty("segments") +
+                              Core::XmlAttribute("number", nSegments_);
+
+    for (Flow::PortId portId = 0; portId < (Flow::PortId)nFrames_.size();
+         ++portId) {
+      statisticsChannel_ << Core::XmlEmpty("frames") +
+                                Core::XmlAttribute("port", portNames_[portId]) +
+                                Core::XmlAttribute("number", nFrames_[portId]);
     }
+    statisticsChannel_ << Core::XmlClose("statistics");
+  }
 
+  Precursor::leaveCorpus(c);
 }
 
-void DataExtractor::leaveCorpus(Bliss::Corpus *c)
-{
-    if (c->level() == 0 && statisticsChannel_.isOpen()) {
-	statisticsChannel_ << Core::XmlOpen("statistics");
-	statisticsChannel_ << Core::XmlEmpty("recordings") + Core::XmlAttribute("number", nRecordings_);
-	statisticsChannel_ << Core::XmlEmpty("segments") + Core::XmlAttribute("number", nSegments_);
+void DataExtractor::enterRecording(Bliss::Recording *recording) {
+  Precursor::enterRecording(recording);
+  nRecordings_ += 1;
+}
 
-	for(Flow::PortId portId = 0; portId < (Flow::PortId)nFrames_.size(); ++ portId) {
-	    statisticsChannel_ << Core::XmlEmpty("frames")
-		+ Core::XmlAttribute("port", portNames_[portId])
-		+ Core::XmlAttribute("number", nFrames_[portId]);
-	}
-	statisticsChannel_ << Core::XmlClose("statistics");
+void DataExtractor::enterSegment(Bliss::Segment *segment) {
+  Precursor::enterSegment(segment);
+  nSegments_ += 1;
+  dataSource_->initialize(segment);
+}
+
+void DataExtractor::leaveSegment(Bliss::Segment *segment) {
+  dataSource_->finalize();
+
+  reportRealTime(dataSource_->realTime());
+
+  const std::vector<size_t> &nFrames(dataSource_->nFrames());
+  for (size_t i = nFrames_.size(); i < nFrames.size(); ++i) {
+    portNames_.push_back(dataSource_->outputName(i));
+    nFrames_.push_back(0);
+  }
+
+  if (statisticsChannel_.isOpen()) {
+    statisticsChannel_ << Core::XmlOpen("statistics");
+    for (Flow::PortId portId = 0; portId < (Flow::PortId)nFrames.size();
+         ++portId) {
+      nFrames_[portId] += nFrames[portId];
+
+      statisticsChannel_ << Core::XmlEmpty("frames") +
+                                Core::XmlAttribute("port", portNames_[portId]) +
+                                Core::XmlAttribute("number", nFrames[portId]);
     }
+    statisticsChannel_ << Core::XmlClose("statistics");
+  }
 
-    Precursor::leaveCorpus(c);
+  Precursor::leaveSegment(segment);
 }
 
-void DataExtractor::enterRecording(Bliss::Recording *recording)
-{
-    Precursor::enterRecording(recording);
-    nRecordings_ += 1;
-}
-
-void DataExtractor::enterSegment(Bliss::Segment *segment)
-{
-    Precursor::enterSegment(segment);
-    nSegments_ += 1;
-    dataSource_->initialize(segment);
-}
-
-void DataExtractor::leaveSegment(Bliss::Segment *segment)
-{
-    dataSource_->finalize();
-
-    reportRealTime(dataSource_->realTime());
-
-    const std::vector<size_t> &nFrames(dataSource_->nFrames());
-    for(size_t i = nFrames_.size(); i < nFrames.size(); ++ i) {
-	portNames_.push_back(dataSource_->outputName(i));
-	nFrames_.push_back(0);
-    }
-
-    if (statisticsChannel_.isOpen()) {
-	statisticsChannel_ << Core::XmlOpen("statistics");
-	for(Flow::PortId portId = 0; portId < (Flow::PortId)nFrames.size(); ++ portId) {
-	    nFrames_[portId] += nFrames[portId];
-
-	    statisticsChannel_ << Core::XmlEmpty("frames")
-		+ Core::XmlAttribute("port", portNames_[portId])
-		+ Core::XmlAttribute("number", nFrames[portId]);
-	}
-	statisticsChannel_ << Core::XmlClose("statistics");
-    }
-
-    Precursor::leaveSegment(segment);
-}
-
-void DataExtractor::processSegment(Bliss::Segment* segment)
-{
-    while(dataSource()->getData());
+void DataExtractor::processSegment(Bliss::Segment *segment) {
+  while (dataSource()->getData())
+    ;
 }
 
 // ====================================================================================================
-void FeatureExtractor::processSegment(Bliss::Segment* segment)
-{
-    Core::Ref<Feature> feature;
-    bool firstFeature = true;
-    while(dataSource()->getData(feature)) {
-	if (firstFeature) { // try to check the dimension only once for each segment
-	    setFeatureDescription(Mm::FeatureDescription(*this, *feature));
-	    firstFeature = false;
-	}
-	processFeature(feature);
+void FeatureExtractor::processSegment(Bliss::Segment *segment) {
+  Core::Ref<Feature> feature;
+  bool firstFeature = true;
+  while (dataSource()->getData(feature)) {
+    if (firstFeature) { // try to check the dimension only once for each segment
+      setFeatureDescription(Mm::FeatureDescription(*this, *feature));
+      firstFeature = false;
     }
+    processFeature(feature);
+  }
 }
-

@@ -19,52 +19,57 @@
 
 namespace Ftl {
 
-    /*
-     * TODO:
-     * - make state potentials reference counted?
-     */
-    template<class Weight>
-    class StatePotentials : public Core::Vector<Weight> {
-	typedef Core::Vector<Weight> Precursor;
-    public:
-	StatePotentials() : Precursor() {}
-	StatePotentials(size_t size) : Precursor(size) {}
-	StatePotentials(size_t size, const Weight &t) : Precursor(size, t) {}
-    };
+/*
+ * TODO:
+ * - make state potentials reference counted?
+ */
+template <class Weight> class StatePotentials : public Core::Vector<Weight> {
+  typedef Core::Vector<Weight> Precursor;
 
-    template<class _Automaton>
-    struct SsspArcFilter {
-	SsspArcFilter() {}
-	virtual ~SsspArcFilter() {}
-	typedef typename _Automaton::Arc _Arc;
-	virtual bool operator() (const _Arc &a) const { return true; }
-    };
+public:
+  StatePotentials() : Precursor() {}
+  StatePotentials(size_t size) : Precursor(size) {}
+  StatePotentials(size_t size, const Weight &t) : Precursor(size, t) {}
+};
 
-    template<class _Automaton>
-    class IsInputLabel : public SsspArcFilter<_Automaton> {
-	typedef SsspArcFilter<_Automaton> Precursor;
-    public:
-	typedef typename _Automaton::Arc _Arc;
-    private:
-	Fsa::LabelId label_;
-    public:
-	IsInputLabel(Fsa::LabelId label) : label_(label) {}
-	virtual bool operator() (const _Arc &a) const { return (a.input() == label_); }
-    };
+template <class _Automaton> struct SsspArcFilter {
+  SsspArcFilter() {}
+  virtual ~SsspArcFilter() {}
+  typedef typename _Automaton::Arc _Arc;
+  virtual bool operator()(const _Arc &a) const { return true; }
+};
 
-    template<class _Automaton>
-    class AreBothLabels : public SsspArcFilter<_Automaton> {
-	typedef SsspArcFilter<_Automaton> Precursor;
-    public:
-	typedef typename _Automaton::Arc _Arc;
-    private:
-	Fsa::LabelId label_;
-    public:
-	AreBothLabels(Fsa::LabelId label) : label_(label) {}
-	virtual bool operator() (const _Arc &a) const {
-	    return (a.input() == label_) && (a.output() == label_);
-	}
-    };
+template <class _Automaton>
+class IsInputLabel : public SsspArcFilter<_Automaton> {
+  typedef SsspArcFilter<_Automaton> Precursor;
+
+public:
+  typedef typename _Automaton::Arc _Arc;
+
+private:
+  Fsa::LabelId label_;
+
+public:
+  IsInputLabel(Fsa::LabelId label) : label_(label) {}
+  virtual bool operator()(const _Arc &a) const { return (a.input() == label_); }
+};
+
+template <class _Automaton>
+class AreBothLabels : public SsspArcFilter<_Automaton> {
+  typedef SsspArcFilter<_Automaton> Precursor;
+
+public:
+  typedef typename _Automaton::Arc _Arc;
+
+private:
+  Fsa::LabelId label_;
+
+public:
+  AreBothLabels(Fsa::LabelId label) : label_(label) {}
+  virtual bool operator()(const _Arc &a) const {
+    return (a.input() == label_) && (a.output() == label_);
+  }
+};
 } // namespace Ftl
 
 #endif // _H_FSA_SSSP_HH

@@ -40,9 +40,9 @@
 #include "VectorTextInput.hh"
 
 // predefined datatypes
+#include "DataAdaptor.hh"
 #include "Timestamp.hh"
 #include "Vector.hh"
-#include "DataAdaptor.hh"
 
 using namespace Flow;
 
@@ -50,92 +50,105 @@ using namespace Flow;
 Module_::Module_()
 /*****************************************************************************/
 {
-    Registry::Instance &registry = Registry::instance();
+  Registry::Instance &registry = Registry::instance();
 
-    // register filters
-    registry.registerFilter<RepeaterNode>();
-    registry.registerFilter<DemoNode>();
-    registry.registerFilter<DumpNode>();
-    registry.registerFilter<VectorAbsValDumpNode<f32> >();
-    registry.registerFilter<VectorAbsValDumpNode<f64> >();
-    registry.registerFilter<CacheNode>();
-    registry.registerFilter<CutterNode>();
-    registry.registerFilter<PipeNode>();
-    registry.registerFilter<VectorConcatNode<f32> >();
-    registry.registerFilter<VectorInterleaveNode<f32> >();
-    registry.registerFilter<VectorSequenceNode<f32> >();
-    registry.registerFilter<VectorSplitNode<f32> >();
-    registry.registerFilter<VectorSumNode<f32> >();
-    registry.registerFilter<AggregationNode>();
-    registry.registerFilter<TypedDisaggregateNode<Vector<f32> > >();
-    registry.registerFilter<TypedAggregateNode<Vector<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorLogFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<LogFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorLogPlusFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<LogPlusFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorLnFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<LnFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorExpFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<ExpFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorPowerFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<PowerFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorSqrtFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<SqrtFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorCosFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<CosFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorScalarMultiplicationFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<MultiplicationFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorScalarAdditionFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<AdditionFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorQuantizationFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<VectorAbsoluteValueFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<AbsoluteValueFunction<f32> > >();
-    registry.registerFilter<SimpleFunctionNode<AdjacentDifference<f32> > >();
+  // register filters
+  registry.registerFilter<RepeaterNode>();
+  registry.registerFilter<DemoNode>();
+  registry.registerFilter<DumpNode>();
+  registry.registerFilter<VectorAbsValDumpNode<f32> >();
+  registry.registerFilter<VectorAbsValDumpNode<f64> >();
+  registry.registerFilter<CacheNode>();
+  registry.registerFilter<CutterNode>();
+  registry.registerFilter<PipeNode>();
+  registry.registerFilter<VectorConcatNode<f32> >();
+  registry.registerFilter<VectorInterleaveNode<f32> >();
+  registry.registerFilter<VectorSequenceNode<f32> >();
+  registry.registerFilter<VectorSplitNode<f32> >();
+  registry.registerFilter<VectorSumNode<f32> >();
+  registry.registerFilter<AggregationNode>();
+  registry.registerFilter<TypedDisaggregateNode<Vector<f32> > >();
+  registry.registerFilter<TypedAggregateNode<Vector<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorLogFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<LogFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorLogPlusFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<LogPlusFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorLnFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<LnFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorExpFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<ExpFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorPowerFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<PowerFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorSqrtFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<SqrtFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<VectorCosFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<CosFunction<f32> > >();
+  registry.registerFilter<
+      SimpleFunctionNode<VectorScalarMultiplicationFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<MultiplicationFunction<f32> > >();
+  registry.registerFilter<
+      SimpleFunctionNode<VectorScalarAdditionFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<AdditionFunction<f32> > >();
+  registry
+      .registerFilter<SimpleFunctionNode<VectorQuantizationFunction<f32> > >();
+  registry
+      .registerFilter<SimpleFunctionNode<VectorAbsoluteValueFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<AbsoluteValueFunction<f32> > >();
+  registry.registerFilter<SimpleFunctionNode<AdjacentDifference<f32> > >();
 
-    registry.registerFilter<VectorScalarFunctionNode<NormFunction<f32> > >();
-    registry.registerFilter<VectorScalarFunctionNode<EnergyFunction<f32> > >();
+  registry.registerFilter<VectorScalarFunctionNode<NormFunction<f32> > >();
+  registry.registerFilter<VectorScalarFunctionNode<EnergyFunction<f32> > >();
 
-    registry.registerFilter<VectorMalformedNode<f32, CopyMalformedPolicy<f32> > >();
-    registry.registerFilter<VectorMalformedNode<f32, DismissMalformedPolicy<f32> > >();
-    registry.registerFilter<VectorMalformedNode<f32, FloorMalformedPolicy<f32> > >();
-    registry.registerFilter<VectorMalformedNode<f32, KeepMalformedPolicy<f32> > >();
+  registry
+      .registerFilter<VectorMalformedNode<f32, CopyMalformedPolicy<f32> > >();
+  registry.registerFilter<
+      VectorMalformedNode<f32, DismissMalformedPolicy<f32> > >();
+  registry
+      .registerFilter<VectorMalformedNode<f32, FloorMalformedPolicy<f32> > >();
+  registry
+      .registerFilter<VectorMalformedNode<f32, KeepMalformedPolicy<f32> > >();
 
-    registry.registerFilter<VectorTextInputNode<f32> >();
+  registry.registerFilter<VectorTextInputNode<f32> >();
 
-    registry.registerFilter<VectorDemultiplexNode<s8> >();
-    registry.registerFilter<VectorDemultiplexNode<s16> >();
+  registry.registerFilter<VectorDemultiplexNode<s8> >();
+  registry.registerFilter<VectorDemultiplexNode<s16> >();
 
-    registry.registerFilter<TypeConverterNode<VectorConverter<s8, f32 > > >();
-    registry.registerFilter<TypeConverterNode<VectorConverter<s16, f32> > >();
-    registry.registerFilter<TypeConverterNode<VectorConverter<f32, f64> > >();
-    registry.registerFilter<TypeConverterNode<VectorConverter<f64, f32> > >();
-    registry.registerFilter<TypeConverterNode<StringConverter<Float32> > >();
-    registry.registerFilter<TypeConverterNode<StringConverter<Float64> > >();
-    registry.registerFilter<TypeConverterNode<ScalarToStringConverter<Float32> > >();
-    registry.registerFilter<TypeConverterNode<ScalarToStringConverter<Float64> > >();
-    registry.registerFilter<TypeConverterNode<VectorToScalarConverter<f32, Float32> > >();
-    registry.registerFilter<TypeConverterNode<ScalarToVectorConverter<Float32, f32> > >();
-    registry.registerFilter<TypeConverterNode<VectorToScalarConverter<Vector<f32>, Vector<f32> > > >();
+  registry.registerFilter<TypeConverterNode<VectorConverter<s8, f32> > >();
+  registry.registerFilter<TypeConverterNode<VectorConverter<s16, f32> > >();
+  registry.registerFilter<TypeConverterNode<VectorConverter<f32, f64> > >();
+  registry.registerFilter<TypeConverterNode<VectorConverter<f64, f32> > >();
+  registry.registerFilter<TypeConverterNode<StringConverter<Float32> > >();
+  registry.registerFilter<TypeConverterNode<StringConverter<Float64> > >();
+  registry
+      .registerFilter<TypeConverterNode<ScalarToStringConverter<Float32> > >();
+  registry
+      .registerFilter<TypeConverterNode<ScalarToStringConverter<Float64> > >();
+  registry.registerFilter<
+      TypeConverterNode<VectorToScalarConverter<f32, Float32> > >();
+  registry.registerFilter<
+      TypeConverterNode<ScalarToVectorConverter<Float32, f32> > >();
+  registry.registerFilter<TypeConverterNode<
+      VectorToScalarConverter<Vector<f32>, Vector<f32> > > >();
 
-    registry.registerFilter<SynchronizationNode<Synchronization> >();
-    registry.registerFilter<WeakSynchronizationNode<TimestampCopy> >();
-    registry.registerFilter<CoprusKeyMapNode>();
-    registry.registerFilter<SequenceFilterNode>();
+  registry.registerFilter<SynchronizationNode<Synchronization> >();
+  registry.registerFilter<WeakSynchronizationNode<TimestampCopy> >();
+  registry.registerFilter<CoprusKeyMapNode>();
+  registry.registerFilter<SequenceFilterNode>();
 
-    // register datatypes
-    registry.registerDatatype<Timestamp>();
-    registry.registerDatatype<Float32>();
-    registry.registerDatatype<Float64>();
-    registry.registerDatatype<Vector<s8> >();
-    registry.registerDatatype<Vector<s16> >();
-    registry.registerDatatype<Vector<f32> >();
-    registry.registerDatatype<Vector<f64> >();
-    registry.registerDatatype<Vector<std::complex<f32> > >();
-    registry.registerDatatype<Vector<std::complex<f64> > >();
-    registry.registerDatatype<Vector<Vector<f32> > >();
-    registry.registerDatatype<Flow::Vector<bool> >();
-    //registry.registerDatatype<new GatheredVector<f32> >();
-    registry.registerDatatype<String>();
-    registry.registerDatatype<Aggregate>();
-    registry.registerDatatype<TypedAggregate<Vector<f32> > >();
+  // register datatypes
+  registry.registerDatatype<Timestamp>();
+  registry.registerDatatype<Float32>();
+  registry.registerDatatype<Float64>();
+  registry.registerDatatype<Vector<s8> >();
+  registry.registerDatatype<Vector<s16> >();
+  registry.registerDatatype<Vector<f32> >();
+  registry.registerDatatype<Vector<f64> >();
+  registry.registerDatatype<Vector<std::complex<f32> > >();
+  registry.registerDatatype<Vector<std::complex<f64> > >();
+  registry.registerDatatype<Vector<Vector<f32> > >();
+  registry.registerDatatype<Flow::Vector<bool> >();
+  // registry.registerDatatype<new GatheredVector<f32> >();
+  registry.registerDatatype<String>();
+  registry.registerDatatype<Aggregate>();
+  registry.registerDatatype<TypedAggregate<Vector<f32> > >();
 }

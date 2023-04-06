@@ -21,39 +21,33 @@ using namespace Bliss;
  * \deprecated This file will soon become obsolete!
  */
 
-void LemmaGraph::store(std::ostream &os) const {
+void LemmaGraph::store(std::ostream &os) const {}
 
+void LemmaGraph::load(std::ostream &os) {}
+
+void LemmaGraph::Drawer::drawEdge(const Edge &e, std::ostream &os) const {
+  if (e.lemma())
+    os << "[label=\"" << e.lemma()->preferredOrthographicForm() << "\"]";
 }
 
-void LemmaGraph::load(std::ostream &os) {
-
-}
-
-void LemmaGraph::Drawer::drawEdge
-(const Edge &e, std::ostream &os) const {
-    if (e.lemma())
-	os << "[label=\"" << e.lemma()->preferredOrthographicForm() << "\"]";
-}
-
-LemmaGraphBuilder::LemmaGraphBuilder(LemmaGraph &net) :
-    net_(net)
-{}
+LemmaGraphBuilder::LemmaGraphBuilder(LemmaGraph &net) : net_(net) {}
 
 void LemmaGraphBuilder::initialize(Core::Ref<const Lexicon> lexicon) {
-    net_.clear();
+  net_.clear();
 }
 
-OrthographicParser::Node LemmaGraphBuilder::newNode() {
-    return net_.newNode();
+OrthographicParser::Node LemmaGraphBuilder::newNode() { return net_.newNode(); }
+
+void LemmaGraphBuilder::newEdge(OrthographicParser::Node from,
+                                OrthographicParser::Node to,
+                                const Lemma *lemma) {
+  net_.addEdge(new LemmaGraph::Edge(lemma),
+               static_cast<LemmaGraph::Node *>(from),
+               static_cast<LemmaGraph::Node *>(to));
 }
 
-void LemmaGraphBuilder::newEdge(OrthographicParser::Node from, OrthographicParser::Node to, const Lemma *lemma) {
-    net_.addEdge(new LemmaGraph::Edge(lemma),
-		 static_cast<LemmaGraph::Node*>(from),
-		 static_cast<LemmaGraph::Node*>(to));
-}
-
-void LemmaGraphBuilder::finalize(OrthographicParser::Node initial, OrthographicParser::Node final) {
-    net_.setInitial(static_cast<LemmaGraph::Node*>(initial));
-    net_.addFinal  (static_cast<LemmaGraph::Node*>(final));
+void LemmaGraphBuilder::finalize(OrthographicParser::Node initial,
+                                 OrthographicParser::Node final) {
+  net_.setInitial(static_cast<LemmaGraph::Node *>(initial));
+  net_.addFinal(static_cast<LemmaGraph::Node *>(final));
 }

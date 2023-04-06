@@ -21,11 +21,11 @@
 
 namespace Core {
 
-    using __gnu_cxx::binary_compose;
-    using __gnu_cxx::identity;
-    using __gnu_cxx::select1st;
-    using __gnu_cxx::select2nd;
+using __gnu_cxx::binary_compose;
+using __gnu_cxx::identity;
+using __gnu_cxx::select1st;
+using __gnu_cxx::select2nd;
 
-}
+} // namespace Core
 
 #endif // CORE_EXTENSIONS_HH

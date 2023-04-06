@@ -14,178 +14,200 @@
 #ifndef _MM_MIXTURE_SET_HH
 #define _MM_MIXTURE_SET_HH
 
-#include "Utilities.hh"
-#include "PointerVector.hh"
-#include "Mixture.hh"
 #include "GaussDensity.hh"
-#include <Core/ReferenceCounting.hh>
+#include "Mixture.hh"
+#include "PointerVector.hh"
+#include "Utilities.hh"
 #include <Core/BinaryStream.hh>
+#include <Core/ReferenceCounting.hh>
 
 namespace Mm {
 
-    class Mixture;
+class Mixture;
 
-    /**
-     * AbstractMixtureSet administrates mixture objects and
-     *  their relations.
-     *
-     *  Data structure:
-     *    -objects pointers are stored in tables;
-     *    -objects points reference others by integer indexes.
-     *    Advantage of pointer representation:
-     *      -object types can be extended be deriving from the base types and
-     *       without changing (much :-) ) in other parts of this library
-     *    Advantages to graph representation:
-     *      -direct access to set of elements (e.g.: list of all covariances)
-     *      -storing and load is straight forward
-     *    Disadvantages:
-     *      -hard to remove elements from the structure
-     *      -since the tables contain pointers, each access needs +1 indirection.
-     *       Thus this representation is not suitable for fast computations.
-     */
-    class AbstractMixtureSet : public Core::ReferenceCounted {
-    protected:
-	PointerVector<Mixture> mixtureTable_;
-	PointerVector<AbstractDensity> densityTable_;
+/**
+ * AbstractMixtureSet administrates mixture objects and
+ *  their relations.
+ *
+ *  Data structure:
+ *    -objects pointers are stored in tables;
+ *    -objects points reference others by integer indexes.
+ *    Advantage of pointer representation:
+ *      -object types can be extended be deriving from the base types and
+ *       without changing (much :-) ) in other parts of this library
+ *    Advantages to graph representation:
+ *      -direct access to set of elements (e.g.: list of all covariances)
+ *      -storing and load is straight forward
+ *    Disadvantages:
+ *      -hard to remove elements from the structure
+ *      -since the tables contain pointers, each access needs +1 indirection.
+ *       Thus this representation is not suitable for fast computations.
+ */
+class AbstractMixtureSet : public Core::ReferenceCounted {
+protected:
+  PointerVector<Mixture> mixtureTable_;
+  PointerVector<AbstractDensity> densityTable_;
 
-	ComponentIndex dimension_;
-    public:
-	AbstractMixtureSet(ComponentIndex dimension = 0);
-	~AbstractMixtureSet();
+  ComponentIndex dimension_;
 
-	virtual void clear();
+public:
+  AbstractMixtureSet(ComponentIndex dimension = 0);
+  ~AbstractMixtureSet();
 
-	ComponentIndex dimension() const { return dimension_; }
-	virtual void setDimension(ComponentIndex dimension);
+  virtual void clear();
 
-	MixtureIndex addMixture(MixtureIndex index, Mixture* mixture) {
-	    return mixtureTable_.pushBack(index, mixture);
-	}
-	MixtureIndex addMixture(Mixture* mixture) {
-	    return addMixture(mixtureTable_.size(), mixture);
-	}
-	MixtureIndex nMixtures() const { return mixtureTable_.size(); }
-	Mixture* mixture(MixtureIndex index) { return mixtureTable_[index]; }
-	const Mixture* mixture(MixtureIndex index) const { return mixtureTable_[index]; }
+  ComponentIndex dimension() const { return dimension_; }
+  virtual void setDimension(ComponentIndex dimension);
 
-	DensityIndex addDensity(DensityIndex index, AbstractDensity* density) {
-	    return densityTable_.pushBack(index, density);
-	}
-	DensityIndex addDensity(AbstractDensity* density) {
-	    return addDensity(densityTable_.size(), density);
-	}
-	DensityIndex nDensities() const { return densityTable_.size(); }
-	virtual AbstractDensity* density(DensityIndex index) { return densityTable_[index]; }
-	virtual const AbstractDensity* density(DensityIndex index) const { return densityTable_[index]; }
-	/**
-	 * print/scan methods for std::iostreams
-	 * used in operator<< resp. operator>>
-	 * overwrite these methodes in inherited classes
-	 */
-	virtual bool write(Core::BinaryOutputStream& o) const { return false; }
-	virtual bool read(Core::BinaryInputStream& i) { return false; }
-	virtual bool write(std::ostream& o) const { return false; }
-	virtual bool read(std::istream& i) { return false; }
-	virtual void removeDensitiesWithLowWeight(Weight minWeight, bool normalizeWeights = true);
-    };
-    inline Core::BinaryOutputStream& operator<< (Core::BinaryOutputStream& o, const AbstractMixtureSet& ms) {
-	if (!ms.write(o))
-	    Core::Application::us()->error("an error occures while printing AbstractMixtureSet (or inherited) on binarystream..");
-	return o;
-    };
-    inline Core::BinaryInputStream& operator>> (Core::BinaryInputStream& i, AbstractMixtureSet& ms) {
-	if (!ms.read(i))
-	    Core::Application::us()->error("an error occures while scaning AbstractMixtureSet (or inherited) from binarystream..");
-	return i;
-    };
-    inline std::ostream& operator<< (std::ostream& o, const AbstractMixtureSet& ms) {
-	if (!ms.write(o))
-	    Core::Application::us()->error("an error occures while printing AbstractMixtureSet (or inherited) on asciistream..");
-	return o;
-    };
-    inline std::istream& operator>> (std::istream& i, AbstractMixtureSet& ms) {
-	if (!ms.read(i))
-	    Core::Application::us()->error("an error occures while scaning AbstractMixtureSet (or inherited) from asciistream..");
-	return i;
-    };
+  MixtureIndex addMixture(MixtureIndex index, Mixture *mixture) {
+    return mixtureTable_.pushBack(index, mixture);
+  }
+  MixtureIndex addMixture(Mixture *mixture) {
+    return addMixture(mixtureTable_.size(), mixture);
+  }
+  MixtureIndex nMixtures() const { return mixtureTable_.size(); }
+  Mixture *mixture(MixtureIndex index) { return mixtureTable_[index]; }
+  const Mixture *mixture(MixtureIndex index) const {
+    return mixtureTable_[index];
+  }
 
-    /** MixtureSet administrates mixture, Gauss-density, mean, and covariance objects and
-     *  their relations.
-     */
-    class MixtureSet : public AbstractMixtureSet {
-	typedef AbstractMixtureSet Precursor;
-    protected:
-	PointerVector<Mean> meanTable_;
-	PointerVector<Covariance> covarianceTable_;
-    public:
-	MixtureSet(ComponentIndex dimension = 0);
-	~MixtureSet();
+  DensityIndex addDensity(DensityIndex index, AbstractDensity *density) {
+    return densityTable_.pushBack(index, density);
+  }
+  DensityIndex addDensity(AbstractDensity *density) {
+    return addDensity(densityTable_.size(), density);
+  }
+  DensityIndex nDensities() const { return densityTable_.size(); }
+  virtual AbstractDensity *density(DensityIndex index) {
+    return densityTable_[index];
+  }
+  virtual const AbstractDensity *density(DensityIndex index) const {
+    return densityTable_[index];
+  }
+  /**
+   * print/scan methods for std::iostreams
+   * used in operator<< resp. operator>>
+   * overwrite these methodes in inherited classes
+   */
+  virtual bool write(Core::BinaryOutputStream &o) const { return false; }
+  virtual bool read(Core::BinaryInputStream &i) { return false; }
+  virtual bool write(std::ostream &o) const { return false; }
+  virtual bool read(std::istream &i) { return false; }
+  virtual void removeDensitiesWithLowWeight(Weight minWeight,
+                                            bool normalizeWeights = true);
+};
+inline Core::BinaryOutputStream &operator<<(Core::BinaryOutputStream &o,
+                                            const AbstractMixtureSet &ms) {
+  if (!ms.write(o))
+    Core::Application::us()->error(
+        "an error occures while printing AbstractMixtureSet (or inherited) on "
+        "binarystream..");
+  return o;
+};
+inline Core::BinaryInputStream &operator>>(Core::BinaryInputStream &i,
+                                           AbstractMixtureSet &ms) {
+  if (!ms.read(i))
+    Core::Application::us()->error(
+        "an error occures while scaning AbstractMixtureSet (or inherited) from "
+        "binarystream..");
+  return i;
+};
+inline std::ostream &operator<<(std::ostream &o, const AbstractMixtureSet &ms) {
+  if (!ms.write(o))
+    Core::Application::us()->error(
+        "an error occures while printing AbstractMixtureSet (or inherited) on "
+        "asciistream..");
+  return o;
+};
+inline std::istream &operator>>(std::istream &i, AbstractMixtureSet &ms) {
+  if (!ms.read(i))
+    Core::Application::us()->error(
+        "an error occures while scaning AbstractMixtureSet (or inherited) from "
+        "asciistream..");
+  return i;
+};
 
-	MixtureSet* createOneMixtureCopy() const;
-	MixtureSet* createOneMixtureClusterCopy(const Core::Configuration& clusteringConfiguration) const ;
+/** MixtureSet administrates mixture, Gauss-density, mean, and covariance
+ * objects and their relations.
+ */
+class MixtureSet : public AbstractMixtureSet {
+  typedef AbstractMixtureSet Precursor;
 
-	virtual void clear();
-	virtual void setDimension(ComponentIndex dimension);
+protected:
+  PointerVector<Mean> meanTable_;
+  PointerVector<Covariance> covarianceTable_;
 
-	void replaceMeans(const Mm::Mean& newMean);
+public:
+  MixtureSet(ComponentIndex dimension = 0);
+  ~MixtureSet();
 
-	virtual GaussDensity* density(DensityIndex index) {
-	    return required_cast(GaussDensity*, densityTable_[index]);
-	}
-	virtual const GaussDensity* density(DensityIndex index) const {
-	    return required_cast(const GaussDensity*, densityTable_[index]);
-	}
+  MixtureSet *createOneMixtureCopy() const;
+  MixtureSet *createOneMixtureClusterCopy(
+      const Core::Configuration &clusteringConfiguration) const;
 
-	MeanIndex addMean(MeanIndex index, Mean* mean) {
-	    require(mean->size() == dimension_); return meanTable_.pushBack(index, mean);
-	}
-	MeanIndex addMean(Mean* mean) {
-	    return addMean(meanTable_.size(), mean);
-	}
+  virtual void clear();
+  virtual void setDimension(ComponentIndex dimension);
 
-	MeanIndex nMeans() const { return meanTable_.size(); }
-	Mean* mean(MeanIndex index) { return meanTable_[index]; }
-	const Mean* mean(MeanIndex index) const { return meanTable_[index]; }
+  void replaceMeans(const Mm::Mean &newMean);
 
-	CovarianceIndex addCovariance(CovarianceIndex index, Covariance* covariance) {
-	    require(covariance->dimension() == dimension_);
-	    return covarianceTable_.pushBack(index, covariance);
-	}
-	CovarianceIndex addCovariance(Covariance* covariance) {
-	    return addCovariance(covarianceTable_.size(), covariance); }
-	CovarianceIndex nCovariances() const { return covarianceTable_.size(); }
-	Covariance* covariance(CovarianceIndex index) { return covarianceTable_[index]; }
-	void setFeatureWeights(const std::vector<f64> w) {
-	    for (size_t index=0; index < covarianceTable_.size(); ++index)
-		(*covarianceTable_[index]).setFeatureWeights(w);
-	}
-	const Covariance* covariance(CovarianceIndex index) const { return covarianceTable_[index]; }
+  virtual GaussDensity *density(DensityIndex index) {
+    return required_cast(GaussDensity *, densityTable_[index]);
+  }
+  virtual const GaussDensity *density(DensityIndex index) const {
+    return required_cast(const GaussDensity *, densityTable_[index]);
+  }
 
-	void writeLogNormStatistics(Core::XmlWriter &) const;
+  MeanIndex addMean(MeanIndex index, Mean *mean) {
+    require(mean->size() == dimension_);
+    return meanTable_.pushBack(index, mean);
+  }
+  MeanIndex addMean(Mean *mean) { return addMean(meanTable_.size(), mean); }
 
-	virtual bool write(Core::BinaryOutputStream& o) const;
-	virtual bool read(Core::BinaryInputStream& i);
-	virtual bool write(std::ostream& o) const;
-	virtual bool read(std::istream& i);
+  MeanIndex nMeans() const { return meanTable_.size(); }
+  Mean *mean(MeanIndex index) { return meanTable_[index]; }
+  const Mean *mean(MeanIndex index) const { return meanTable_[index]; }
 
-    };
+  CovarianceIndex addCovariance(CovarianceIndex index, Covariance *covariance) {
+    require(covariance->dimension() == dimension_);
+    return covarianceTable_.pushBack(index, covariance);
+  }
+  CovarianceIndex addCovariance(Covariance *covariance) {
+    return addCovariance(covarianceTable_.size(), covariance);
+  }
+  CovarianceIndex nCovariances() const { return covarianceTable_.size(); }
+  Covariance *covariance(CovarianceIndex index) {
+    return covarianceTable_[index];
+  }
+  void setFeatureWeights(const std::vector<f64> w) {
+    for (size_t index = 0; index < covarianceTable_.size(); ++index)
+      (*covarianceTable_[index]).setFeatureWeights(w);
+  }
+  const Covariance *covariance(CovarianceIndex index) const {
+    return covarianceTable_[index];
+  }
+
+  void writeLogNormStatistics(Core::XmlWriter &) const;
+
+  virtual bool write(Core::BinaryOutputStream &o) const;
+  virtual bool read(Core::BinaryInputStream &i);
+  virtual bool write(std::ostream &o) const;
+  virtual bool read(std::istream &i);
+};
 
 } // namespace Mm
 
 namespace Core {
 
-    template <>
-    class NameHelper<Mm::MixtureSet> : public std::string {
-    public:
-	NameHelper() : std::string("mixtureset") {}
-    };
+template <> class NameHelper<Mm::MixtureSet> : public std::string {
+public:
+  NameHelper() : std::string("mixtureset") {}
+};
 
-    template <>
-    class NameHelper<Mm::AbstractMixtureSet> : public std::string {
-    public:
-	NameHelper() : std::string("abstractmixtureset") {}
-    };
+template <> class NameHelper<Mm::AbstractMixtureSet> : public std::string {
+public:
+  NameHelper() : std::string("abstractmixtureset") {}
+};
 
-} //namespace Core
+} // namespace Core
 
 #endif // _MM_MIXTURE_SET_HH

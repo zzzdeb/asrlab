@@ -20,71 +20,79 @@
 
 namespace Speech {
 
-    /** Text Dependent Lda Estimator */
-    class TextDependentScatterMatricesEstimator :
-	public AcousticModelTrainer
-    {
-	typedef Core::Ref<Signal::ScatterMatricesEstimator> EstimatorRef;
-    protected:
-	 EstimatorRef estimator_;
+/** Text Dependent Lda Estimator */
+class TextDependentScatterMatricesEstimator : public AcousticModelTrainer {
+  typedef Core::Ref<Signal::ScatterMatricesEstimator> EstimatorRef;
 
-	virtual void setFeatureDescription(const Mm::FeatureDescription &);
+protected:
+  EstimatorRef estimator_;
 
-	virtual void processAlignedFeature(
-	    Core::Ref<const Feature> feature, Am::AllophoneStateIndex allophoneStateIndex) {
-	    estimator_->accumulate(acousticModel()->emissionIndex(allophoneStateIndex), *feature->mainStream());
-	}
-	virtual void processAlignedFeature(
-	    Core::Ref<const Feature> feature, Am::AllophoneStateIndex allophoneStateIndex, Mm::Weight w) {
-	    if(w != 0) {
-		if(w != 1)
-			criticalError("Processing of weighted alignments is not supported.");
-		estimator_->accumulate(acousticModel()->emissionIndex(allophoneStateIndex), *feature->mainStream());
-	    }
-	}
-    public:
-	TextDependentScatterMatricesEstimator(const Core::Configuration&);
-	TextDependentScatterMatricesEstimator(const Core::Configuration&,
-					      Core::Ref<Signal::ScatterMatricesEstimator>);
-	virtual ~TextDependentScatterMatricesEstimator() {}
+  virtual void setFeatureDescription(const Mm::FeatureDescription &);
 
-	EstimatorRef getEstimator() const { return estimator_; }
-    };
+  virtual void
+  processAlignedFeature(Core::Ref<const Feature> feature,
+                        Am::AllophoneStateIndex allophoneStateIndex) {
+    estimator_->accumulate(acousticModel()->emissionIndex(allophoneStateIndex),
+                           *feature->mainStream());
+  }
+  virtual void
+  processAlignedFeature(Core::Ref<const Feature> feature,
+                        Am::AllophoneStateIndex allophoneStateIndex,
+                        Mm::Weight w) {
+    if (w != 0) {
+      if (w != 1)
+        criticalError("Processing of weighted alignments is not supported.");
+      estimator_->accumulate(
+          acousticModel()->emissionIndex(allophoneStateIndex),
+          *feature->mainStream());
+    }
+  }
 
-    /** Text Independent Lda Estimator */
-    class TextIndependentScatterMatricesEstimator :
-	public LabeledFeatureProcessor
-    {
-	typedef Core::Ref<Signal::ScatterMatricesEstimator> EstimatorRef;
-    protected:
-	 EstimatorRef estimator_;
+public:
+  TextDependentScatterMatricesEstimator(const Core::Configuration &);
+  TextDependentScatterMatricesEstimator(
+      const Core::Configuration &, Core::Ref<Signal::ScatterMatricesEstimator>);
+  virtual ~TextDependentScatterMatricesEstimator() {}
 
-	virtual void setFeatureDescription(const Mm::FeatureDescription &);
-	virtual void setLabels(const std::vector<std::string> &labels) {
-	    estimator_->setNumberOfClasses(labels.size());
-	}
+  EstimatorRef getEstimator() const { return estimator_; }
+};
 
-	virtual void processLabeledFeature(
-	    Core::Ref<const Feature> feature, LabelIndex labelIndex) {
-	    estimator_->accumulate(labelIndex, *feature->mainStream());
-	}
-	virtual void processLabeledFeature(
-	    Core::Ref<const Feature> feature, LabelIndex labelIndex, Mm::Weight w) {
-	    if(w != 0) {
-		if(w != 1)
-			criticalError("Processing of weighted alignments is not supported.");
-		estimator_->accumulate(labelIndex, *feature->mainStream());
-	    }
-	}
-    public:
-	TextIndependentScatterMatricesEstimator(const Core::Configuration &configuration);
-	TextIndependentScatterMatricesEstimator(const Core::Configuration &configuration,
-						Core::Ref<Signal::ScatterMatricesEstimator>);
-	virtual ~TextIndependentScatterMatricesEstimator() {}
+/** Text Independent Lda Estimator */
+class TextIndependentScatterMatricesEstimator : public LabeledFeatureProcessor {
+  typedef Core::Ref<Signal::ScatterMatricesEstimator> EstimatorRef;
 
-	EstimatorRef getEstimator() const { return estimator_; }
-    };
+protected:
+  EstimatorRef estimator_;
 
-}  // namespace Speech
+  virtual void setFeatureDescription(const Mm::FeatureDescription &);
+  virtual void setLabels(const std::vector<std::string> &labels) {
+    estimator_->setNumberOfClasses(labels.size());
+  }
+
+  virtual void processLabeledFeature(Core::Ref<const Feature> feature,
+                                     LabelIndex labelIndex) {
+    estimator_->accumulate(labelIndex, *feature->mainStream());
+  }
+  virtual void processLabeledFeature(Core::Ref<const Feature> feature,
+                                     LabelIndex labelIndex, Mm::Weight w) {
+    if (w != 0) {
+      if (w != 1)
+        criticalError("Processing of weighted alignments is not supported.");
+      estimator_->accumulate(labelIndex, *feature->mainStream());
+    }
+  }
+
+public:
+  TextIndependentScatterMatricesEstimator(
+      const Core::Configuration &configuration);
+  TextIndependentScatterMatricesEstimator(
+      const Core::Configuration &configuration,
+      Core::Ref<Signal::ScatterMatricesEstimator>);
+  virtual ~TextIndependentScatterMatricesEstimator() {}
+
+  EstimatorRef getEstimator() const { return estimator_; }
+};
+
+} // namespace Speech
 
 #endif // _SPEECH_SCATTER_MATRICES_ESTIMATOR_HH

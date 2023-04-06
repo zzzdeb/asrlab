@@ -18,12 +18,16 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef posterior(ConstWordLatticeRef, Fsa::Weight &totalInv, s32 tol = 100);
-    ConstWordLatticeRef posterior(ConstWordLatticeRef, f64 &totalInv, s32 tol = 100);
-    ConstWordLatticeRef posterior(ConstWordLatticeRef, s32 tol = 100);
-    ConstWordLatticeRef checkPosterior(ConstWordLatticeRef, s32 tolerance = 981668463);
-    ConstWordLatticeRef prune(ConstWordLatticeRef, const Fsa::Weight &threshold, bool relative = true, bool backward = true);
+ConstWordLatticeRef posterior(ConstWordLatticeRef, Fsa::Weight &totalInv,
+                              s32 tol = 100);
+ConstWordLatticeRef posterior(ConstWordLatticeRef, f64 &totalInv,
+                              s32 tol = 100);
+ConstWordLatticeRef posterior(ConstWordLatticeRef, s32 tol = 100);
+ConstWordLatticeRef checkPosterior(ConstWordLatticeRef,
+                                   s32 tolerance = 981668463);
+ConstWordLatticeRef prune(ConstWordLatticeRef, const Fsa::Weight &threshold,
+                          bool relative = true, bool backward = true);
 
-}
+} // namespace Lattice
 
 #endif // _LATTICE_POSTERIOR_HH

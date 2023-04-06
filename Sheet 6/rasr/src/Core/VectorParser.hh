@@ -14,136 +14,117 @@
 #ifndef _CORE_VECTOR_PARSER_HH
 #define _CORE_VECTOR_PARSER_HH
 
-#include <iterator>
 #include "XmlBuilder.hh"
+#include <iterator>
 
 namespace Core {
 
-    /** XmlVectorElement implements XmlBuilderElement for an arbitrary XmlSchemaParser
-     *  which parses a vector of a given type.
-     *
-     *  Vector object is of type std::vector<T>
-     *  XML tag name: vector-type. E.g.: vector-f32
-     *
-     *  Elements should be stored separated by whitespace characters.
-     *  Remark: end-of-line character does not have any special role.
-     */
-    template<class T>
-    class XmlVectorElement :
-	public XmlBuilderElement<std::vector<T>,
-				 XmlElement,
-				 CreateByContext>
-    {
-    public:
+/** XmlVectorElement implements XmlBuilderElement for an arbitrary
+ * XmlSchemaParser which parses a vector of a given type.
+ *
+ *  Vector object is of type std::vector<T>
+ *  XML tag name: vector-type. E.g.: vector-f32
+ *
+ *  Elements should be stored separated by whitespace characters.
+ *  Remark: end-of-line character does not have any special role.
+ */
+template <class T>
+class XmlVectorElement
+    : public XmlBuilderElement<std::vector<T>, XmlElement, CreateByContext> {
+public:
+  typedef XmlBuilderElement<std::vector<T>, XmlElement, CreateByContext>
+      Predecessor;
+  typedef XmlVectorElement<T> Self;
+  typedef std::vector<T> *(XmlContext::*CreationHandler)(
+      const XmlAttributes atts);
 
-	typedef XmlBuilderElement<std::vector<T>,
-				  XmlElement,
-				  CreateByContext> Predecessor;
-	typedef XmlVectorElement<T> Self;
-	typedef std::vector<T>* (XmlContext::*CreationHandler)(const XmlAttributes atts);
+private:
+  bool sizeGiven_;
+  typename std::vector<T>::size_type size_;
 
-    private:
+  std::string buffer_;
 
-	bool sizeGiven_;
-	typename std::vector<T>::size_type size_;
+protected:
+  virtual void start(const XmlAttributes atts);
+  virtual void end();
+  virtual void characters(const char *ch, int length) {
+    buffer_.insert(buffer_.size(), ch, length);
+  }
 
-	std::string buffer_;
+  virtual XmlElement *element(const char *elementName) { return 0; }
 
-    protected:
+public:
+  static const NameHelper<std::vector<T> > tagName;
 
-	virtual void start(const XmlAttributes atts);
-	virtual void end();
-	virtual void characters(const char *ch, int length) {
-	    buffer_.insert(buffer_.size(), ch, length);
-	}
+  XmlVectorElement(XmlContext *context, CreationHandler newVector,
+                   const char *name = tagName.c_str());
+};
 
-	virtual XmlElement* element(const char *elementName) { return 0; }
+template <class T>
+const NameHelper<std::vector<T> > XmlVectorElement<T>::tagName;
 
-    public:
+template <class T>
+XmlVectorElement<T>::XmlVectorElement(XmlContext *context,
+                                      CreationHandler newVector,
+                                      const char *name)
+    : Predecessor(name, context, newVector), sizeGiven_(false), size_(0) {}
 
-	static const NameHelper<std::vector<T> > tagName;
+template <class T> void XmlVectorElement<T>::start(const XmlAttributes atts) {
 
-	XmlVectorElement(XmlContext *context, CreationHandler newVector,
-			 const char *name = tagName.c_str());
-    };
+  Predecessor::start(atts);
 
+  buffer_ = std::string();
 
-    template<class T>
-    const NameHelper<std::vector<T> >  XmlVectorElement<T>::tagName;
+  sizeGiven_ = false;
 
+  const char *size = atts["size"];
 
-    template<class T>
-    XmlVectorElement<T>::XmlVectorElement(XmlContext *context, CreationHandler newVector,
-					  const char *name) :
-	Predecessor(name, context, newVector),
-	sizeGiven_(false),
-	size_(0) {
-    }
+  if (size != 0) {
+    sizeGiven_ = true;
+    size_ = atoi(size);
+  }
+}
 
+template <class T> void XmlVectorElement<T>::end() {
 
-    template<class T>
-    void XmlVectorElement<T>::start(const XmlAttributes atts) {
+  Predecessor::product_->clear();
 
-	Predecessor::start(atts);
+  std::istringstream stream(buffer_);
 
-	buffer_ = std::string();
+  std::copy(std::istream_iterator<T>(stream), std::istream_iterator<T>(),
+            std::back_inserter(*Predecessor::product_));
 
+  if (sizeGiven_ && size_ != Predecessor::product_->size())
+    this->parser()->error("Vector dimension mismatch: %zd given and %zd read.",
+                          size_, Predecessor::product_->size());
 
-	sizeGiven_ = false;
+  Predecessor::end();
+}
 
-	const char *size = atts["size"];
+/** XML document containing one single vector. */
+template <class T> class XmlVectorDocument : public XmlSchemaParser {
 
-	if (size != 0) {
-	    sizeGiven_ = true;
-	    size_ = atoi(size);
-	}
-    }
+  typedef XmlSchemaParser Predecessor;
+  typedef XmlVectorDocument Self;
 
+  std::vector<T> &vector_;
+  std::vector<T> *pseudoCreateVector(const XmlAttributes atts) {
+    return &vector_;
+  }
 
-    template<class T>
-    void XmlVectorElement<T>::end() {
+public:
+  XmlVectorDocument(const Configuration &c, std::vector<T> &vector);
+};
 
-	Predecessor::product_->clear();
+template <class T>
+XmlVectorDocument<T>::XmlVectorDocument(const Configuration &c,
+                                        std::vector<T> &vector)
+    : Predecessor(c), vector_(vector) {
 
-	std::istringstream stream(buffer_);
+  setRoot(collect(new XmlVectorElement<T>(
+      this, XmlVectorElement<T>::creationHandler(&Self::pseudoCreateVector))));
+}
 
-	std::copy(std::istream_iterator<T>(stream), std::istream_iterator<T>(),
-		  std::back_inserter(*Predecessor::product_));
-
-	if (sizeGiven_ && size_ != Predecessor::product_->size())
-	    this->parser()->error("Vector dimension mismatch: %zd given and %zd read.", size_, Predecessor::product_->size());
-
-	Predecessor::end();
-    }
-
-
-    /** XML document containing one single vector. */
-    template<class T>
-    class XmlVectorDocument : public XmlSchemaParser {
-
-	typedef XmlSchemaParser Predecessor;
-	typedef XmlVectorDocument Self;
-
-	std::vector<T> &vector_;
-	std::vector<T>* pseudoCreateVector(const XmlAttributes atts) { return &vector_; }
-
-    public:
-
-	XmlVectorDocument(const Configuration &c, std::vector<T> &vector);
-    };
-
-
-    template<class T>
-    XmlVectorDocument<T>::XmlVectorDocument(const Configuration &c, std::vector<T> &vector) :
-	Predecessor(c),
-	vector_(vector) {
-
-	setRoot(collect(new XmlVectorElement<T>(this,
-					XmlVectorElement<T>::creationHandler(
-					    &Self::pseudoCreateVector))));
-    }
-
-} //namespace Core
+} // namespace Core
 
 #endif // _CORE_VECTOR_PARSER_HH
-

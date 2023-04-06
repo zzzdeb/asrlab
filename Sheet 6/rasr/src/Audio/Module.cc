@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Modules.hh>
 #include "Module.hh"
 #include <Flow/Registry.hh>
+#include <Modules.hh>
 
 // predefined filter
-//#include "Automatic.hh"
-//#include "Gsm.hh" // not supported yet
+// #include "Automatic.hh"
+// #include "Gsm.hh" // not supported yet
 #ifdef MODULE_AUDIO_RAW
 #include "Raw.hh"
 #endif
@@ -28,26 +28,23 @@
 #include "Oss.hh"
 #endif
 
-
 /*****************************************************************************/
 Audio::Module_::Module_()
-    /*****************************************************************************/
+/*****************************************************************************/
 {
-    Flow::Registry::Instance &registry = Flow::Registry::instance();
-    // file input filters
+  Flow::Registry::Instance &registry = Flow::Registry::instance();
+  // file input filters
 #ifdef MODULE_AUDIO_RAW
-    registry.registerFilter<RawFileInputNode>();
+  registry.registerFilter<RawFileInputNode>();
 #endif
 
 #if defined(MODULE_AUDIO_WAV_INTERN) || defined(MODULE_AUDIO_WAV_SYSTEM)
-    registry.registerFilter<WavInputNode>();
-    registry.registerFilter<WavOutputNode>();
+  registry.registerFilter<WavInputNode>();
+  registry.registerFilter<WavOutputNode>();
 #endif
-
 
 #if defined(MODULE_AUDIO_OSS) && defined(OS_linux)
-    registry.registerFilter<OpenSoundSystemInputNode>();
-    registry.registerFilter<OpenSoundSystemOutputNode>();
+  registry.registerFilter<OpenSoundSystemInputNode>();
+  registry.registerFilter<OpenSoundSystemOutputNode>();
 #endif
-
 }

@@ -18,10 +18,11 @@
 #include "Network.hh"
 
 namespace Flf {
-    /**
-     * rescale the lattice's semiring
-     **/
-    NodeRef createRescaleNode(const std::string &name, const Core::Configuration &config);
+/**
+ * rescale the lattice's semiring
+ **/
+NodeRef createRescaleNode(const std::string &name,
+                          const Core::Configuration &config);
 
 } // namespace Flf
 

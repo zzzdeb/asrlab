@@ -12,225 +12,211 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "DiscriminativeMixtureSetEstimator.hh"
-#include "MixtureSetEstimator.hh"
+#include "DiscriminativeGaussDensityEstimator.hh"
 #include "MixtureSet.hh"
+#include "MixtureSetEstimator.hh"
 #include "Module.hh"
 #include "Types.hh"
 #include <Core/Assertions.hh>
-#include "DiscriminativeGaussDensityEstimator.hh"
-
 
 using namespace Mm;
 
 /**
  * DiscriminativeMixtureSetEstimator
  */
-DiscriminativeMixtureSetEstimator::DiscriminativeMixtureSetEstimator(const Core::Configuration &c) :
-    Core::Component(c),
-    Precursor(c),
-    objectiveFunction_(0),
-    mixtureEstimatorConfig_(select("mixture-estimator"))
-{}
+DiscriminativeMixtureSetEstimator::DiscriminativeMixtureSetEstimator(
+    const Core::Configuration &c)
+    : Core::Component(c), Precursor(c), objectiveFunction_(0),
+      mixtureEstimatorConfig_(select("mixture-estimator")) {}
 
-DiscriminativeMixtureSetEstimator::~DiscriminativeMixtureSetEstimator()
-{}
+DiscriminativeMixtureSetEstimator::~DiscriminativeMixtureSetEstimator() {}
 
 /**
  *  Set the previous mixture set, i.e., the means and covariances.
  */
-void DiscriminativeMixtureSetEstimator::loadPreviousMixtureSet()
-{
-    Core::Ref<MixtureSet> previousMixtureSet =
-	Mm::Module::instance().readMixtureSet(select("previous-mixture-set"));
-    if (previousMixtureSet) {
-	if (!distributePreviousMixtureSet(*previousMixtureSet)) {
-	    criticalError("previous mixture set differs in topology");
-	}
-    } else {
-	criticalError("previous mixture set could not be read");
+void DiscriminativeMixtureSetEstimator::loadPreviousMixtureSet() {
+  Core::Ref<MixtureSet> previousMixtureSet =
+      Mm::Module::instance().readMixtureSet(select("previous-mixture-set"));
+  if (previousMixtureSet) {
+    if (!distributePreviousMixtureSet(*previousMixtureSet)) {
+      criticalError("previous mixture set differs in topology");
     }
+  } else {
+    criticalError("previous mixture set could not be read");
+  }
 }
 
 bool DiscriminativeMixtureSetEstimator::distributePreviousMixtureSet(
-    const MixtureSet &previousMixtureSet)
-{
-    if (dimension() != previousMixtureSet.dimension()) {
-	return false;
-    }
-    MixtureSetEstimatorIndexMap indexMaps(*this);
-    if (previousMixtureSet.nMixtures() != nMixtures()) {
-	return false;
-    }
-    for (MixtureIndex i = 0; i < previousMixtureSet.nMixtures(); ++ i) {
-	mixtureEstimator(i).setPreviousMixture(previousMixtureSet.mixture(i));
-    }
-    if (previousMixtureSet.nDensities() != indexMaps.densityMap().size()) {
-	return false;
-    }
-    for (DensityIndex i = 0; i < previousMixtureSet.nDensities(); ++ i) {
-	required_cast(DiscriminativeGaussDensityEstimator*,
-		      indexMaps.densityMap()[i].get())->setPreviousDensity(
-			  previousMixtureSet.density(i));
-    }
-    if (previousMixtureSet.nMeans() != indexMaps.meanMap().size()) {
-	return false;
-    }
-    for (MeanIndex i = 0; i < previousMixtureSet.nMeans(); ++ i) {
-	required_cast(DiscriminativeMeanEstimator*,
-		      indexMaps.meanMap()[i].get())->setPreviousMean(
-			  previousMixtureSet.mean(i));
-    }
-    if (previousMixtureSet.nCovariances() != indexMaps.covarianceMap().size()) {
-	return false;
-    }
-    CovarianceToMeanSetMap meanSetMap(
-	indexMaps.densityMap().indexToPointerMap());
-    for (CovarianceIndex i = 0; i < previousMixtureSet.nCovariances(); ++ i) {
-	required_cast(DiscriminativeCovarianceEstimator*,
-		      indexMaps.covarianceMap()[i].get())->setPreviousCovariance(
-			  previousMixtureSet.covariance(i));
-    }
-    log("distribute previous mixture set ...done");
-    return true;
+    const MixtureSet &previousMixtureSet) {
+  if (dimension() != previousMixtureSet.dimension()) {
+    return false;
+  }
+  MixtureSetEstimatorIndexMap indexMaps(*this);
+  if (previousMixtureSet.nMixtures() != nMixtures()) {
+    return false;
+  }
+  for (MixtureIndex i = 0; i < previousMixtureSet.nMixtures(); ++i) {
+    mixtureEstimator(i).setPreviousMixture(previousMixtureSet.mixture(i));
+  }
+  if (previousMixtureSet.nDensities() != indexMaps.densityMap().size()) {
+    return false;
+  }
+  for (DensityIndex i = 0; i < previousMixtureSet.nDensities(); ++i) {
+    required_cast(DiscriminativeGaussDensityEstimator *,
+                  indexMaps.densityMap()[i].get())
+        ->setPreviousDensity(previousMixtureSet.density(i));
+  }
+  if (previousMixtureSet.nMeans() != indexMaps.meanMap().size()) {
+    return false;
+  }
+  for (MeanIndex i = 0; i < previousMixtureSet.nMeans(); ++i) {
+    required_cast(DiscriminativeMeanEstimator *, indexMaps.meanMap()[i].get())
+        ->setPreviousMean(previousMixtureSet.mean(i));
+  }
+  if (previousMixtureSet.nCovariances() != indexMaps.covarianceMap().size()) {
+    return false;
+  }
+  CovarianceToMeanSetMap meanSetMap(indexMaps.densityMap().indexToPointerMap());
+  for (CovarianceIndex i = 0; i < previousMixtureSet.nCovariances(); ++i) {
+    required_cast(DiscriminativeCovarianceEstimator *,
+                  indexMaps.covarianceMap()[i].get())
+        ->setPreviousCovariance(previousMixtureSet.covariance(i));
+  }
+  log("distribute previous mixture set ...done");
+  return true;
 }
 
-void DiscriminativeMixtureSetEstimator::load()
-{
-    loadPreviousMixtureSet();
-}
+void DiscriminativeMixtureSetEstimator::load() { loadPreviousMixtureSet(); }
 
 void DiscriminativeMixtureSetEstimator::finalize(
-    MixtureSet &toEstimate,
-    const MixtureSetEstimatorIndexMap &,
-    const CovarianceToMeanSetMap &)
-{
-    if (minRelativeWeight() != 0) {
-	toEstimate.removeDensitiesWithLowWeight(minRelativeWeight(), normalizeMixtureWeights_);
-    }
+    MixtureSet &toEstimate, const MixtureSetEstimatorIndexMap &,
+    const CovarianceToMeanSetMap &) {
+  if (minRelativeWeight() != 0) {
+    toEstimate.removeDensitiesWithLowWeight(minRelativeWeight(),
+                                            normalizeMixtureWeights_);
+  }
 }
 
-void DiscriminativeMixtureSetEstimator::reset()
-{
-    Precursor::reset();
-    objectiveFunction_ = 0;
+void DiscriminativeMixtureSetEstimator::reset() {
+  Precursor::reset();
+  objectiveFunction_ = 0;
 }
 
-void DiscriminativeMixtureSetEstimator::read(Core::BinaryInputStream &is)
-{
-    Precursor::read(is);
-    if (version_ > 1) {
-	Sum tmp;
-	is >> tmp;
-	objectiveFunction_ = tmp;
-    }
-    log("objective-function ") << objectiveFunction();
+void DiscriminativeMixtureSetEstimator::read(Core::BinaryInputStream &is) {
+  Precursor::read(is);
+  if (version_ > 1) {
+    Sum tmp;
+    is >> tmp;
+    objectiveFunction_ = tmp;
+  }
+  log("objective-function ") << objectiveFunction();
 }
 
-void DiscriminativeMixtureSetEstimator::write(Core::BinaryOutputStream &os)
-{
-    Precursor::write(os);
-    os << (Sum) objectiveFunction();
-    log("objective-function ") << objectiveFunction();
+void DiscriminativeMixtureSetEstimator::write(Core::BinaryOutputStream &os) {
+  Precursor::write(os);
+  os << (Sum)objectiveFunction();
+  log("objective-function ") << objectiveFunction();
 }
 
-void DiscriminativeMixtureSetEstimator::write(Core::XmlWriter &os)
-{
-    os << Core::XmlOpen("mixture-set-estimator")
-	+ Core::XmlAttribute("version", version_)
-	+ Core::XmlAttribute("objective-function", objectiveFunction());
+void DiscriminativeMixtureSetEstimator::write(Core::XmlWriter &os) {
+  os << Core::XmlOpen("mixture-set-estimator") +
+            Core::XmlAttribute("version", version_) +
+            Core::XmlAttribute("objective-function", objectiveFunction());
 
-    Precursor::write(os);
+  Precursor::write(os);
 
-    os << Core::XmlClose("mixture-set-estimator");
+  os << Core::XmlClose("mixture-set-estimator");
 }
 
-bool DiscriminativeMixtureSetEstimator::operator==(const AbstractMixtureSetEstimator &toCompare) const
-{
-    if (!Precursor::operator==(toCompare)) {
-	return false;
-    }
-    return objectiveFunction() == required_cast(
-	const DiscriminativeMixtureSetEstimator*, &toCompare)->objectiveFunction();
+bool DiscriminativeMixtureSetEstimator::operator==(
+    const AbstractMixtureSetEstimator &toCompare) const {
+  if (!Precursor::operator==(toCompare)) {
+    return false;
+  }
+  return objectiveFunction() ==
+         required_cast(const DiscriminativeMixtureSetEstimator *, &toCompare)
+             ->objectiveFunction();
 }
 
-void DiscriminativeMixtureSetEstimator::estimate(MixtureSet &toEstimate)
-{
-    load();
+void DiscriminativeMixtureSetEstimator::estimate(MixtureSet &toEstimate) {
+  load();
 #if 1
-    if (minObservationWeight() != 0 or minRelativeWeight() != 0) {
-	removeDensitiesWithLowWeight(minObservationWeight(), minRelativeWeight());
-    }
+  if (minObservationWeight() != 0 or minRelativeWeight() != 0) {
+    removeDensitiesWithLowWeight(minObservationWeight(), minRelativeWeight());
+  }
 #endif
-    toEstimate.clear();
-    toEstimate.setDimension(dimension_);
-    MixtureSetEstimatorIndexMap indexMaps(*this);
-    CovarianceToMeanSetMap meanSetMap(indexMaps.densityMap().indexToPointerMap());
-    initialize(indexMaps, meanSetMap);
-    for (MixtureIndex i = 0; i < mixtureEstimators_.size(); ++ i) {
-	toEstimate.addMixture(i, mixtureEstimators_[i]->estimate(indexMaps.densityMap()));
-    }
-    for (DensityIndex i = 0; i < indexMaps.densityMap().size(); ++ i) {
-	toEstimate.addDensity(i, indexMaps.densityMap()[i]->estimate(
-				  indexMaps.meanMap(), indexMaps.covarianceMap()));
-    }
-    for (MeanIndex i = 0; i < indexMaps.meanMap().size(); ++ i) {
-	toEstimate.addMean(i, indexMaps.meanMap()[i]->estimate());
-    }
-    for (CovarianceIndex i = 0; i < indexMaps.covarianceMap().size(); ++ i) {
-	toEstimate.addCovariance(i, indexMaps.covarianceMap()[i]->estimate(meanSetMap, minVariance_));
-    }
-    finalize(toEstimate, indexMaps, meanSetMap);
+  toEstimate.clear();
+  toEstimate.setDimension(dimension_);
+  MixtureSetEstimatorIndexMap indexMaps(*this);
+  CovarianceToMeanSetMap meanSetMap(indexMaps.densityMap().indexToPointerMap());
+  initialize(indexMaps, meanSetMap);
+  for (MixtureIndex i = 0; i < mixtureEstimators_.size(); ++i) {
+    toEstimate.addMixture(
+        i, mixtureEstimators_[i]->estimate(indexMaps.densityMap()));
+  }
+  for (DensityIndex i = 0; i < indexMaps.densityMap().size(); ++i) {
+    toEstimate.addDensity(
+        i, indexMaps.densityMap()[i]->estimate(indexMaps.meanMap(),
+                                               indexMaps.covarianceMap()));
+  }
+  for (MeanIndex i = 0; i < indexMaps.meanMap().size(); ++i) {
+    toEstimate.addMean(i, indexMaps.meanMap()[i]->estimate());
+  }
+  for (CovarianceIndex i = 0; i < indexMaps.covarianceMap().size(); ++i) {
+    toEstimate.addCovariance(
+        i, indexMaps.covarianceMap()[i]->estimate(meanSetMap, minVariance_));
+  }
+  finalize(toEstimate, indexMaps, meanSetMap);
 }
 
 bool DiscriminativeMixtureSetEstimator::accumulate(
-    Core::BinaryInputStreams &is,
-    Core::BinaryOutputStream &os)
-{
-    if (!AbstractMixtureSetEstimator::accumulate(is, os)) {
-	return false;
-    }
-    Sum objectiveFunction;
-    is.front() >> objectiveFunction;
-    for (u32 n = 1; n < is.size(); ++ n) {
-	Sum _objectiveFunction;
-	is[n] >> _objectiveFunction;
-	objectiveFunction += _objectiveFunction;
-    }
-    os << objectiveFunction;
-    return true;
+    Core::BinaryInputStreams &is, Core::BinaryOutputStream &os) {
+  if (!AbstractMixtureSetEstimator::accumulate(is, os)) {
+    return false;
+  }
+  Sum objectiveFunction;
+  is.front() >> objectiveFunction;
+  for (u32 n = 1; n < is.size(); ++n) {
+    Sum _objectiveFunction;
+    is[n] >> _objectiveFunction;
+    objectiveFunction += _objectiveFunction;
+  }
+  os << objectiveFunction;
+  return true;
 }
 
-bool DiscriminativeMixtureSetEstimator::accumulate(const AbstractMixtureSetEstimator &toAdd)
-{
-    if (!Precursor::accumulate(toAdd)) {
-	return false;
-    }
-    objectiveFunction_ += required_cast(
-	const DiscriminativeMixtureSetEstimator*, &toAdd)->objectiveFunction();
-    return true;
+bool DiscriminativeMixtureSetEstimator::accumulate(
+    const AbstractMixtureSetEstimator &toAdd) {
+  if (!Precursor::accumulate(toAdd)) {
+    return false;
+  }
+  objectiveFunction_ +=
+      required_cast(const DiscriminativeMixtureSetEstimator *, &toAdd)
+          ->objectiveFunction();
+  return true;
 }
 
 void DiscriminativeMixtureSetEstimator::accumulateDenominator(
-    MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector> featureVector, Weight weight)
-{
-    if (viterbi_) {
-	DensityIndex index = densityIndex(mixtureIndex, featureVector);
-	mixtureEstimator(mixtureIndex).accumulateDenominator(
-	    index, *featureVector, weight);
-    } else {
-	std::vector<Mm::Weight> dnsPosteriors;
-	getDensityPosteriorProbabilities(mixtureIndex, featureVector, dnsPosteriors);
-	for (DensityIndex index = 0; index < dnsPosteriors.size(); ++ index) {
-	    Weight finalWeight = weight * dnsPosteriors[index];
-	    if (finalWeight > weightThreshold_) {
-		mixtureEstimator(mixtureIndex).accumulateDenominator(
-		    index, *featureVector, finalWeight);
-	    }
-	}
+    MixtureIndex mixtureIndex, Core::Ref<const Feature::Vector> featureVector,
+    Weight weight) {
+  if (viterbi_) {
+    DensityIndex index = densityIndex(mixtureIndex, featureVector);
+    mixtureEstimator(mixtureIndex)
+        .accumulateDenominator(index, *featureVector, weight);
+  } else {
+    std::vector<Mm::Weight> dnsPosteriors;
+    getDensityPosteriorProbabilities(mixtureIndex, featureVector,
+                                     dnsPosteriors);
+    for (DensityIndex index = 0; index < dnsPosteriors.size(); ++index) {
+      Weight finalWeight = weight * dnsPosteriors[index];
+      if (finalWeight > weightThreshold_) {
+        mixtureEstimator(mixtureIndex)
+            .accumulateDenominator(index, *featureVector, finalWeight);
+      }
     }
+  }
 }
 
-void DiscriminativeMixtureSetEstimator::accumulateObjectiveFunction(Score f)
-{
-    objectiveFunction_ += (Sum) f;
+void DiscriminativeMixtureSetEstimator::accumulateObjectiveFunction(Score f) {
+  objectiveFunction_ += (Sum)f;
 }

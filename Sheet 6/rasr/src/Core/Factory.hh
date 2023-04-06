@@ -14,90 +14,90 @@
 #ifndef _CORE_FACTORY_HH
 #define _CORE_FACTORY_HH
 
-#include <map>
 #include <Core/Configuration.hh>
 #include <Core/Extensions.hh>
+#include <map>
 
-namespace Core
-{
+namespace Core {
 
-    /**
-     * Object factory
-     * based on Alexandrescu, Andrei "Modern C++ Design"
-     */
-    template<class BaseClass, typename CreationFunction, typename Identifier>
-    class Factory
-    {
-    protected:
-	typedef std::map<Identifier, CreationFunction> Registry;
-    public:
-	Factory() {}
+/**
+ * Object factory
+ * based on Alexandrescu, Andrei "Modern C++ Design"
+ */
+template <class BaseClass, typename CreationFunction, typename Identifier>
+class Factory {
+protected:
+  typedef std::map<Identifier, CreationFunction> Registry;
 
-	/**
-	 * register a class
-	 * @param id identifier for this class
-	 * @param c  function that creates a new instance of this class
-	 * @return class registered
-	 */
-	bool registerClass(const Identifier &id, CreationFunction c) {
-	    if(registry_.find(id) == registry_.end()) {
-		registry_.insert(typename Registry::value_type(id, c));
-		return true;
-	    }
-	    else
-		return false;
-	}
+public:
+  Factory() {}
 
-	/**
-	 * Create an instance of the class which is identified by @c id
-	 * If no such classes exists 0 is returned !
-	 */
-	BaseClass* getObject(const Identifier &id) const {
-	    CreationFunction create = getCreationFunction(id);
-	    if(create)
-		return create();
-	    else
-		return 0;
-	}
+  /**
+   * register a class
+   * @param id identifier for this class
+   * @param c  function that creates a new instance of this class
+   * @return class registered
+   */
+  bool registerClass(const Identifier &id, CreationFunction c) {
+    if (registry_.find(id) == registry_.end()) {
+      registry_.insert(typename Registry::value_type(id, c));
+      return true;
+    } else
+      return false;
+  }
 
-	std::vector<Identifier> identifiers() const {
-	    typedef Core::select1st< typename Registry::value_type > SelectKey;
-	    std::vector<Identifier> ids(registry_.size());
-	    std::transform(registry_.begin(), registry_.end(), ids.begin(), SelectKey());
-	    return ids;
-	}
+  /**
+   * Create an instance of the class which is identified by @c id
+   * If no such classes exists 0 is returned !
+   */
+  BaseClass *getObject(const Identifier &id) const {
+    CreationFunction create = getCreationFunction(id);
+    if (create)
+      return create();
+    else
+      return 0;
+  }
 
-    protected:
-	CreationFunction getCreationFunction(const Identifier &id) const {
-	    typename Registry::const_iterator item = registry_.find(id);
-	    if(item != registry_.end())
-		return item->second;
-	    else
-		return 0;
-	}
+  std::vector<Identifier> identifiers() const {
+    typedef Core::select1st<typename Registry::value_type> SelectKey;
+    std::vector<Identifier> ids(registry_.size());
+    std::transform(registry_.begin(), registry_.end(), ids.begin(),
+                   SelectKey());
+    return ids;
+  }
 
-	Registry registry_;
-    };
+protected:
+  CreationFunction getCreationFunction(const Identifier &id) const {
+    typename Registry::const_iterator item = registry_.find(id);
+    if (item != registry_.end())
+      return item->second;
+    else
+      return 0;
+  }
 
+  Registry registry_;
+};
 
-    /**
-     * Object factory for subclasses of Core::Component
-     */
-    template<class BaseClass, typename Identifier>
-    class ComponentFactory :
-	public Factory<BaseClass, BaseClass* (*)(const Core::Configuration&), Identifier>
-    {
-	typedef BaseClass* (*CreationFunction)(const Core::Configuration&);
-      public:
-	BaseClass* getObject(const Identifier &id, const Core::Configuration &c) const {
-	    CreationFunction create = getCreationFunction(id);
-	    if(create)
-		return create(c);
-	    else
-		return 0;
-	}
-    };
+/**
+ * Object factory for subclasses of Core::Component
+ */
+template <class BaseClass, typename Identifier>
+class ComponentFactory
+    : public Factory<BaseClass, BaseClass *(*)(const Core::Configuration &),
+                     Identifier> {
+  typedef BaseClass *(*CreationFunction)(const Core::Configuration &);
 
-}
+public:
+  BaseClass *getObject(const Identifier &id,
+                       const Core::Configuration &c) const {
+    CreationFunction create = getCreationFunction(id);
+    if (create)
+      return create(c);
+    else
+      return 0;
+  }
+};
+
+} // namespace Core
 
 #endif // _CORE_FACTORY_HH

@@ -14,12 +14,13 @@
 #ifndef _FSA_PYTHON_HH
 #define _FSA_PYTHON_HH
 
-#include <string>
 #include "Automaton.hh"
+#include <string>
 
 const std::string info(Fsa::ConstAutomatonRef f, bool progress = false);
 const std::string meminfo(Fsa::ConstAutomatonRef f);
-const std::string draw(Fsa::ConstAutomatonRef f, bool dumpStates = false, bool progress = false);
+const std::string draw(Fsa::ConstAutomatonRef f, bool dumpStates = false,
+                       bool progress = false);
 Fsa::ConstAutomatonRef read(const std::string &file);
 
 #endif // _FSA_PYTHON_HH

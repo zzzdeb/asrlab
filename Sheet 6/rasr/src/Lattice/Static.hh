@@ -18,9 +18,10 @@
 
 namespace Lattice {
 
-    ConstWordLatticeRef staticCopy(ConstWordLatticeRef l, const std::vector<std::string> &names);
-    ConstWordLatticeRef staticCopy(ConstWordLatticeRef l, const std::string &name);
-    ConstWordLatticeRef staticCopy(ConstWordLatticeRef l);
+ConstWordLatticeRef staticCopy(ConstWordLatticeRef l,
+                               const std::vector<std::string> &names);
+ConstWordLatticeRef staticCopy(ConstWordLatticeRef l, const std::string &name);
+ConstWordLatticeRef staticCopy(ConstWordLatticeRef l);
 
 } // namespace Lattice
 

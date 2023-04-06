@@ -14,55 +14,60 @@
 #ifndef _FLF_CORPUS_PROCESSOR_HH
 #define _FLF_CORPUS_PROCESSOR_HH
 
-#include <Speech/CorpusVisitor.hh>
 #include <Speech/CorpusProcessor.hh>
+#include <Speech/CorpusVisitor.hh>
 
 #include "Processor.hh"
 #include "Segment.hh"
 
-
 namespace Flf {
 
-    class SpeechSegmentNode;
+class SpeechSegmentNode;
 
-    class CorpusProcessor : public Processor, public Speech::CorpusProcessor {
-    private:
-	typedef std::vector<SpeechSegmentNode*> SpeechSegmentNodeList;
-    private:
-	Speech::CorpusVisitor *corpusVisitor_;
-	SpeechSegmentNodeList *speechSegNodes_;
-	bool good_;
-    private:
-	CorpusProcessor(const Core::Configuration &config,
-			Network *network, SpeechSegmentNodeList *speechSegNodes);
-    public:
-	virtual ~CorpusProcessor();
-	virtual bool init(const std::vector<std::string> &arguments);
-	virtual void run();
-	void processSpeechSegment(Bliss::SpeechSegment *segment);
+class CorpusProcessor : public Processor, public Speech::CorpusProcessor {
+private:
+  typedef std::vector<SpeechSegmentNode *> SpeechSegmentNodeList;
 
-	static Processor* create(const Core::Configuration &config, Network *network);
-    };
+private:
+  Speech::CorpusVisitor *corpusVisitor_;
+  SpeechSegmentNodeList *speechSegNodes_;
+  bool good_;
 
-    /*
-      Port 0: ConstSegmentRef
-      Port 1: void* (const Bliss::SpeechSegment*)
-    */
-    class SpeechSegmentNode : public Node {
-    private:
-	const Bliss::SpeechSegment *blissSpeechSegment_;
-	ConstSegmentRef segment_;
-    public:
-	SpeechSegmentNode(const std::string &name, const Core::Configuration &config);
-	virtual void init(const std::vector<std::string> &arguments);
-	virtual void sync();
-	virtual bool good() { return true; }
-	void setSpeechSegment(Bliss::SpeechSegment *blissSpeechSegment)
-	    { blissSpeechSegment_ = blissSpeechSegment; }
-	virtual ConstSegmentRef sendSegment(Port to);
-	virtual const void * sendData(Port to);
-    };
-    NodeRef createSpeechSegmentNode(const std::string &name, const Core::Configuration &config);
+private:
+  CorpusProcessor(const Core::Configuration &config, Network *network,
+                  SpeechSegmentNodeList *speechSegNodes);
+
+public:
+  virtual ~CorpusProcessor();
+  virtual bool init(const std::vector<std::string> &arguments);
+  virtual void run();
+  void processSpeechSegment(Bliss::SpeechSegment *segment);
+
+  static Processor *create(const Core::Configuration &config, Network *network);
+};
+
+/*
+  Port 0: ConstSegmentRef
+  Port 1: void* (const Bliss::SpeechSegment*)
+*/
+class SpeechSegmentNode : public Node {
+private:
+  const Bliss::SpeechSegment *blissSpeechSegment_;
+  ConstSegmentRef segment_;
+
+public:
+  SpeechSegmentNode(const std::string &name, const Core::Configuration &config);
+  virtual void init(const std::vector<std::string> &arguments);
+  virtual void sync();
+  virtual bool good() { return true; }
+  void setSpeechSegment(Bliss::SpeechSegment *blissSpeechSegment) {
+    blissSpeechSegment_ = blissSpeechSegment;
+  }
+  virtual ConstSegmentRef sendSegment(Port to);
+  virtual const void *sendData(Port to);
+};
+NodeRef createSpeechSegmentNode(const std::string &name,
+                                const Core::Configuration &config);
 
 } // namespace Flf
 

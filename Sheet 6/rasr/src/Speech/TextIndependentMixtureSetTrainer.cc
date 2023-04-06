@@ -11,39 +11,35 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Core/MapParser.hh>
 #include "TextIndependentMixtureSetTrainer.hh"
+#include <Core/MapParser.hh>
 
 using namespace Speech;
 
+TextIndependentMixtureSetTrainer::TextIndependentMixtureSetTrainer(
+    const Core::Configuration &c)
+    : Component(c), LabeledFeatureProcessor(c), MlMixtureSetTrainer(c),
+      nLabels_(0), featureDescription_(*this), initialized_(false) {}
 
-TextIndependentMixtureSetTrainer::TextIndependentMixtureSetTrainer(const Core::Configuration &c) :
-    Component(c),
-    LabeledFeatureProcessor(c),
-    MlMixtureSetTrainer(c),
-    nLabels_(0),
-    featureDescription_(*this),
-    initialized_(false)
-{}
+TextIndependentMixtureSetTrainer::~TextIndependentMixtureSetTrainer() {}
 
-TextIndependentMixtureSetTrainer::~TextIndependentMixtureSetTrainer()
-{}
+void TextIndependentMixtureSetTrainer::setFeatureDescription(
+    const Mm::FeatureDescription &description) {
+  if (!initialized_) {
+    featureDescription_ = description;
 
-void TextIndependentMixtureSetTrainer::setFeatureDescription(const Mm::FeatureDescription &description)
-{
-    if (!initialized_) {
-	featureDescription_ = description;
+    size_t dimension;
+    featureDescription_.mainStream().getValue(
+        Mm::FeatureDescription::nameDimension, dimension);
 
-	size_t dimension;
-	featureDescription_.mainStream().getValue(Mm::FeatureDescription::nameDimension, dimension);
-
-	initializeAccumulation(nLabels_, dimension);
-	initialized_ = true;
-    } else {
-	if (featureDescription_ != description)
-	    criticalError("Change of features is not allowed.");
-	if (nMixtures() != nLabels_)
-	    criticalError("Change in number of labels (%zd->%d) not allowed.", nMixtures(), nLabels_);
-    }
-    LabeledFeatureProcessor::setFeatureDescription(description);
+    initializeAccumulation(nLabels_, dimension);
+    initialized_ = true;
+  } else {
+    if (featureDescription_ != description)
+      criticalError("Change of features is not allowed.");
+    if (nMixtures() != nLabels_)
+      criticalError("Change in number of labels (%zd->%d) not allowed.",
+                    nMixtures(), nLabels_);
+  }
+  LabeledFeatureProcessor::setFeatureDescription(description);
 }

@@ -16,10 +16,9 @@
 
 #include <Core/Hash.hh>
 
-
 namespace Lattice {
 
-    typedef Core::hash_set<Fsa::LabelId> ShortPauses;
+typedef Core::hash_set<Fsa::LabelId> ShortPauses;
 
 }
 

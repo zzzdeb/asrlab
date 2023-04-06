@@ -1,0 +1,837 @@
+  digraph tree {
+  0
+  28
+  245
+  265
+  4
+  "A"
+  7
+  10
+  251
+  33
+  "I"
+  38
+  394
+  47
+  45
+  97
+  401
+  215
+  217
+  83
+  24
+  282
+  "A"
+  167
+  19
+  64
+  55
+  153
+  150
+  99
+  146
+  133
+  165
+  169
+  176
+  172
+  253
+  67
+  89
+  "E"
+  73
+  93
+  195
+  203
+  193
+  163
+  207
+  213
+  42
+  262
+  219
+  223
+  226
+  236
+  "OH"
+  260
+  277
+  267
+  272
+  284
+  311
+  40
+  324
+  352
+  336
+  359
+  333
+  331
+  388
+  362
+  392
+  257
+  404
+  406
+  390
+  411
+  409
+  "[SILENCE]"
+  29
+  246
+  "R"
+  5
+  8
+  11
+  "OF"
+  34
+  "B"
+  395
+  48
+  "D"
+  "F"
+  402
+  "L"
+  "M"
+  "N"
+  84
+  86
+  25
+  "S"
+  "H"
+  20
+  "EIGHTH"
+  "EIGHT"
+  57
+  62
+  154
+  151
+  100
+  147
+  134
+  143
+  "GO"
+  170
+  177
+  173
+  254
+  68
+  90
+  74
+  94
+  196
+  204
+  "J"
+  "G"
+  208
+  211
+  "K"
+  43
+  263
+  220
+  "MAY"
+  227
+  "NO"
+  238
+  "P"
+  278
+  268
+  273
+  285
+  291
+  298
+  312
+  "C"
+  325
+  353
+  337
+  339
+  360
+  334
+  "T"
+  "TWO"
+  363
+  "V"
+  258
+  "Y"
+  407
+  "U"
+  412
+  "Z"
+  415
+  30
+  247
+  "AND"
+  "AND"
+  12
+  35
+  396
+  49
+  "X"
+  "ENTER"
+  87
+  26
+  21
+  "EIGHTY"
+  58
+  "EIGHTH"
+  "FOUR"
+  161
+  155
+  "FIVE"
+  101
+  107
+  114
+  120
+  148
+  141
+  135
+  "FIFTH"
+  "HALF"
+  178
+  189
+  174
+  255
+  69
+  91
+  75
+  95
+  197
+  205
+  209
+  "JUNE"
+  "CODE"
+  "Q"
+  221
+  "NINE"
+  234
+  229
+  239
+  279
+  269
+  274
+  286
+  292
+  299
+  313
+  329
+  326
+  354
+  "THIRD"
+  349
+  340
+  "THREE"
+  "TEN"
+  364
+  370
+  "ONE"
+  "YES"
+  413
+  416
+  31
+  248
+  13
+  36
+  397
+  50
+  "ENTER"
+  "AREA"
+  22
+  "EIGHTEEN"
+  60
+  "FOURTH"
+  156
+  102
+  108
+  115
+  121
+  127
+  "FIRST"
+  "FIFTH"
+  136
+  179
+  182
+  190
+  "HELP"
+  "ONE"
+  70
+  "ERASE"
+  76
+  "ERASE"
+  198
+  "JULY"
+  "JULY"
+  "MARCH"
+  "NINTH"
+  230
+  240
+  280
+  270
+  275
+  287
+  293
+  300
+  "SIX"
+  321
+  315
+  "STOP"
+  327
+  355
+  "THIRTY"
+  "THIRTY"
+  343
+  346
+  341
+  365
+  368
+  371
+  378
+  "ZERO"
+  "ZERO"
+  "AUGUST"
+  249
+  14
+  "AUGUST"
+  398
+  51
+  "APRIL"
+  "EIGHTEENTH"
+  "FORTY"
+  159
+  103
+  109
+  116
+  122
+  128
+  "FIFTY"
+  137
+  180
+  183
+  186
+  "HUNDRED"
+  71
+  77
+  199
+  "NINETY"
+  231
+  241
+  "RUBOUT"
+  "REPEAT"
+  "REPEAT"
+  "SECOND"
+  289
+  294
+  "SEVEN"
+  308
+  306
+  302
+  "SIXTH"
+  316
+  "START"
+  "THOUSAND"
+  357
+  344
+  347
+  "THIRTEEN"
+  366
+  "TWELVE"
+  "TWENTY"
+  372
+  375
+  379
+  "OCTOBER"
+  15
+  399
+  52
+  "FOURTEEN"
+  104
+  110
+  117
+  123
+  129
+  "FIFTEEN"
+  139
+  "HUNDRED"
+  184
+  187
+  "ELEVEN"
+  79
+  "ELEVEN"
+  81
+  200
+  "NINETEEN"
+  242
+  "SECOND"
+  295
+  "SEVENTY"
+  "SEVENTH"
+  303
+  "SIXTY"
+  317
+  "THOUSAND"
+  "THIRTIETH"
+  "THIRTIETH"
+  "TWELFTH"
+  373
+  376
+  "TWENTY"
+  380
+  383
+  16
+  "W"
+  "DECEMBER"
+  105
+  111
+  118
+  124
+  130
+  "FIFTEENTH"
+  "HUNDRED"
+  "HUNDRED"
+  "ELEVENTH"
+  "ELEVENTH"
+  201
+  "NOVEMBER"
+  296
+  "SEVENTY"
+  304
+  "SIXTEEN"
+  319
+  "TWENTIETH"
+  "TWENTIETH"
+  381
+  384
+  17
+  "FEBRUARY"
+  112
+  "FEBRUARY"
+  125
+  131
+  "JANUARY"
+  "SEPTEMBER"
+  "SEVENTEEN"
+  "SIXTEENTH"
+  "TWENTIETH"
+  "TWENTIETH"
+  "APOSTROPHE"
+  "FEBRUARY"
+  "FEBRUARY"
+  "FEBRUARY"
+  0 -> 28 [label="AA{#+G}"];
+  0 -> 245 [label="AA{#+K}"];
+  0 -> 265 [label="AA{#+R}"];
+  0 -> 4 [label="AE{#+N}"];
+  0 -> "A" [label="AH{#+#}"];
+  0 -> 7 [label="AH{#+N}"];
+  0 -> 10 [label="AH{#+P}"];
+  0 -> 251 [label="AH{#+V}"];
+  0 -> 33 [label="AO{#+G}"];
+  0 -> "I" [label="AY{#+#}"];
+  0 -> 38 [label="B{#+IY}"];
+  0 -> 394 [label="D{#+AH}"];
+  0 -> 47 [label="D{#+IH}"];
+  0 -> 45 [label="D{#+IY}"];
+  0 -> 97 [label="EH{#+F}"];
+  0 -> 401 [label="EH{#+K}"];
+  0 -> 215 [label="EH{#+L}"];
+  0 -> 217 [label="EH{#+M}"];
+  0 -> 83 [label="EH{#+N}"];
+  0 -> 24 [label="EH{#+R}"];
+  0 -> 282 [label="EH{#+S}"];
+  0 -> "A" [label="EY{#+#}"];
+  0 -> 167 [label="EY{#+CH}"];
+  0 -> 19 [label="EY{#+P}"];
+  0 -> 64 [label="EY{#+TH}"];
+  0 -> 55 [label="EY{#+T}"];
+  0 -> 153 [label="F{#+AO}"];
+  0 -> 150 [label="F{#+AY}"];
+  0 -> 99 [label="F{#+EH}"];
+  0 -> 146 [label="F{#+ER}"];
+  0 -> 133 [label="F{#+IH}"];
+  0 -> 165 [label="G{#+OW}"];
+  0 -> 169 [label="HH{#+AE}"];
+  0 -> 176 [label="HH{#+AH}"];
+  0 -> 172 [label="HH{#+EH}"];
+  0 -> 253 [label="HH{#+W}"];
+  0 -> 67 [label="IH{#+L}"];
+  0 -> 89 [label="IH{#+R}"];
+  0 -> "E" [label="IY{#+#}"];
+  0 -> 73 [label="IY{#+L}"];
+  0 -> 93 [label="IY{#+R}"];
+  0 -> 195 [label="JH{#+AE}"];
+  0 -> 203 [label="JH{#+AH}"];
+  0 -> 193 [label="JH{#+EY}"];
+  0 -> 163 [label="JH{#+IY}"];
+  0 -> 207 [label="JH{#+UW}"];
+  0 -> 213 [label="K{#+EY}"];
+  0 -> 42 [label="K{#+OW}"];
+  0 -> 262 [label="K{#+Y}"];
+  0 -> 219 [label="M{#+AA}"];
+  0 -> 223 [label="M{#+EY}"];
+  0 -> 226 [label="N{#+AY}"];
+  0 -> 236 [label="N{#+OW}"];
+  0 -> "OH" [label="OW{#+#}"];
+  0 -> 260 [label="P{#+IY}"];
+  0 -> 277 [label="R{#+AH}"];
+  0 -> 267 [label="R{#+IH}"];
+  0 -> 272 [label="R{#+IY}"];
+  0 -> 284 [label="S{#+EH}"];
+  0 -> 311 [label="S{#+IH}"];
+  0 -> 40 [label="S{#+IY}"];
+  0 -> 324 [label="S{#+T}"];
+  0 -> 352 [label="TH{#+AW}"];
+  0 -> 336 [label="TH{#+ER}"];
+  0 -> 359 [label="TH{#+R}"];
+  0 -> 333 [label="T{#+EH}"];
+  0 -> 331 [label="T{#+IY}"];
+  0 -> 388 [label="T{#+UW}"];
+  0 -> 362 [label="T{#+W}"];
+  0 -> 392 [label="V{#+IY}"];
+  0 -> 257 [label="W{#+AH}"];
+  0 -> 404 [label="W{#+AY}"];
+  0 -> 406 [label="Y{#+EH}"];
+  0 -> 390 [label="Y{#+UW}"];
+  0 -> 411 [label="Z{#+IH}"];
+  0 -> 409 [label="Z{#+IY}"];
+  0 -> "[SILENCE]" [label="si{#+#}"];
+  28 -> 29 [label="G{AA+AH}"];
+  245 -> 246 [label="K{AA+T}"];
+  265 -> "R" [label="R{AA+#}"];
+  4 -> 5 [label="N{AE+D}"];
+  7 -> 8 [label="N{AH+D}"];
+  10 -> 11 [label="P{AH+AA}"];
+  251 -> "OF" [label="V{AH+#}"];
+  33 -> 34 [label="G{AO+AH}"];
+  38 -> "B" [label="IY{B+#}"];
+  394 -> 395 [label="AH{D+B}"];
+  47 -> 48 [label="IH{D+S}"];
+  45 -> "D" [label="IY{D+#}"];
+  97 -> "F" [label="F{EH+#}"];
+  401 -> 402 [label="K{EH+S}"];
+  215 -> "L" [label="L{EH+#}"];
+  217 -> "M" [label="M{EH+#}"];
+  83 -> "N" [label="N{EH+#}"];
+  83 -> 84 [label="N{EH+ER}"];
+  83 -> 86 [label="N{EH+T}"];
+  24 -> 25 [label="R{EH+IY}"];
+  282 -> "S" [label="S{EH+#}"];
+  167 -> "H" [label="CH{EY+#}"];
+  19 -> 20 [label="P{EY+R}"];
+  64 -> "EIGHTH" [label="TH{EY+#}"];
+  55 -> "EIGHT" [label="T{EY+#}"];
+  55 -> 57 [label="T{EY+IY}"];
+  55 -> 62 [label="T{EY+TH}"];
+  153 -> 154 [label="AO{F+R}"];
+  150 -> 151 [label="AY{F+V}"];
+  99 -> 100 [label="EH{F+B}"];
+  146 -> 147 [label="ER{F+S}"];
+  133 -> 134 [label="IH{F+F}"];
+  133 -> 143 [label="IH{F+TH}"];
+  165 -> "GO" [label="OW{G+#}"];
+  169 -> 170 [label="AE{HH+F}"];
+  176 -> 177 [label="AH{HH+N}"];
+  172 -> 173 [label="EH{HH+L}"];
+  253 -> 254 [label="W{HH+AH}"];
+  67 -> 68 [label="L{IH+EH}"];
+  89 -> 90 [label="R{IH+EY}"];
+  73 -> 74 [label="L{IY+EH}"];
+  93 -> 94 [label="R{IY+EY}"];
+  195 -> 196 [label="AE{JH+N}"];
+  203 -> 204 [label="AH{JH+L}"];
+  193 -> "J" [label="EY{JH+#}"];
+  163 -> "G" [label="IY{JH+#}"];
+  207 -> 208 [label="UW{JH+L}"];
+  207 -> 211 [label="UW{JH+N}"];
+  213 -> "K" [label="EY{K+#}"];
+  42 -> 43 [label="OW{K+D}"];
+  262 -> 263 [label="Y{K+UW}"];
+  219 -> 220 [label="AA{M+R}"];
+  223 -> "MAY" [label="EY{M+#}"];
+  226 -> 227 [label="AY{N+N}"];
+  236 -> "NO" [label="OW{N+#}"];
+  236 -> 238 [label="OW{N+V}"];
+  260 -> "P" [label="IY{P+#}"];
+  277 -> 278 [label="AH{R+B}"];
+  267 -> 268 [label="IH{R+P}"];
+  272 -> 273 [label="IY{R+P}"];
+  284 -> 285 [label="EH{S+K}"];
+  284 -> 291 [label="EH{S+P}"];
+  284 -> 298 [label="EH{S+V}"];
+  311 -> 312 [label="IH{S+K}"];
+  40 -> "C" [label="IY{S+#}"];
+  324 -> 325 [label="T{S+AA}"];
+  352 -> 353 [label="AW{TH+Z}"];
+  336 -> 337 [label="ER{TH+D}"];
+  336 -> 339 [label="ER{TH+T}"];
+  359 -> 360 [label="R{TH+IY}"];
+  333 -> 334 [label="EH{T+N}"];
+  331 -> "T" [label="IY{T+#}"];
+  388 -> "TWO" [label="UW{T+#}"];
+  362 -> 363 [label="W{T+EH}"];
+  392 -> "V" [label="IY{V+#}"];
+  257 -> 258 [label="AH{W+N}"];
+  404 -> "Y" [label="AY{W+#}"];
+  406 -> 407 [label="EH{Y+S}"];
+  390 -> "U" [label="UW{Y+#}"];
+  411 -> 412 [label="IH{Z+R}"];
+  409 -> "Z" [label="IY{Z+#}"];
+  409 -> 415 [label="IY{Z+R}"];
+  29 -> 30 [label="AH{G+S}"];
+  246 -> 247 [label="T{K+OW}"];
+  5 -> "AND" [label="D{N+#}"];
+  8 -> "AND" [label="D{N+#}"];
+  11 -> 12 [label="AA{P+S}"];
+  34 -> 35 [label="AH{G+S}"];
+  395 -> 396 [label="B{AH+AH}"];
+  48 -> 49 [label="S{IH+EH}"];
+  402 -> "X" [label="S{K+#}"];
+  84 -> "ENTER" [label="ER{N+#}"];
+  86 -> 87 [label="T{N+ER}"];
+  25 -> 26 [label="IY{R+AH}"];
+  20 -> 21 [label="R{P+AH}"];
+  57 -> "EIGHTY" [label="IY{T+#}"];
+  57 -> 58 [label="IY{T+N}"];
+  62 -> "EIGHTH" [label="TH{T+#}"];
+  154 -> "FOUR" [label="R{AO+#}"];
+  154 -> 161 [label="R{AO+TH}"];
+  154 -> 155 [label="R{AO+T}"];
+  151 -> "FIVE" [label="V{AY+#}"];
+  100 -> 101 [label="B{EH+AH}"];
+  100 -> 107 [label="B{EH+R}"];
+  100 -> 114 [label="B{EH+UW}"];
+  100 -> 120 [label="B{EH+Y}"];
+  147 -> 148 [label="S{ER+T}"];
+  134 -> 141 [label="F{IH+TH}"];
+  134 -> 135 [label="F{IH+T}"];
+  143 -> "FIFTH" [label="TH{IH+#}"];
+  170 -> "HALF" [label="F{AE+#}"];
+  177 -> 178 [label="N{AH+D}"];
+  177 -> 189 [label="N{AH+ER}"];
+  173 -> 174 [label="L{EH+P}"];
+  254 -> 255 [label="AH{W+N}"];
+  68 -> 69 [label="EH{L+V}"];
+  90 -> 91 [label="EY{R+S}"];
+  74 -> 75 [label="EH{L+V}"];
+  94 -> 95 [label="EY{R+S}"];
+  196 -> 197 [label="N{AE+Y}"];
+  204 -> 205 [label="L{AH+AY}"];
+  208 -> 209 [label="L{UW+AY}"];
+  211 -> "JUNE" [label="N{UW+#}"];
+  43 -> "CODE" [label="D{OW+#}"];
+  263 -> "Q" [label="UW{Y+#}"];
+  220 -> 221 [label="R{AA+CH}"];
+  227 -> "NINE" [label="N{AY+#}"];
+  227 -> 234 [label="N{AY+TH}"];
+  227 -> 229 [label="N{AY+T}"];
+  238 -> 239 [label="V{OW+EH}"];
+  278 -> 279 [label="B{AH+AW}"];
+  268 -> 269 [label="P{IH+IY}"];
+  273 -> 274 [label="P{IY+IY}"];
+  285 -> 286 [label="K{EH+AH}"];
+  291 -> 292 [label="P{EH+T}"];
+  298 -> 299 [label="V{EH+AH}"];
+  312 -> 313 [label="K{IH+S}"];
+  325 -> 329 [label="AA{T+P}"];
+  325 -> 326 [label="AA{T+R}"];
+  353 -> 354 [label="Z{AW+AH}"];
+  337 -> "THIRD" [label="D{ER+#}"];
+  337 -> 349 [label="D{ER+IY}"];
+  339 -> 340 [label="T{ER+IY}"];
+  360 -> "THREE" [label="IY{R+#}"];
+  334 -> "TEN" [label="N{EH+#}"];
+  363 -> 364 [label="EH{W+L}"];
+  363 -> 370 [label="EH{W+N}"];
+  258 -> "ONE" [label="N{AH+#}"];
+  407 -> "YES" [label="S{EH+#}"];
+  412 -> 413 [label="R{IH+OW}"];
+  415 -> 416 [label="R{IY+OW}"];
+  30 -> 31 [label="S{AH+T}"];
+  247 -> 248 [label="OW{T+B}"];
+  12 -> 13 [label="S{AA+T}"];
+  35 -> 36 [label="S{AH+T}"];
+  396 -> 397 [label="AH{B+L}"];
+  49 -> 50 [label="EH{S+M}"];
+  87 -> "ENTER" [label="ER{T+#}"];
+  26 -> "AREA" [label="AH{IY+#}"];
+  21 -> 22 [label="AH{R+L}"];
+  58 -> "EIGHTEEN" [label="N{IY+#}"];
+  58 -> 60 [label="N{IY+TH}"];
+  161 -> "FOURTH" [label="TH{R+#}"];
+  155 -> 156 [label="T{R+IY}"];
+  101 -> 102 [label="AH{B+W}"];
+  107 -> 108 [label="R{B+UW}"];
+  114 -> 115 [label="UW{B+W}"];
+  120 -> 121 [label="Y{B+AH}"];
+  120 -> 127 [label="Y{B+UW}"];
+  148 -> "FIRST" [label="T{S+#}"];
+  141 -> "FIFTH" [label="TH{F+#}"];
+  135 -> 136 [label="T{F+IY}"];
+  178 -> 179 [label="D{N+ER}"];
+  178 -> 182 [label="D{N+R}"];
+  189 -> 190 [label="ER{N+D}"];
+  174 -> "HELP" [label="P{L+#}"];
+  255 -> "ONE" [label="N{AH+#}"];
+  69 -> 70 [label="V{EH+AH}"];
+  91 -> "ERASE" [label="S{EY+#}"];
+  75 -> 76 [label="V{EH+AH}"];
+  95 -> "ERASE" [label="S{EY+#}"];
+  197 -> 198 [label="Y{N+UW}"];
+  205 -> "JULY" [label="AY{L+#}"];
+  209 -> "JULY" [label="AY{L+#}"];
+  221 -> "MARCH" [label="CH{R+#}"];
+  234 -> "NINTH" [label="TH{N+#}"];
+  229 -> 230 [label="T{N+IY}"];
+  239 -> 240 [label="EH{V+M}"];
+  279 -> 280 [label="AW{B+T}"];
+  269 -> 270 [label="IY{P+T}"];
+  274 -> 275 [label="IY{P+T}"];
+  286 -> 287 [label="AH{K+N}"];
+  292 -> 293 [label="T{P+EH}"];
+  299 -> 300 [label="AH{V+N}"];
+  313 -> "SIX" [label="S{K+#}"];
+  313 -> 321 [label="S{K+TH}"];
+  313 -> 315 [label="S{K+T}"];
+  329 -> "STOP" [label="P{AA+#}"];
+  326 -> 327 [label="R{AA+T}"];
+  354 -> 355 [label="AH{Z+N}"];
+  349 -> "THIRTY" [label="IY{D+#}"];
+  340 -> "THIRTY" [label="IY{T+#}"];
+  340 -> 343 [label="IY{T+AH}"];
+  340 -> 346 [label="IY{T+IH}"];
+  340 -> 341 [label="IY{T+N}"];
+  364 -> 365 [label="L{EH+F}"];
+  364 -> 368 [label="L{EH+V}"];
+  370 -> 371 [label="N{EH+IY}"];
+  370 -> 378 [label="N{EH+T}"];
+  413 -> "ZERO" [label="OW{R+#}"];
+  416 -> "ZERO" [label="OW{R+#}"];
+  31 -> "AUGUST" [label="T{S+#}"];
+  248 -> 249 [label="B{OW+ER}"];
+  13 -> 14 [label="T{S+R}"];
+  36 -> "AUGUST" [label="T{S+#}"];
+  397 -> 398 [label="L{AH+Y}"];
+  50 -> 51 [label="M{EH+B}"];
+  22 -> "APRIL" [label="L{AH+#}"];
+  60 -> "EIGHTEENTH" [label="TH{N+#}"];
+  156 -> "FORTY" [label="IY{T+#}"];
+  156 -> 159 [label="IY{T+N}"];
+  102 -> 103 [label="W{AH+EH}"];
+  108 -> 109 [label="UW{R+W}"];
+  115 -> 116 [label="W{UW+EH}"];
+  121 -> 122 [label="AH{Y+W}"];
+  127 -> 128 [label="UW{Y+W}"];
+  136 -> "FIFTY" [label="IY{T+#}"];
+  136 -> 137 [label="IY{T+N}"];
+  179 -> 180 [label="ER{D+D}"];
+  182 -> 183 [label="R{D+AH}"];
+  182 -> 186 [label="R{D+IH}"];
+  190 -> "HUNDRED" [label="D{ER+#}"];
+  70 -> 71 [label="AH{V+N}"];
+  76 -> 77 [label="AH{V+N}"];
+  198 -> 199 [label="UW{Y+EH}"];
+  230 -> "NINETY" [label="IY{T+#}"];
+  230 -> 231 [label="IY{T+N}"];
+  240 -> 241 [label="M{EH+B}"];
+  280 -> "RUBOUT" [label="T{AW+#}"];
+  270 -> "REPEAT" [label="T{IY+#}"];
+  275 -> "REPEAT" [label="T{IY+#}"];
+  287 -> "SECOND" [label="N{AH+#}"];
+  287 -> 289 [label="N{AH+D}"];
+  293 -> 294 [label="EH{T+M}"];
+  300 -> "SEVEN" [label="N{AH+#}"];
+  300 -> 308 [label="N{AH+IY}"];
+  300 -> 306 [label="N{AH+TH}"];
+  300 -> 302 [label="N{AH+T}"];
+  321 -> "SIXTH" [label="TH{S+#}"];
+  315 -> 316 [label="T{S+IY}"];
+  327 -> "START" [label="T{R+#}"];
+  355 -> "THOUSAND" [label="N{AH+#}"];
+  355 -> 357 [label="N{AH+D}"];
+  343 -> 344 [label="AH{IY+TH}"];
+  346 -> 347 [label="IH{IY+TH}"];
+  341 -> "THIRTEEN" [label="N{IY+#}"];
+  365 -> 366 [label="F{L+TH}"];
+  368 -> "TWELVE" [label="V{L+#}"];
+  371 -> "TWENTY" [label="IY{N+#}"];
+  371 -> 372 [label="IY{N+AH}"];
+  371 -> 375 [label="IY{N+IH}"];
+  378 -> 379 [label="T{N+IY}"];
+  249 -> "OCTOBER" [label="ER{B+#}"];
+  14 -> 15 [label="R{T+AH}"];
+  398 -> 399 [label="Y{L+UW}"];
+  51 -> 52 [label="B{M+ER}"];
+  159 -> "FOURTEEN" [label="N{IY+#}"];
+  103 -> 104 [label="EH{W+R}"];
+  109 -> 110 [label="W{UW+EH}"];
+  116 -> 117 [label="EH{W+R}"];
+  122 -> 123 [label="W{AH+EH}"];
+  128 -> 129 [label="W{UW+EH}"];
+  137 -> "FIFTEEN" [label="N{IY+#}"];
+  137 -> 139 [label="N{IY+TH}"];
+  180 -> "HUNDRED" [label="D{ER+#}"];
+  183 -> 184 [label="AH{R+D}"];
+  186 -> 187 [label="IH{R+D}"];
+  71 -> "ELEVEN" [label="N{AH+#}"];
+  71 -> 79 [label="N{AH+TH}"];
+  77 -> "ELEVEN" [label="N{AH+#}"];
+  77 -> 81 [label="N{AH+TH}"];
+  199 -> 200 [label="EH{UW+R}"];
+  231 -> "NINETEEN" [label="N{IY+#}"];
+  241 -> 242 [label="B{M+ER}"];
+  289 -> "SECOND" [label="D{N+#}"];
+  294 -> 295 [label="M{EH+B}"];
+  308 -> "SEVENTY" [label="IY{N+#}"];
+  306 -> "SEVENTH" [label="TH{N+#}"];
+  302 -> 303 [label="T{N+IY}"];
+  316 -> "SIXTY" [label="IY{T+#}"];
+  316 -> 317 [label="IY{T+N}"];
+  357 -> "THOUSAND" [label="D{N+#}"];
+  344 -> "THIRTIETH" [label="TH{AH+#}"];
+  347 -> "THIRTIETH" [label="TH{IH+#}"];
+  366 -> "TWELFTH" [label="TH{F+#}"];
+  372 -> 373 [label="AH{IY+TH}"];
+  375 -> 376 [label="IH{IY+TH}"];
+  379 -> "TWENTY" [label="IY{T+#}"];
+  379 -> 380 [label="IY{T+AH}"];
+  379 -> 383 [label="IY{T+IH}"];
+  15 -> 16 [label="AH{R+F}"];
+  399 -> "W" [label="UW{Y+#}"];
+  52 -> "DECEMBER" [label="ER{B+#}"];
+  104 -> 105 [label="R{EH+IY}"];
+  110 -> 111 [label="EH{W+R}"];
+  117 -> 118 [label="R{EH+IY}"];
+  123 -> 124 [label="EH{W+R}"];
+  129 -> 130 [label="EH{W+R}"];
+  139 -> "FIFTEENTH" [label="TH{N+#}"];
+  184 -> "HUNDRED" [label="D{AH+#}"];
+  187 -> "HUNDRED" [label="D{IH+#}"];
+  79 -> "ELEVENTH" [label="TH{N+#}"];
+  81 -> "ELEVENTH" [label="TH{N+#}"];
+  200 -> 201 [label="R{EH+IY}"];
+  242 -> "NOVEMBER" [label="ER{B+#}"];
+  295 -> 296 [label="B{M+ER}"];
+  303 -> "SEVENTY" [label="IY{T+#}"];
+  303 -> 304 [label="IY{T+N}"];
+  317 -> "SIXTEEN" [label="N{IY+#}"];
+  317 -> 319 [label="N{IY+TH}"];
+  373 -> "TWENTIETH" [label="TH{AH+#}"];
+  376 -> "TWENTIETH" [label="TH{IH+#}"];
+  380 -> 381 [label="AH{IY+TH}"];
+  383 -> 384 [label="IH{IY+TH}"];
+  16 -> 17 [label="F{AH+IY}"];
+  105 -> "FEBRUARY" [label="IY{R+#}"];
+  111 -> 112 [label="R{EH+IY}"];
+  118 -> "FEBRUARY" [label="IY{R+#}"];
+  124 -> 125 [label="R{EH+IY}"];
+  130 -> 131 [label="R{EH+IY}"];
+  201 -> "JANUARY" [label="IY{R+#}"];
+  296 -> "SEPTEMBER" [label="ER{B+#}"];
+  304 -> "SEVENTEEN" [label="N{IY+#}"];
+  319 -> "SIXTEENTH" [label="TH{N+#}"];
+  381 -> "TWENTIETH" [label="TH{AH+#}"];
+  384 -> "TWENTIETH" [label="TH{IH+#}"];
+  17 -> "APOSTROPHE" [label="IY{F+#}"];
+  112 -> "FEBRUARY" [label="IY{R+#}"];
+  125 -> "FEBRUARY" [label="IY{R+#}"];
+  131 -> "FEBRUARY" [label="IY{R+#}"];
+  }

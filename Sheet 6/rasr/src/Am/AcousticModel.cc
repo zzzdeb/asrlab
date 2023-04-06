@@ -22,56 +22,55 @@ const AcousticModel::Mode AcousticModel::noEmissions = 0x1;
 const AcousticModel::Mode AcousticModel::noStateTying = 0x2;
 const AcousticModel::Mode AcousticModel::noStateTransition = 0x4;
 
-bool AcousticModel::isCompatible(const Mm::FeatureDescription &description) const
-{
-    Core::DependencySet dependencies;
-    getDependencies(dependencies);
+bool AcousticModel::isCompatible(
+    const Mm::FeatureDescription &description) const {
+  Core::DependencySet dependencies;
+  getDependencies(dependencies);
 
-    Core::DependencySet d;
-    description.getDependencies(d);
-    Core::DependencySet featureDependencies;
-    featureDependencies.add(name(), d);
+  Core::DependencySet d;
+  description.getDependencies(d);
+  Core::DependencySet featureDependencies;
+  featureDependencies.add(name(), d);
 
-    if (!dependencies.satisfies(featureDependencies)) {
+  if (!dependencies.satisfies(featureDependencies)) {
 #if 1
-	warning("Feature mismatch between acoustic model and feature extraction.");
+    warning("Feature mismatch between acoustic model and feature extraction.");
 #endif
-	return false;
-    }
-    return true;
+    return false;
+  }
+  return true;
 }
 
-bool AcousticModel::isWeakCompatible(const Mm::FeatureDescription& description) const
-{
-    Core::DependencySet dependencies;
-    getDependencies(dependencies);
+bool AcousticModel::isWeakCompatible(
+    const Mm::FeatureDescription &description) const {
+  Core::DependencySet dependencies;
+  getDependencies(dependencies);
 
-    Core::DependencySet d;
-    description.getDependencies(d);
-    Core::DependencySet featureDependencies;
-    featureDependencies.add(name(), d);
+  Core::DependencySet d;
+  description.getDependencies(d);
+  Core::DependencySet featureDependencies;
+  featureDependencies.add(name(), d);
 
-    if (!dependencies.weak_satisfies(featureDependencies)) {
-	error("Feature mismatch between acoustic model and feature extraction even in weak check.");
-	return false;
-    }
-    return true;
+  if (!dependencies.weak_satisfies(featureDependencies)) {
+    error("Feature mismatch between acoustic model and feature extraction even "
+          "in weak check.");
+    return false;
+  }
+  return true;
 }
-
 
 bool AcousticModel::setKey(const std::string &key) { return true; };
 
 Core::Ref<const EmissionAlphabet> AcousticModel::emissionAlphabet() const {
-    Core::Ref<const EmissionAlphabet> result;
-    if (emissionAlphabet_)
-	result = emissionAlphabet_;
-    else
-	emissionAlphabet_ = result = Core::ref(new EmissionAlphabet(nEmissions()));
-    return result;
+  Core::Ref<const EmissionAlphabet> result;
+  if (emissionAlphabet_)
+    result = emissionAlphabet_;
+  else
+    emissionAlphabet_ = result = Core::ref(new EmissionAlphabet(nEmissions()));
+  return result;
 }
 
 // ===========================================================================
-TransducerBuilder::TransducerBuilder() {
-}
+TransducerBuilder::TransducerBuilder() {}
 
 TransducerBuilder::~TransducerBuilder() {}

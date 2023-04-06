@@ -18,20 +18,18 @@
 
 namespace Mm {
 
-struct AbstractMixtureSetLoader
-{
-    virtual Core::Ref<AbstractMixtureSet> load(const std::string &filename,
-					       const Core::Configuration &c) const;
-    virtual ~AbstractMixtureSetLoader() {}
+struct AbstractMixtureSetLoader {
+  virtual Core::Ref<AbstractMixtureSet>
+  load(const std::string &filename, const Core::Configuration &c) const;
+  virtual ~AbstractMixtureSetLoader() {}
 };
 
-struct EmptyMixtureSetLoader : public AbstractMixtureSetLoader
-{
-    virtual Core::Ref<AbstractMixtureSet> load(const std::string &filename,
-					       const Core::Configuration &c) const;
-    virtual ~EmptyMixtureSetLoader() {}
+struct EmptyMixtureSetLoader : public AbstractMixtureSetLoader {
+  virtual Core::Ref<AbstractMixtureSet>
+  load(const std::string &filename, const Core::Configuration &c) const;
+  virtual ~EmptyMixtureSetLoader() {}
 };
 
 } // namespace Mm
 
-#endif  // _MM_MIXTURE_SET_LOADER_HH
+#endif // _MM_MIXTURE_SET_LOADER_HH

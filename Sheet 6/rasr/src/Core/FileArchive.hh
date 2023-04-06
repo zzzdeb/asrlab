@@ -14,56 +14,59 @@
 #ifndef _CORE_FILE_ARCHIVE_HH
 #define _CORE_FILE_ARCHIVE_HH
 
-#include <iostream>
 #include "Archive.hh"
 #include "BinaryStream.hh"
-
+#include <iostream>
 
 namespace Core {
 
-    class FileArchive : public virtual Archive {
-    private:
-	static const ParameterBool paramOverwrite;
-	bool allowOverwrite_;
-    private:
-	class FileInfo;
+class FileArchive : public virtual Archive {
+private:
+  static const ParameterBool paramOverwrite;
+  bool allowOverwrite_;
 
-	BinaryStream *stream_;
-	bool open_;
-	bool changed_;
-	std::streampos endOfArchive_;
-	std::map<std::string, u32> hashedFiles_;
-	std::vector<FileInfo> files_;
-	std::vector<FileInfo> emptyFiles_;
+private:
+  class FileInfo;
 
-	class _const_iterator;
-	friend class _const_iterator;
-    private:
-	bool add(const FileInfo&);
-	bool readFileInfoTable();
-	bool writeFileInfoTable();
-	u32 getChecksum(const std::string &b) const;
-	FileInfo* file(const std::string &name);
-	const FileInfo* file(const std::string &name) const;
-	void setChanged();
-	bool scanArchive();
+  BinaryStream *stream_;
+  bool open_;
+  bool changed_;
+  std::streampos endOfArchive_;
+  std::map<std::string, u32> hashedFiles_;
+  std::vector<FileInfo> files_;
+  std::vector<FileInfo> emptyFiles_;
 
-	friend class Archive;
-	static bool test(const std::string &path);
+  class _const_iterator;
+  friend class _const_iterator;
 
-    protected:
-	virtual bool discover(const std::string &name, Sizes &sizes) const;
-	virtual bool read(const std::string &name, std::string &b) const;
-	virtual bool write(const std::string &name, const std::string &b, const Sizes &sizes);
-	virtual bool remove(const std::string &name);
+private:
+  bool add(const FileInfo &);
+  bool readFileInfoTable();
+  bool writeFileInfoTable();
+  u32 getChecksum(const std::string &b) const;
+  FileInfo *file(const std::string &name);
+  const FileInfo *file(const std::string &name) const;
+  void setChanged();
+  bool scanArchive();
 
-    public:
-	FileArchive(const Configuration &config, const std::string &path = "", AccessMode access = AccessModeReadWrite);
-	virtual ~FileArchive();
-	virtual const_iterator files() const;
-	virtual bool clear();
-	virtual bool recover();
-    };
+  friend class Archive;
+  static bool test(const std::string &path);
+
+protected:
+  virtual bool discover(const std::string &name, Sizes &sizes) const;
+  virtual bool read(const std::string &name, std::string &b) const;
+  virtual bool write(const std::string &name, const std::string &b,
+                     const Sizes &sizes);
+  virtual bool remove(const std::string &name);
+
+public:
+  FileArchive(const Configuration &config, const std::string &path = "",
+              AccessMode access = AccessModeReadWrite);
+  virtual ~FileArchive();
+  virtual const_iterator files() const;
+  virtual bool clear();
+  virtual bool recover();
+};
 
 } // namespace Core
 

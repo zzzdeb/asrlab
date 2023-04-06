@@ -16,59 +16,60 @@
 using namespace Core;
 
 //=============================================================================================
-void Description::Stream::getDependencies(
-    const std::string &prefix, std::string &value) const
-{
-    StringHashMap<std::string>::const_iterator a;
-    for(a = attributes_.begin(); a != attributes_.end(); ++ a)
-	value += "'" + prefix + a->first + "=" + a->second + "'";
+void Description::Stream::getDependencies(const std::string &prefix,
+                                          std::string &value) const {
+  StringHashMap<std::string>::const_iterator a;
+  for (a = attributes_.begin(); a != attributes_.end(); ++a)
+    value += "'" + prefix + a->first + "=" + a->second + "'";
 }
 
 //=============================================================================================
-std::string Description::Stream::getValue(const std::string &name, bool critical) const
-{
-    std::string result;
-    if (!getValue(name, result)) {
-	Application::us()->error("%s: could not find attribute '%s'.", name_.c_str(), name.c_str());
-	if (critical) Application::us()->respondToDelayedErrors();
-    }
-    return result;
+std::string Description::Stream::getValue(const std::string &name,
+                                          bool critical) const {
+  std::string result;
+  if (!getValue(name, result)) {
+    Application::us()->error("%s: could not find attribute '%s'.",
+                             name_.c_str(), name.c_str());
+    if (critical)
+      Application::us()->respondToDelayedErrors();
+  }
+  return result;
 }
 
-bool Description::Stream::getValue(const std::string &name, std::string &value) const
-{
-    StringHashMap<std::string>::const_iterator a = attributes_.find(name);
-    if (a == attributes_.end()) return false;
-    value = a->second;
-    return true;
+bool Description::Stream::getValue(const std::string &name,
+                                   std::string &value) const {
+  StringHashMap<std::string>::const_iterator a = attributes_.find(name);
+  if (a == attributes_.end())
+    return false;
+  value = a->second;
+  return true;
 }
 
 //=============================================================================================
 
-Description::Stream &Description::getStream(size_t index)
-{
-    while (index >= streams_.size())
-	streams_.push_back(Stream(form("%s.%zd", name_.c_str(), streams_.size())));
-    return streams_[index];
+Description::Stream &Description::getStream(size_t index) {
+  while (index >= streams_.size())
+    streams_.push_back(Stream(form("%s.%zd", name_.c_str(), streams_.size())));
+  return streams_[index];
 }
 
-bool Description::verifyNumberOfStreams(size_t expectedNumber, bool critical) const
-{
-    if (expectedNumber != nStreams()) {
-	Application::us()->error(
-	    "%s: number of streams does not match: %d expected and %d exist.",
-	    name_.c_str(), expectedNumber, nStreams());
-	if (critical) Application::us()->respondToDelayedErrors();
-	return false;
-    }
-    return true;
+bool Description::verifyNumberOfStreams(size_t expectedNumber,
+                                        bool critical) const {
+  if (expectedNumber != nStreams()) {
+    Application::us()->error(
+        "%s: number of streams does not match: %d expected and %d exist.",
+        name_.c_str(), expectedNumber, nStreams());
+    if (critical)
+      Application::us()->respondToDelayedErrors();
+    return false;
+  }
+  return true;
 }
 
-void Description::getDependencies(DependencySet &dependency) const
-{
-    std::string value;
-    for(size_t s = 0; s < streams_.size(); ++ s) {
-	streams_[s].getDependencies(form("stream-%d:", s), value);
-    }
-    dependency.add("stream-extraction", value);
+void Description::getDependencies(DependencySet &dependency) const {
+  std::string value;
+  for (size_t s = 0; s < streams_.size(); ++s) {
+    streams_[s].getDependencies(form("stream-%d:", s), value);
+  }
+  dependency.add("stream-extraction", value);
 }

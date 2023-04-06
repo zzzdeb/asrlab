@@ -18,15 +18,16 @@
 
 namespace Fsa {
 
-    ConstAutomatonRef minimize(ConstAutomatonRef f, bool progress = false);
-    ConstAutomatonRef minimize(ConstAutomatonRef f, Fsa::OptimizationHint hint, bool progress = false);
+ConstAutomatonRef minimize(ConstAutomatonRef f, bool progress = false);
+ConstAutomatonRef minimize(ConstAutomatonRef f, Fsa::OptimizationHint hint,
+                           bool progress = false);
 
-    /*
-     * re-implements legacy Fsa::minimize because it is faster
-     * in some cases (e.g. extraction of numerator lattice
-     * for discriminative training)
-     */
-    ConstAutomatonRef minimizeSimple(ConstAutomatonRef);
+/*
+ * re-implements legacy Fsa::minimize because it is faster
+ * in some cases (e.g. extraction of numerator lattice
+ * for discriminative training)
+ */
+ConstAutomatonRef minimizeSimple(ConstAutomatonRef);
 } // namespace Fsa
 
 #endif // _FSA_MINIMIZE_HH

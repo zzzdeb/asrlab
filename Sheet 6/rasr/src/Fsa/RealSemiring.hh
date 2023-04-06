@@ -14,13 +14,13 @@
 #ifndef _FSA_REAL_SEMIRING_HH
 #define _FSA_REAL_SEMIRING_HH
 
-#include "tRealSemiring.hh"
 #include "Semiring.hh"
+#include "tRealSemiring.hh"
 
 namespace Fsa {
-    typedef Ftl::LogSemiring<Weight, f32> LogSemiring_;
-    typedef Ftl::TropicalSemiring<Weight, f32> TropicalSemiring_;
-    typedef Ftl::ProbabilitySemiring<Weight, f32> ProbabilitySemiring_;
+typedef Ftl::LogSemiring<Weight, f32> LogSemiring_;
+typedef Ftl::TropicalSemiring<Weight, f32> TropicalSemiring_;
+typedef Ftl::ProbabilitySemiring<Weight, f32> ProbabilitySemiring_;
 } // namespace Fsa
 
 #endif // _FSA_REAL_SEMIRING_HH

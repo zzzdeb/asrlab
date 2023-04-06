@@ -14,88 +14,97 @@
 #ifndef _SIGNAL_SCATTER_TRANSFORM_HH
 #define _SIGNAL_SCATTER_TRANSFORM_HH
 
-#include <Core/Component.hh>
 #include "ScatterEstimator.hh"
+#include <Core/Component.hh>
 #include <Math/EigenvalueProblem.hh>
 
 namespace Signal {
 
-    /**
-     *  Base class for scatter matrix based tranformations.
-     *  Features:
-     *   -Basic I/O
-     */
-    class ScatterTransform : virtual public Core::Component {
-	typedef Core::Component Precursor;
-    public:
-	typedef Math::EigenvalueProblem::ValueType EigenType;
-	typedef Math::Matrix<f32> TransformationMatrix;
-    private:
-	const Core::ParameterString paramTransformationFilename;
-	static const Core::ParameterInt paramOutputPrecision;
-	static const Core::ParameterFloat paramTransformScale;
-    protected:
-	static const Core::ParameterString paramTotalScatterFilename;
-	static const Core::ParameterString paramBetweenClassScatterFilename;
-	static const Core::ParameterString paramWithinClassScatterFilename;
-    protected:
-	TransformationMatrix transform_;
-	TransformationMatrix::Type transformScale_;
-    protected:
-	/**
-	 *  Performs final steps of calculating the transformation.
-	 *  Steps:
-	 *    -scaling
-	 */
-	bool work();
+/**
+ *  Base class for scatter matrix based tranformations.
+ *  Features:
+ *   -Basic I/O
+ */
+class ScatterTransform : virtual public Core::Component {
+  typedef Core::Component Precursor;
 
-	bool readScatterMatrix(const std::string &filename,
-			       const std::string &scatterType,
-			       ScatterMatrix &scatterMatrix) const;
-	/**
-	 *  Writes given scatter matrix to the output stream.
-	 *  @c scatterType is used when creating XML tag names.
-	 *  If @c eigenvalueProblem not zero, eigenvalues of
-	 *  scatter matrix are dumped as well.
-	 */
-	void writeScatterMatrix(Core::XmlWriter &os,
-				const std::string &scatterType,
-				const ScatterMatrix &scatterMatrix,
-				Math::EigenvalueProblem *eigenvalueProblem = 0) const;
-    public:
-	/**
-	 *  Consturctor.
-	 *  @c transformationTypename specifies the parameter name of the output file.
-	 *  E.g.: projector-matrix, normalization, etc.
-	 */
-	ScatterTransform(const Core::Configuration &c,
-			 const std::string &transformationTypename);
-	~ScatterTransform();
+public:
+  typedef Math::EigenvalueProblem::ValueType EigenType;
+  typedef Math::Matrix<f32> TransformationMatrix;
 
-	const TransformationMatrix &transform() const { return transform_; }
-	/**
-	 *  Saves the transformation matrix under name given by param paramTransformationFilename;
-	 */
-	bool write();
-    };
+private:
+  const Core::ParameterString paramTransformationFilename;
+  static const Core::ParameterInt paramOutputPrecision;
+  static const Core::ParameterFloat paramTransformScale;
 
-    /**
-     *  Calculates a transformation which makes the diagonal
-     *  of the input scatter matrix to be unity.
-     */
-    class ScatterDiagonalNormalization : public ScatterTransform {
-	typedef ScatterTransform Precursor;
-    private:
-	static const Core::ParameterFloat paramTolerance;
-    private:
-	ScatterMatrix::Type tolerance_;
-    public:
-	ScatterDiagonalNormalization(const Core::Configuration &c);
+protected:
+  static const Core::ParameterString paramTotalScatterFilename;
+  static const Core::ParameterString paramBetweenClassScatterFilename;
+  static const Core::ParameterString paramWithinClassScatterFilename;
 
-	bool work(const ScatterMatrix &scatter);
-	bool work();
-    };
+protected:
+  TransformationMatrix transform_;
+  TransformationMatrix::Type transformScale_;
 
-} //namespace Signal
+protected:
+  /**
+   *  Performs final steps of calculating the transformation.
+   *  Steps:
+   *    -scaling
+   */
+  bool work();
+
+  bool readScatterMatrix(const std::string &filename,
+                         const std::string &scatterType,
+                         ScatterMatrix &scatterMatrix) const;
+  /**
+   *  Writes given scatter matrix to the output stream.
+   *  @c scatterType is used when creating XML tag names.
+   *  If @c eigenvalueProblem not zero, eigenvalues of
+   *  scatter matrix are dumped as well.
+   */
+  void writeScatterMatrix(Core::XmlWriter &os, const std::string &scatterType,
+                          const ScatterMatrix &scatterMatrix,
+                          Math::EigenvalueProblem *eigenvalueProblem = 0) const;
+
+public:
+  /**
+   *  Consturctor.
+   *  @c transformationTypename specifies the parameter name of the output file.
+   *  E.g.: projector-matrix, normalization, etc.
+   */
+  ScatterTransform(const Core::Configuration &c,
+                   const std::string &transformationTypename);
+  ~ScatterTransform();
+
+  const TransformationMatrix &transform() const { return transform_; }
+  /**
+   *  Saves the transformation matrix under name given by param
+   * paramTransformationFilename;
+   */
+  bool write();
+};
+
+/**
+ *  Calculates a transformation which makes the diagonal
+ *  of the input scatter matrix to be unity.
+ */
+class ScatterDiagonalNormalization : public ScatterTransform {
+  typedef ScatterTransform Precursor;
+
+private:
+  static const Core::ParameterFloat paramTolerance;
+
+private:
+  ScatterMatrix::Type tolerance_;
+
+public:
+  ScatterDiagonalNormalization(const Core::Configuration &c);
+
+  bool work(const ScatterMatrix &scatter);
+  bool work();
+};
+
+} // namespace Signal
 
 #endif // _SIGNAL_SCATTER_TRANSFORM_HH

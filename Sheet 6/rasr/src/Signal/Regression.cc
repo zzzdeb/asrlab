@@ -17,92 +17,97 @@
 
 using namespace Signal;
 
-
 Regression::Regression() {}
 
 Regression::~Regression() {}
 
-void Regression::regressFirstOrder(const std::vector<const Frame*> &in, Frame &out) {
-    for (u32 c = 0; c < out.size(); ++c)
-	out[c] = 0.0;
-    f32 tm = 0.0;
-    for (u32 i = 0; i < in.size(); ++i) {
-	const Frame &f(*in[i]);
-	require(f.size() >= out.size());
-	f32 dt = f32(i) - f32(in.size()-1) / 2.0;
-	for (u32 c = 0; c < out.size(); ++c) {
-	    out[c] += dt * f[c];
-	}
-	tm += dt * dt;
+void Regression::regressFirstOrder(const std::vector<const Frame *> &in,
+                                   Frame &out) {
+  for (u32 c = 0; c < out.size(); ++c)
+    out[c] = 0.0;
+  f32 tm = 0.0;
+  for (u32 i = 0; i < in.size(); ++i) {
+    const Frame &f(*in[i]);
+    require(f.size() >= out.size());
+    f32 dt = f32(i) - f32(in.size() - 1) / 2.0;
+    for (u32 c = 0; c < out.size(); ++c) {
+      out[c] += dt * f[c];
     }
-    for (u32 c = 0; c < out.size(); ++c)
-	out[c] /= tm;
+    tm += dt * dt;
+  }
+  for (u32 c = 0; c < out.size(); ++c)
+    out[c] /= tm;
 }
 
-void Regression::regressSecondOrder(const std::vector<const Frame*> &in, Frame &out) {
-    for (u32 c = 0; c < out.size(); ++c)
-	out[c] = 0.0;
-    f32 tm = 0.0;
-    f32 ns = 0.0;
-    for (u32 i = 0; i < in.size(); ++i) {
-	f32 dt = f32(i) - f32(in.size()-1) / 2.0;
-	tm += dt * dt;
-	ns += dt * dt * dt * dt;
+void Regression::regressSecondOrder(const std::vector<const Frame *> &in,
+                                    Frame &out) {
+  for (u32 c = 0; c < out.size(); ++c)
+    out[c] = 0.0;
+  f32 tm = 0.0;
+  f32 ns = 0.0;
+  for (u32 i = 0; i < in.size(); ++i) {
+    f32 dt = f32(i) - f32(in.size() - 1) / 2.0;
+    tm += dt * dt;
+    ns += dt * dt * dt * dt;
+  }
+  ns = tm * tm - f32(in.size()) * ns;
+  for (u32 i = 0; i < in.size(); ++i) {
+    const Frame &f(*in[i]);
+    require(f.size() >= out.size());
+    f32 dt = f32(i) - f32(in.size() - 1) / 2.0;
+    for (u32 c = 0; c < out.size(); ++c) {
+      out[c] += f[c] * tm;
+      out[c] -= f[c] * dt * dt * f32(in.size());
     }
-    ns = tm * tm - f32(in.size()) * ns;
-    for (u32 i = 0; i < in.size(); ++i) {
-	const Frame &f(*in[i]);
-	require(f.size() >= out.size());
-	f32 dt = f32(i) - f32(in.size()-1) / 2.0;
-	for (u32 c = 0; c < out.size(); ++c) {
-	    out[c] += f[c] * tm;
-	    out[c] -= f[c] * dt * dt * f32(in.size());
-	}
-    }
-    for (u32 c = 0; c < out.size(); ++c)
-	out[c] *= 2.0 / ns;
+  }
+  for (u32 c = 0; c < out.size(); ++c)
+    out[c] *= 2.0 / ns;
 }
 
-const Core::ParameterInt RegressionNode::parameterOrder(
-    "order", "order of derivative to calculate", 1, 0);
+const Core::ParameterInt
+    RegressionNode::parameterOrder("order", "order of derivative to calculate",
+                                   1, 0);
 
-RegressionNode::RegressionNode(const Core::Configuration &c) :
-    Core::Component(c), Precursor(c)
-{
-    order_ = parameterOrder(config);
+RegressionNode::RegressionNode(const Core::Configuration &c)
+    : Core::Component(c), Precursor(c) {
+  order_ = parameterOrder(config);
 }
 
 RegressionNode::~RegressionNode() {}
 
-bool RegressionNode::setParameter(const std::string &name, const std::string &value) {
-    if (parameterOrder.match(name))
-	order_ = parameterOrder(value);
-    else
-	return Precursor::setParameter(name, value);
-    return true;
+bool RegressionNode::setParameter(const std::string &name,
+                                  const std::string &value) {
+  if (parameterOrder.match(name))
+    order_ = parameterOrder(value);
+  else
+    return Precursor::setParameter(name, value);
+  return true;
 }
 
 /**
- * \todo This would be more efficient, if vector dimensions were advertised attributes.
+ * \todo This would be more efficient, if vector dimensions were advertised
+ * attributes.
  */
-RegressionNode::OutputData *RegressionNode::merge(std::vector<Precursor::InputFrame> &inputData) {
-    std::vector<const Regression::Frame*> in(inputData.size());
-    size_t d = Core::Type<u32>::max;
-    for (u32 i = 0; i < inputData.size(); ++i) {
-	d = std::min(d, inputData[i]->size());
-	in[i] = inputData[i].get();
-    }
+RegressionNode::OutputData *
+RegressionNode::merge(std::vector<Precursor::InputFrame> &inputData) {
+  std::vector<const Regression::Frame *> in(inputData.size());
+  size_t d = Core::Type<u32>::max;
+  for (u32 i = 0; i < inputData.size(); ++i) {
+    d = std::min(d, inputData[i]->size());
+    in[i] = inputData[i].get();
+  }
 
-    OutputData *out = new OutputData(d);
-    switch (order_) {
-    case 1:
-	regressFirstOrder(in, *out);
-	break;
-    case 2:
-	regressSecondOrder(in, *out);
-	break;
-    default:
-	criticalError("signal-regression only implemented for 1st and 2nd order derivatives");
-    }
-    return out;
+  OutputData *out = new OutputData(d);
+  switch (order_) {
+  case 1:
+    regressFirstOrder(in, *out);
+    break;
+  case 2:
+    regressSecondOrder(in, *out);
+    break;
+  default:
+    criticalError(
+        "signal-regression only implemented for 1st and 2nd order derivatives");
+  }
+  return out;
 }

@@ -34,54 +34,57 @@
 // Standard C++ Library".
 // ============================================================================
 
-
 #ifndef _CORE_COMPRESSED_STREAM_HH
 #define _CORE_COMPRESSED_STREAM_HH
 
 // standard C++ with new header file names and std:: namespace
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace Core {
 
-    // ----------------------------------------------------------------------------
-    // Internal classes to implement CompressedStream. See below for user classes.
-    // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// Internal classes to implement CompressedStream. See below for user classes.
+// ----------------------------------------------------------------------------
 
-    class CompressedStreamBuf;
+class CompressedStreamBuf;
 
-    // ----------------------------------------------------------------------------
-    // User classes. Use CompressedInputStream and CompressedOutputStream analogously to ifstream and
-    // ofstream respectively. They read and write files based on the gz*
-    // function interface of the zlib. Files are compatible with gzip compression.
-    // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// User classes. Use CompressedInputStream and CompressedOutputStream
+// analogously to ifstream and ofstream respectively. They read and write files
+// based on the gz* function interface of the zlib. Files are compatible with
+// gzip compression.
+// ----------------------------------------------------------------------------
 
-    class CompressedInputStream : public std::istream {
-    private:
-	std::streambuf *buf_;
-    public:
-	CompressedInputStream();
-	CompressedInputStream(const std::string &name);
-	~CompressedInputStream() { close(); }
-	void open(const std::string &name);
-	void close();
-	bool isOpen() const { return buf_; }
-    };
+class CompressedInputStream : public std::istream {
+private:
+  std::streambuf *buf_;
 
-    class CompressedOutputStream : public std::ostream {
-    private:
-	std::streambuf *buf_;
-    public:
-	CompressedOutputStream();
-	CompressedOutputStream(const std::string &name);
-	~CompressedOutputStream() { close(); }
-	void open(const std::string &name);
-	void close();
-	bool isOpen() const { return buf_; }
-    };
+public:
+  CompressedInputStream();
+  CompressedInputStream(const std::string &name);
+  ~CompressedInputStream() { close(); }
+  void open(const std::string &name);
+  void close();
+  bool isOpen() const { return buf_; }
+};
 
-    std::string extendCompressedFilename(const std::string &filename, const std::string &extension);
+class CompressedOutputStream : public std::ostream {
+private:
+  std::streambuf *buf_;
 
-} //namespace Core
+public:
+  CompressedOutputStream();
+  CompressedOutputStream(const std::string &name);
+  ~CompressedOutputStream() { close(); }
+  void open(const std::string &name);
+  void close();
+  bool isOpen() const { return buf_; }
+};
+
+std::string extendCompressedFilename(const std::string &filename,
+                                     const std::string &extension);
+
+} // namespace Core
 
 #endif // _CORE_COMPRESSED_STREAM_HH

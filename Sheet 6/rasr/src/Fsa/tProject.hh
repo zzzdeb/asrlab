@@ -15,14 +15,14 @@
 #define _T_FSA_PROJECT_HH
 
 namespace Ftl {
-    template<class _Automaton>
-    typename _Automaton::ConstRef projectInput(typename _Automaton::ConstRef f);
+template <class _Automaton>
+typename _Automaton::ConstRef projectInput(typename _Automaton::ConstRef f);
 
-    template<class _Automaton>
-    typename _Automaton::ConstRef projectOutput(typename _Automaton::ConstRef f);
+template <class _Automaton>
+typename _Automaton::ConstRef projectOutput(typename _Automaton::ConstRef f);
 
-    template<class _Automaton>
-    typename _Automaton::ConstRef invert(typename _Automaton::ConstRef f);
+template <class _Automaton>
+typename _Automaton::ConstRef invert(typename _Automaton::ConstRef f);
 } // namespace Ftl
 
 #include "tProject.cc"

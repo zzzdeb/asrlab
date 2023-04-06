@@ -11,79 +11,75 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <Flow/Timestamp.hh>
 #include "RepeatingFramePrediction.hh"
+#include <Flow/Timestamp.hh>
 
 using namespace Signal;
-
 
 // RepeatingFramePrediction
 ///////////////////////////
 
+RepeatingFramePrediction::RepeatingFramePrediction()
+    : slidingWindow_(2, 0), predictOnlyMissing_(true), syncEndTimes_(false) {}
 
-RepeatingFramePrediction::RepeatingFramePrediction() :
-    slidingWindow_(2, 0),
-    predictOnlyMissing_(true),
-    syncEndTimes_(false)
-    { }
+bool RepeatingFramePrediction::work(const Flow::Timestamp &timestamp,
+                                    DataPointer &out) {
+  Time time = timestamp.startTime();
+  Time endTime;
+  if (syncEndTimes_)
+    endTime = timestamp.endTime();
+  else
+    endTime = -1;
 
+  seek(time);
+  if (copyLatest(time, out, endTime))
+    return true;
 
-bool RepeatingFramePrediction::work(const Flow::Timestamp &timestamp, DataPointer &out) {
-    Time time = timestamp.startTime();
-    Time endTime;
-    if (syncEndTimes_)
-	endTime = timestamp.endTime();
-    else
-	endTime = -1;
-
-    seek(time);
-    if (copyLatest(time, out, endTime))
-	return true;
-
-    return copyPrevious(time, out, endTime);
+  return copyPrevious(time, out, endTime);
 }
 
-
 void RepeatingFramePrediction::seek(Time time) {
-    while(slidingWindow_.size() == 0 ||
-      Core::isSignificantlyLess(slidingWindow_.front()->startTime(), time, Flow::timeTolerance)) {
+  while (slidingWindow_.size() == 0 ||
+         Core::isSignificantlyLess(slidingWindow_.front()->startTime(), time,
+                                   Flow::timeTolerance)) {
 
     DataPointer dataPointer;
 
     if (nextData(dataPointer))
-	slidingWindow_.add(dataPointer);
+      slidingWindow_.add(dataPointer);
     else if (slidingWindow_.size() > 1)
-	slidingWindow_.flushOut();
+      slidingWindow_.flushOut();
     else
-	break;
-    }
+      break;
+  }
 }
 
+bool RepeatingFramePrediction::copyLatest(Time time, DataPointer &out,
+                                          Time endTime = -1) {
+  verify(slidingWindow_.size() >= 1);
 
-bool RepeatingFramePrediction::copyLatest(Time time, DataPointer &out, Time endTime=-1) {
-    verify(slidingWindow_.size() >= 1);
-
-    if (predictOnlyMissing_ && slidingWindow_.front()->equalsToStartTime(time)) {
-	out = slidingWindow_.front();
-	if (endTime != -1) out->setEndTime(endTime);
-    return true;
-    }
-
-    return false;
-}
-
-
-bool RepeatingFramePrediction::copyPrevious(Time time, DataPointer &out, Time endTime=-1) {
-    verify(slidingWindow_.size() >= 1);
-
-    out = slidingWindow_.back();
-
-    out.makePrivate();
-
-    out->setStartTime(time);
+  if (predictOnlyMissing_ && slidingWindow_.front()->equalsToStartTime(time)) {
+    out = slidingWindow_.front();
     if (endTime != -1)
-	out->setEndTime(endTime);
-    else
-	out->setEndTime(time);
+      out->setEndTime(endTime);
     return true;
+  }
+
+  return false;
+}
+
+bool RepeatingFramePrediction::copyPrevious(Time time, DataPointer &out,
+                                            Time endTime = -1) {
+  verify(slidingWindow_.size() >= 1);
+
+  out = slidingWindow_.back();
+
+  out.makePrivate();
+
+  out->setStartTime(time);
+  if (endTime != -1)
+    out->setEndTime(endTime);
+  else
+    out->setEndTime(time);
+  return true;
 }

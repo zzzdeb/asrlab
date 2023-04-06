@@ -19,26 +19,26 @@
 
 namespace Core {
 
-    class CodeGenerator : public Component {
-    private:
-	bool finalized_;
-	size_t n_;
-	u8 *code_;
+class CodeGenerator : public Component {
+private:
+  bool finalized_;
+  size_t n_;
+  u8 *code_;
 
-    private:
-	void grow(const size_t n);
+private:
+  void grow(const size_t n);
 
-    protected:
-	bool append(const u8 *new_code, const size_t n);
-	bool append(const std::vector<u8> &new_code);
-	bool appendDWordOffset(unsigned int offset);
-	void finalize();
-	const u8* getCode() const { return code_; };
+protected:
+  bool append(const u8 *new_code, const size_t n);
+  bool append(const std::vector<u8> &new_code);
+  bool appendDWordOffset(unsigned int offset);
+  void finalize();
+  const u8 *getCode() const { return code_; };
 
-    public:
-	CodeGenerator(const Configuration&);
-	~CodeGenerator();
-    };
+public:
+  CodeGenerator(const Configuration &);
+  ~CodeGenerator();
+};
 
 } // namespace Core
 

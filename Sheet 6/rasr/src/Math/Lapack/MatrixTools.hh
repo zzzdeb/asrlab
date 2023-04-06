@@ -14,127 +14,127 @@
 #ifndef _MATH_MATRIX_TOOLS_HH_
 #define _MATH_MATRIX_TOOLS_HH
 
+#include "Lapack.hh"
+#include "Svd.hh"
 #include <Core/Application.hh>
 #include <Math/Matrix.hh>
 #include <Math/Vector.hh>
-#include "Lapack.hh"
-#include "Svd.hh"
 
-namespace Math { namespace Lapack {
+namespace Math {
+namespace Lapack {
 
-    template<typename T, class P>  void invert(Math::Matrix<T,P>& mat){
-	require(mat.nRows()==mat.nColumns());
-	int N = mat.nRows();
-	int *ipiv = new int[N];
-	T *contMatrix = new T[N*N];
-	int info;
+template <typename T, class P> void invert(Math::Matrix<T, P> &mat) {
+  require(mat.nRows() == mat.nColumns());
+  int N = mat.nRows();
+  int *ipiv = new int[N];
+  T *contMatrix = new T[N * N];
+  int info;
 
-	// Pack matrix in Fortran format
-	for (int i=0; i<N; i++)
-	    for (int j=0; j<N; j++)
-		contMatrix[i+j*N] = mat[i][j];
+  // Pack matrix in Fortran format
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      contMatrix[i + j * N] = mat[i][j];
 
-	// LU decomposition
-	getrf(&N, &N, contMatrix, &N, ipiv, &info);
-	if (info)
-	    Core::Application::us()->criticalError("LAPACK error: info=")
-		    << info << " in xGETRF";
+  // LU decomposition
+  getrf(&N, &N, contMatrix, &N, ipiv, &info);
+  if (info)
+    Core::Application::us()->criticalError("LAPACK error: info=")
+        << info << " in xGETRF";
 
-	// query and set buffer size
-	int lwork = -1;
-	T *work = new T[1];
-	getri(&N, contMatrix, &N, ipiv, work, &lwork, &info);
-	if (info)
-	    Core::Application::us()->criticalError("LAPACK error: info=")
-		    << info << " in xGETRI";
-	lwork = int(*work);
+  // query and set buffer size
+  int lwork = -1;
+  T *work = new T[1];
+  getri(&N, contMatrix, &N, ipiv, work, &lwork, &info);
+  if (info)
+    Core::Application::us()->criticalError("LAPACK error: info=")
+        << info << " in xGETRI";
+  lwork = int(*work);
 
-	delete[] work;
-	work = new T[lwork];
+  delete[] work;
+  work = new T[lwork];
 
-	// actual inverse calculation
-	getri(&N, contMatrix, &N, ipiv, work, &lwork, &info);
-	if (info)
-	    Core::Application::us()->criticalError("LAPACK error: info=")
-		    << info << " in xGETRI";
+  // actual inverse calculation
+  getri(&N, contMatrix, &N, ipiv, work, &lwork, &info);
+  if (info)
+    Core::Application::us()->criticalError("LAPACK error: info=")
+        << info << " in xGETRI";
 
-	// unpack into original matrix
-	for (int i=0; i<N; i++)
-	    for (int j=0; j<N; j++)
-		mat[i][j] = contMatrix[i+j*N];
+  // unpack into original matrix
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      mat[i][j] = contMatrix[i + j * N];
 
-	delete[] ipiv;
-	delete[] contMatrix;
-	delete[] work;
-    }
+  delete[] ipiv;
+  delete[] contMatrix;
+  delete[] work;
+}
 
+template <typename T, class P> void pseudoInvert(Math::Matrix<T, P> &mat) {
+  // Use existing implementation in Math/Lapack/Svd.cc, but change interface
+  DoubleMatrix in(mat);
+  DoubleMatrix out;
+  pseudoInvert(out, in);
+  mat = out;
+}
 
-    template<typename T, class P> void pseudoInvert(Math::Matrix<T,P>& mat){
-	// Use existing implementation in Math/Lapack/Svd.cc, but change interface
-	DoubleMatrix in(mat);
-	DoubleMatrix out;
-	pseudoInvert(out, in);
-	mat = out;
-    }
+template <typename T, class P> T logDeterminant(const Math::Matrix<T, P> &mat) {
+  require(mat.nRows() == mat.nColumns());
+  int N = mat.nRows();
+  int *ipiv = new int[N];
+  T *contMatrix = new T[N * N];
+  int info;
 
+  // Pack matrix in Fortran format
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      contMatrix[i + j * N] = mat[i][j];
 
-    template<typename T, class P> T logDeterminant(const Math::Matrix<T,P>& mat){
-	require(mat.nRows()==mat.nColumns());
-	int N = mat.nRows();
-	int *ipiv = new int[N];
-	T *contMatrix = new T[N*N];
-	int info;
+  // LU decomposition
+  getrf(&N, &N, contMatrix, &N, ipiv, &info);
+  if (info)
+    Core::Application::us()->criticalError("LAPACK error: info=")
+        << info << " in xGETRF";
 
-	// Pack matrix in Fortran format
-	for (int i=0; i<N; i++)
-	    for (int j=0; j<N; j++)
-		contMatrix[i+j*N] = mat[i][j];
+  // Sum of diagonal
+  T d = 0.0;
+  for (u32 i = 0; i < mat.nRows(); i++)
+    d += log(fabs(contMatrix[i + i * N]));
 
-	// LU decomposition
-	getrf(&N, &N, contMatrix, &N, ipiv, &info);
-	if (info)
-	    Core::Application::us()->criticalError("LAPACK error: info=")
-		    << info << " in xGETRF";
+  delete[] ipiv;
+  delete[] contMatrix;
 
-	// Sum of diagonal
-	T d = 0.0;
-	for (u32 i=0; i< mat.nRows(); i++)
-	    d += log(fabs(contMatrix[i+i*N]));
+  return d;
+}
 
-	delete[] ipiv;
-	delete[] contMatrix;
+template <typename T, class P> T determinant(const Math::Matrix<T, P> &mat) {
+  require(mat.nRows() == mat.nColumns());
+  int N = mat.nRows();
+  int *ipiv = new int[N];
+  T *contMatrix = new T[N * N];
+  int info;
 
-	return d;
-    }
+  // Pack matrix in Fortran format
+  for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+      contMatrix[i + j * N] = mat[i][j];
 
-    template<typename T, class P> T determinant(const Math::Matrix<T,P>& mat){
-	require(mat.nRows()==mat.nColumns());
-	int N = mat.nRows();
-	int *ipiv = new int[N];
-	T *contMatrix = new T[N*N];
-	int info;
+  // LU decomposition
+  getrf(&N, &N, contMatrix, &N, ipiv, &info);
+  if (info)
+    Core::Application::us()->criticalError("LAPACK error: info=")
+        << info << " in xGETRF";
 
-	// Pack matrix in Fortran format
-	for (int i=0; i<N; i++)
-	    for (int j=0; j<N; j++)
-		contMatrix[i+j*N] = mat[i][j];
+  // Product of diagonal
+  T d = 1.0;
+  for (u32 i = 0; i < mat.nRows(); i++)
+    d *= fabs(contMatrix[i + i * N]);
 
-	// LU decomposition
-	getrf(&N, &N, contMatrix, &N, ipiv, &info);
-	if (info)
-	    Core::Application::us()->criticalError("LAPACK error: info=")
-		    << info << " in xGETRF";
+  delete[] ipiv;
+  delete[] contMatrix;
 
-	// Product of diagonal
-	T d = 1.0;
-	for (u32 i=0; i< mat.nRows(); i++)
-	    d *= fabs(contMatrix[i+i*N]);
-
-	delete[] ipiv;
-	delete[] contMatrix;
-
-	return d;
-    }
-} } // namespace Math::Nr
+  return d;
+}
+} // namespace Lapack
+} // namespace Math
 
 #endif // _MATH_MATRIX_TOOLS_HH_

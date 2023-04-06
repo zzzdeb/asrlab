@@ -14,138 +14,145 @@
 #ifndef _MM_FEATURESCORER_HH
 #define _MM_FEATURESCORER_HH
 
-#include "Types.hh"
 #include "Feature.hh"
+#include "Types.hh"
 #include "Utilities.hh"
-#include <vector>
 #include <Core/Component.hh>
 #include <Core/Dependency.hh>
+#include <vector>
 
 namespace Mm {
 
-    /** Abstract feature scorer interface. */
-    class FeatureScorer :
-	public virtual Core::Component,
-	public Core::ReferenceCounted
-    {
-    protected:
-	/** Implement emission independent precalculations for feature vector */
-	class ContextScorer : public Core::ReferenceCounted {
-	protected:
-	    ContextScorer() {}
-	public:
-	    virtual ~ContextScorer() {}
+/** Abstract feature scorer interface. */
+class FeatureScorer : public virtual Core::Component,
+                      public Core::ReferenceCounted {
+protected:
+  /** Implement emission independent precalculations for feature vector */
+  class ContextScorer : public Core::ReferenceCounted {
+  protected:
+    ContextScorer() {}
 
-	    virtual EmissionIndex nEmissions() const = 0;
-	    virtual Score score(EmissionIndex e) const = 0;
-	};
-	friend class ContextScorer;
-    public:
-	FeatureScorer(const Core::Configuration &c) : Core::Component(c) {}
-	virtual ~FeatureScorer() {}
+  public:
+    virtual ~ContextScorer() {}
 
-	virtual EmissionIndex nMixtures() const = 0;
-	virtual void getFeatureDescription(FeatureDescription &description) const = 0;
-	virtual void getDependencies(Core::DependencySet &dependencies) const {
-	    FeatureDescription description(*this);
-	    getFeatureDescription(description);
-	    description.getDependencies(dependencies);
-	}
+    virtual EmissionIndex nEmissions() const = 0;
+    virtual Score score(EmissionIndex e) const = 0;
+  };
+  friend class ContextScorer;
 
-	typedef Core::Ref<const ContextScorer> Scorer;
-	virtual Scorer getScorer(Core::Ref<const Feature>) const = 0;
-	virtual Scorer getScorer(const FeatureVector &) const = 0;
+public:
+  FeatureScorer(const Core::Configuration &c) : Core::Component(c) {}
+  virtual ~FeatureScorer() {}
 
-	/**
-	 * reset should be overloaded/defined in/for
-	 * featurescorer related to sign language recognition
-	 * especially the tracking part
-	 *
-	 */
-	virtual void reset() const {};
+  virtual EmissionIndex nMixtures() const = 0;
+  virtual void getFeatureDescription(FeatureDescription &description) const = 0;
+  virtual void getDependencies(Core::DependencySet &dependencies) const {
+    FeatureDescription description(*this);
+    getFeatureDescription(description);
+    description.getDependencies(dependencies);
+  }
 
-	/**
-	 * setSegmentName should be overloaded/defined in classes
-	 * using embedded flow networks to create unambigious ids
-	 * for cache nodes
-	 */
-	virtual void setSegmentName(const std::string name) const {};
+  typedef Core::Ref<const ContextScorer> Scorer;
+  virtual Scorer getScorer(Core::Ref<const Feature>) const = 0;
+  virtual Scorer getScorer(const FeatureVector &) const = 0;
 
-	/**
-	 * finalize should be overloaded/defined in classes using
-	 * embedded flow networks to sent final end of sequence token
-	 * if neccessary
-	 */
-	virtual void finalize() const {};
+  /**
+   * reset should be overloaded/defined in/for
+   * featurescorer related to sign language recognition
+   * especially the tracking part
+   *
+   */
+  virtual void reset() const {};
 
-	/**
-	 * Return true if the feature scorer buffers features.
-	 */
-	virtual bool isBuffered() const { return false; }
+  /**
+   * setSegmentName should be overloaded/defined in classes
+   * using embedded flow networks to create unambigious ids
+   * for cache nodes
+   */
+  virtual void setSegmentName(const std::string name) const {};
 
-	/**
-	 * Add a feature to the feature buffer.
-	 * Implementation required if isBuffered() == true
-	 */
-	virtual void addFeature(const FeatureVector &f) const {}
-	virtual void addFeature(Core::Ref<const Feature> f) const {}
+  /**
+   * finalize should be overloaded/defined in classes using
+   * embedded flow networks to sent final end of sequence token
+   * if neccessary
+   */
+  virtual void finalize() const {};
 
-	/**
-	 * Return a scorer for the current feature without adding a
-	 * new feature to the buffer.
-	 * Should be called until bufferEmpty() == true.
-	 * Requires bufferEmpty() == false.
-	 * Implementation required if isBuffered() == true
-	 */
-	virtual Scorer flush() const { return Scorer(); }
+  /**
+   * Return true if the feature scorer buffers features.
+   */
+  virtual bool isBuffered() const { return false; }
 
-	/**
-	 * Return true if the feature buffer is full.
-	 * Implementation required if isBuffered() == true
-	 */
-	virtual bool bufferFilled() const { return true; }
+  /**
+   * Add a feature to the feature buffer.
+   * Implementation required if isBuffered() == true
+   */
+  virtual void addFeature(const FeatureVector &f) const {}
+  virtual void addFeature(Core::Ref<const Feature> f) const {}
 
-	/**
-	 * Return true if the feature buffer is empty.
-	 * Implementation required if isBuffered() == true
-	 */
-	virtual bool bufferEmpty() const { return true; }
+  /**
+   * Return a scorer for the current feature without adding a
+   * new feature to the buffer.
+   * Should be called until bufferEmpty() == true.
+   * Requires bufferEmpty() == false.
+   * Implementation required if isBuffered() == true
+   */
+  virtual Scorer flush() const { return Scorer(); }
 
-	/**
-	 * Return the number of buffered features required to
-	 * execture getScorer().
-	 * Implementation required if isBuffered() == true
-	 */
-	virtual u32 bufferSize() const { return 0; }
-    };
+  /**
+   * Return true if the feature buffer is full.
+   * Implementation required if isBuffered() == true
+   */
+  virtual bool bufferFilled() const { return true; }
 
-    /** Abstract feature scorer interface with cached scores. */
-    class CachedFeatureScorer : public FeatureScorer {
-	typedef FeatureScorer Precursor;
-    protected:
-	/** Implement emission independent precalculations for feature vector */
-	class CachedContextScorer : public ContextScorer {
-	private:
-	    const CachedFeatureScorer *featureScorer_;
-	    mutable Cache<Score> cache_;
-	protected:
-	    CachedContextScorer(const CachedFeatureScorer *featureScorer, EmissionIndex nEmissions) :
-		featureScorer_(featureScorer), cache_(nEmissions) {}
-	public:
-	    virtual ~CachedContextScorer() {}
-	    EmissionIndex nEmissions() const { return cache_.size(); }
-	    virtual Score score(EmissionIndex e) const {
-		require_(0 <= e && e < nEmissions());
-		if (!cache_.isCalculated(e))
-		    return cache_.set(e, featureScorer_->calculateScore(this, e));
-		return cache_[e];
-	    }
-	};
-	virtual Score calculateScore(const CachedContextScorer *, MixtureIndex) const = 0;
-    public:
-	CachedFeatureScorer(const Core::Configuration &c) : Core::Component(c), Precursor(c) {}
-	virtual ~CachedFeatureScorer() {}
-    };
+  /**
+   * Return true if the feature buffer is empty.
+   * Implementation required if isBuffered() == true
+   */
+  virtual bool bufferEmpty() const { return true; }
+
+  /**
+   * Return the number of buffered features required to
+   * execture getScorer().
+   * Implementation required if isBuffered() == true
+   */
+  virtual u32 bufferSize() const { return 0; }
+};
+
+/** Abstract feature scorer interface with cached scores. */
+class CachedFeatureScorer : public FeatureScorer {
+  typedef FeatureScorer Precursor;
+
+protected:
+  /** Implement emission independent precalculations for feature vector */
+  class CachedContextScorer : public ContextScorer {
+  private:
+    const CachedFeatureScorer *featureScorer_;
+    mutable Cache<Score> cache_;
+
+  protected:
+    CachedContextScorer(const CachedFeatureScorer *featureScorer,
+                        EmissionIndex nEmissions)
+        : featureScorer_(featureScorer), cache_(nEmissions) {}
+
+  public:
+    virtual ~CachedContextScorer() {}
+    EmissionIndex nEmissions() const { return cache_.size(); }
+    virtual Score score(EmissionIndex e) const {
+      require_(0 <= e && e < nEmissions());
+      if (!cache_.isCalculated(e))
+        return cache_.set(e, featureScorer_->calculateScore(this, e));
+      return cache_[e];
+    }
+  };
+  virtual Score calculateScore(const CachedContextScorer *,
+                               MixtureIndex) const = 0;
+
+public:
+  CachedFeatureScorer(const Core::Configuration &c)
+      : Core::Component(c), Precursor(c) {}
+  virtual ~CachedFeatureScorer() {}
+};
 
 } // namespace Mm
 

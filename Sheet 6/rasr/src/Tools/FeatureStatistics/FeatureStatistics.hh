@@ -13,44 +13,45 @@
 // limitations under the License.
 #include <Core/Application.hh>
 
-class FeatureStatistics :
-    public Core::Application
-{
+class FeatureStatistics : public Core::Application {
 public:
-    enum Action {
-	actionFindMaximum,
-	actionEstimateHistograms,
-	actionEstimateSequenceSelectionRatio,
-	actionEstimateMean,
-	actionEstimateCovariance,
-	actionEstimateMeanAndDiagonalCovariance,
-	actionEstimatePca,
-	actionEstimateCovarianceAndPca,
-	actionCalculateCovarianceDiagonalNormalization,
-	actionNumberOfActiveElements,
-	actionNotGiven
-    };
+  enum Action {
+    actionFindMaximum,
+    actionEstimateHistograms,
+    actionEstimateSequenceSelectionRatio,
+    actionEstimateMean,
+    actionEstimateCovariance,
+    actionEstimateMeanAndDiagonalCovariance,
+    actionEstimatePca,
+    actionEstimateCovarianceAndPca,
+    actionCalculateCovarianceDiagonalNormalization,
+    actionNumberOfActiveElements,
+    actionNotGiven
+  };
 
-    static const Core::Choice choiceAction;
-    static const Core::ParameterChoice paramAction;
+  static const Core::Choice choiceAction;
+  static const Core::ParameterChoice paramAction;
+
 private:
-    void findMaximum();
-    void calculateNumberOfActiveElements();
-    void estimateHistograms();
-    void estimateSequenceSelectionRatio();
-    void estimateMean();
-    void estimateCovariance();
-    void estimateMeanAndDiagonalCovariance();
-    void estimatePca();
-    void estimateCovarianceAndPca();
-    void calculateCovarianceDiagonalNormalization();
+  void findMaximum();
+  void calculateNumberOfActiveElements();
+  void estimateHistograms();
+  void estimateSequenceSelectionRatio();
+  void estimateMean();
+  void estimateCovariance();
+  void estimateMeanAndDiagonalCovariance();
+  void estimatePca();
+  void estimateCovarianceAndPca();
+  void calculateCovarianceDiagonalNormalization();
 
-    void visitCorpus(Speech::CorpusProcessor &corpusProcessor);
+  void visitCorpus(Speech::CorpusProcessor &corpusProcessor);
+
 public:
-    FeatureStatistics();
-    ~FeatureStatistics() {}
+  FeatureStatistics();
+  ~FeatureStatistics() {}
 
-    virtual std::string getUsage() const { return "Creates statistics over the extracted features"; }
-    virtual int main(const std::vector<std::string> &arguments);
+  virtual std::string getUsage() const {
+    return "Creates statistics over the extracted features";
+  }
+  virtual int main(const std::vector<std::string> &arguments);
 };
-

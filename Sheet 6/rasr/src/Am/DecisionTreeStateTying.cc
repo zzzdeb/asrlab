@@ -17,34 +17,27 @@
 using namespace Am;
 
 DecisionTreeStateTying::DecisionTreeStateTying(
-    const Core::Configuration & config,
-    ClassicStateModelRef stateModel) :
-    Core::Component(config),
-    Precursor(config, stateModel),
-    tree_(config, stateModel),
-    props_(0)
-{
-    std::string filename = paramFilename(config);
-    if (!tree_.loadFromFile(filename)) {
-		criticalError("failure while reading decision tree from \"%s\"", filename.c_str());
-		return;
-    }
-    Core::MD5 md5;
-    if (md5.updateFromFile(filename))
-		dependency_.setValue(md5);
-    else
-		warning("could not derive md5 sum from file '%s'", filename.c_str());
-	log("dependency value: %s", std::string(md5).c_str());
+    const Core::Configuration &config, ClassicStateModelRef stateModel)
+    : Core::Component(config), Precursor(config, stateModel),
+      tree_(config, stateModel), props_(0) {
+  std::string filename = paramFilename(config);
+  if (!tree_.loadFromFile(filename)) {
+    criticalError("failure while reading decision tree from \"%s\"",
+                  filename.c_str());
+    return;
+  }
+  Core::MD5 md5;
+  if (md5.updateFromFile(filename))
+    dependency_.setValue(md5);
+  else
+    warning("could not derive md5 sum from file '%s'", filename.c_str());
+  log("dependency value: %s", std::string(md5).c_str());
 
-    props_ = new Properties(tree_.getMap());
-    /*
-    if (classifyDumpChannel_.isOpen())
-		dumpStateTying(classifyDumpChannel_);
-    */
+  props_ = new Properties(tree_.getMap());
+  /*
+  if (classifyDumpChannel_.isOpen())
+              dumpStateTying(classifyDumpChannel_);
+  */
 }
 
-
-DecisionTreeStateTying::~DecisionTreeStateTying()
-{
-    delete props_;
-}
+DecisionTreeStateTying::~DecisionTreeStateTying() { delete props_; }

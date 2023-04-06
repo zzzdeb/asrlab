@@ -14,47 +14,46 @@
 #ifndef _SPEECH_CORPUS_PROCESSOR_HH
 #define _SPEECH_CORPUS_PROCESSOR_HH
 
-#include <Core/Statistics.hh>
-#include <Bliss/CorpusDescription.hh>
 #include "CorpusVisitor.hh"
-
+#include <Bliss/CorpusDescription.hh>
+#include <Core/Statistics.hh>
 
 namespace Speech {
 
-    class CorpusVisitor;
+class CorpusVisitor;
 
-    /**
-     * CorpusProcessor base class for algorithms driven by a CorpusVisitor
-     *
-     * Output (XML format):
-     * - CPU time and real time factor (channel: real-time-factor)
-     */
-    class CorpusProcessor : public virtual Core::Component
-    {
-    protected:
-	Core::XmlChannel channelTimer_;
-	Core::Timer timer_;
-	void reportRealTime(Flow::Time);
-    public:
-	CorpusProcessor(const Core::Configuration &c);
-	virtual ~CorpusProcessor();
+/**
+ * CorpusProcessor base class for algorithms driven by a CorpusVisitor
+ *
+ * Output (XML format):
+ * - CPU time and real time factor (channel: real-time-factor)
+ */
+class CorpusProcessor : public virtual Core::Component {
+protected:
+  Core::XmlChannel channelTimer_;
+  Core::Timer timer_;
+  void reportRealTime(Flow::Time);
 
-	/** Override this function to sign on to services of the corpus visitor.
-	 *  Note: call the signOn function of your predecessor.
-	 */
-	virtual void signOn(CorpusVisitor &corpusVisitor);
+public:
+  CorpusProcessor(const Core::Configuration &c);
+  virtual ~CorpusProcessor();
 
-	virtual void enterCorpus(Bliss::Corpus *corpus);
-	virtual void leaveCorpus(Bliss::Corpus *corpus);
-	virtual void enterRecording(Bliss::Recording *recoding);
-	virtual void leaveRecording(Bliss::Recording *recoding);
-	virtual void enterSegment(Bliss::Segment *segment);
-	virtual void processSegment(Bliss::Segment* segment);
-	virtual void leaveSegment(Bliss::Segment *segment);
-	virtual void enterSpeechSegment(Bliss::SpeechSegment*);
-	virtual void processSpeechSegment(Bliss::SpeechSegment* segment);
-	virtual void leaveSpeechSegment(Bliss::SpeechSegment*);
-    };
+  /** Override this function to sign on to services of the corpus visitor.
+   *  Note: call the signOn function of your predecessor.
+   */
+  virtual void signOn(CorpusVisitor &corpusVisitor);
+
+  virtual void enterCorpus(Bliss::Corpus *corpus);
+  virtual void leaveCorpus(Bliss::Corpus *corpus);
+  virtual void enterRecording(Bliss::Recording *recoding);
+  virtual void leaveRecording(Bliss::Recording *recoding);
+  virtual void enterSegment(Bliss::Segment *segment);
+  virtual void processSegment(Bliss::Segment *segment);
+  virtual void leaveSegment(Bliss::Segment *segment);
+  virtual void enterSpeechSegment(Bliss::SpeechSegment *);
+  virtual void processSpeechSegment(Bliss::SpeechSegment *segment);
+  virtual void leaveSpeechSegment(Bliss::SpeechSegment *);
+};
 
 } // namespace Speech
 

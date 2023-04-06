@@ -19,11 +19,11 @@ using namespace Mm;
 /**
  * ConvertMixtureEstimator
  */
-void ConvertMixtureEstimator::setMixture(const Mixture *mixture)
-{
-    require(mixture);
-    verify(nDensities() == mixture->nDensities());
-    for (DensityIndex dnsInMix = 0; dnsInMix < mixture->nDensities(); ++ dnsInMix) {
-	weights_[dnsInMix] = mixture->weight(dnsInMix);
-    }
+void ConvertMixtureEstimator::setMixture(const Mixture *mixture) {
+  require(mixture);
+  verify(nDensities() == mixture->nDensities());
+  for (DensityIndex dnsInMix = 0; dnsInMix < mixture->nDensities();
+       ++dnsInMix) {
+    weights_[dnsInMix] = mixture->weight(dnsInMix);
+  }
 }

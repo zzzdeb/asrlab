@@ -14,25 +14,25 @@
 #ifndef _FSA_MAPPING_HH
 #define _FSA_MAPPING_HH
 
-#include <Core/ReferenceCounting.hh>
 #include "Types.hh"
+#include <Core/ReferenceCounting.hh>
 
 namespace Fsa {
-    /*
-      Mappings must not have references to automatons;
-      only weak references.
-    */
+/*
+  Mappings must not have references to automatons;
+  only weak references.
+*/
 
-    /**
-     * Mapping between state ids of two automatons;
-     * see compose for examples
-     **/
-    class Mapping : public Core::ReferenceCounted {
-    public:
-	virtual ~Mapping() {}
-	virtual StateId map(StateId target) const = 0;
-    };
-    typedef Core::Ref<const Mapping> ConstMappingRef;
+/**
+ * Mapping between state ids of two automatons;
+ * see compose for examples
+ **/
+class Mapping : public Core::ReferenceCounted {
+public:
+  virtual ~Mapping() {}
+  virtual StateId map(StateId target) const = 0;
+};
+typedef Core::Ref<const Mapping> ConstMappingRef;
 
 } // namespace Fsa
 

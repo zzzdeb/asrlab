@@ -18,35 +18,40 @@
 #include "SegmentwiseFeatures.hh"
 #include <Am/AcousticModel.hh>
 
+namespace Speech {
 
-namespace Speech
-{
+/**
+ * SegmentwiseFeatureExtractor is a corpus visitor application for segmentwise
+ * feature extraction.
+ */
+class SegmentwiseFeatureExtractor : public DataExtractor,
+                                    public Core::ReferenceCounted {
+  typedef DataExtractor Precursor;
 
-    /**
-     * SegmentwiseFeatureExtractor is a corpus visitor application for segmentwise feature extraction.
-     */
-    class SegmentwiseFeatureExtractor :
-	public DataExtractor, public Core::ReferenceCounted
-    {
-	typedef DataExtractor Precursor;
-    protected:
-	typedef Core::hash_map<Flow::PortId, SegmentwiseFeaturesRef> FeatureStreams;
-    private:
-	FeatureStreams featureStreams_;
-    public:
-	SegmentwiseFeatureExtractor(const Core::Configuration &c) :
-	    Core::Component(c), Precursor(c) {}
-	virtual ~SegmentwiseFeatureExtractor() {}
+protected:
+  typedef Core::hash_map<Flow::PortId, SegmentwiseFeaturesRef> FeatureStreams;
 
-	virtual void signOn(CorpusVisitor &corpusVisitor);
+private:
+  FeatureStreams featureStreams_;
 
-	Flow::PortId addPort(const std::string &);
-	void checkCompatibility(Flow::PortId, Core::Ref<const Am::AcousticModel>) const;
-	ConstSegmentwiseFeaturesRef features(Flow::PortId) const;
-	bool valid(Flow::PortId port) const { return (featureStreams_.find(port) != featureStreams_.end()) && !featureStreams_.find(port)->second->empty(); }
-	bool valid() const;
-	virtual void processSegment(Bliss::Segment *);
-    };
-}
+public:
+  SegmentwiseFeatureExtractor(const Core::Configuration &c)
+      : Core::Component(c), Precursor(c) {}
+  virtual ~SegmentwiseFeatureExtractor() {}
+
+  virtual void signOn(CorpusVisitor &corpusVisitor);
+
+  Flow::PortId addPort(const std::string &);
+  void checkCompatibility(Flow::PortId,
+                          Core::Ref<const Am::AcousticModel>) const;
+  ConstSegmentwiseFeaturesRef features(Flow::PortId) const;
+  bool valid(Flow::PortId port) const {
+    return (featureStreams_.find(port) != featureStreams_.end()) &&
+           !featureStreams_.find(port)->second->empty();
+  }
+  bool valid() const;
+  virtual void processSegment(Bliss::Segment *);
+};
+} // namespace Speech
 
 #endif // _SPEECH_SEGMENTWISE_FEATURE_EXTRACTOR_HH

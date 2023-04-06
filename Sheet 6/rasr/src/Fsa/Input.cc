@@ -11,13 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <cstring>
 #include <Core/Application.hh>
 #include <Core/CompressedStream.hh>
 #include <Core/Unicode.hh>
 #include <Core/Utility.hh>
+#include <cstring>
 
-#include "tInput.hh"
 #include "Alphabet.hh"
 #include "Input.hh"
 #include "Output.hh"
@@ -26,43 +25,48 @@
 #include "Static.hh"
 #include "Storage.hh"
 #include "Types.hh"
-
-
+#include "tInput.hh"
 
 namespace Fsa {
-    ConstAutomatonRef read(const std::string &argument, ConstSemiringRef semiring) {
-	StorageAutomaton *f;
-	std::string tmp = argument;
-	if (std::string(tmp, 0, 7) == "packed:") {
-	    f = new PackedAutomaton();
-	    tmp = std::string(tmp, 7);
-	} else f = new StaticAutomaton();
-	f->setSemiring(semiring);
-	if (!read(f, tmp)) {
-	    Core::Application::us()->error("could not load fsa '%s'.", tmp.c_str());
-	    delete f;
-	    return ConstAutomatonRef();
-	}
-	return ConstAutomatonRef(f);
-    }
+ConstAutomatonRef read(const std::string &argument, ConstSemiringRef semiring) {
+  StorageAutomaton *f;
+  std::string tmp = argument;
+  if (std::string(tmp, 0, 7) == "packed:") {
+    f = new PackedAutomaton();
+    tmp = std::string(tmp, 7);
+  } else
+    f = new StaticAutomaton();
+  f->setSemiring(semiring);
+  if (!read(f, tmp)) {
+    Core::Application::us()->error("could not load fsa '%s'.", tmp.c_str());
+    delete f;
+    return ConstAutomatonRef();
+  }
+  return ConstAutomatonRef(f);
+}
 
-    bool read(StorageAutomaton *f, const std::string &file)
-    { return Ftl::read<Automaton>(getResources(), f, file); }
+bool read(StorageAutomaton *f, const std::string &file) {
+  return Ftl::read<Automaton>(getResources(), f, file);
+}
 
-    bool read(StorageAutomaton *f, const std::string &format, std::istream &i)
-    { return Ftl::read<Automaton>(getResources(), f, format, i); }
+bool read(StorageAutomaton *f, const std::string &format, std::istream &i) {
+  return Ftl::read<Automaton>(getResources(), f, format, i);
+}
 
-    bool readAtt(StorageAutomaton *f, std::istream &i)
-    { return Ftl::readAtt<Automaton>(getResources(), f, i); }
+bool readAtt(StorageAutomaton *f, std::istream &i) {
+  return Ftl::readAtt<Automaton>(getResources(), f, i);
+}
 
-    bool readBinary(StorageAutomaton *f, std::istream &i)
-    { return Ftl::readBinary<Automaton>(getResources(), f, i); }
+bool readBinary(StorageAutomaton *f, std::istream &i) {
+  return Ftl::readBinary<Automaton>(getResources(), f, i);
+}
 
-    bool readLinear(StorageAutomaton *f, std::istream &i)
-    { return Ftl::readLinear<Automaton>(getResources(), f, i); }
+bool readLinear(StorageAutomaton *f, std::istream &i) {
+  return Ftl::readLinear<Automaton>(getResources(), f, i);
+}
 
-    bool readXml(StorageAutomaton *f, std::istream &i)
-    { return Ftl::readXml<Automaton>(getResources(), f, i); }
-
+bool readXml(StorageAutomaton *f, std::istream &i) {
+  return Ftl::readXml<Automaton>(getResources(), f, i);
+}
 
 } // namespace Fsa

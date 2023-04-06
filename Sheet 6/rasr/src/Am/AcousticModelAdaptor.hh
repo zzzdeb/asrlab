@@ -18,40 +18,45 @@
 
 namespace Am {
 
-    /**
-     * Interface class for acoustic model adaptors
-     */
-    class AcousticModelAdaptor :
-	public virtual Core::Component,
-	public Core::ReferenceCounted
-    {
-    protected:
-	Core::Ref<AcousticModel> toAdapt_;
-    public:
-	AcousticModelAdaptor(const Core::Configuration &c, Core::Ref<AcousticModel> toAdapt) :
-	    Component(c), toAdapt_(toAdapt) { require(toAdapt_); }
-	virtual ~AcousticModelAdaptor() {}
+/**
+ * Interface class for acoustic model adaptors
+ */
+class AcousticModelAdaptor : public virtual Core::Component,
+                             public Core::ReferenceCounted {
+protected:
+  Core::Ref<AcousticModel> toAdapt_;
 
-	Core::Ref<const AcousticModel> acousticModel() const { return toAdapt_; }
-    };
+public:
+  AcousticModelAdaptor(const Core::Configuration &c,
+                       Core::Ref<AcousticModel> toAdapt)
+      : Component(c), toAdapt_(toAdapt) {
+    require(toAdapt_);
+  }
+  virtual ~AcousticModelAdaptor() {}
 
-    /**
-     * MixtureSetAdaptor
-     */
-    class MixtureSetAdaptor : public AcousticModelAdaptor {
-	typedef AcousticModelAdaptor Precursor;
-    protected:
-	Core::Ref<Mm::MixtureSet> mixtureSet_;
-    public:
-	MixtureSetAdaptor(const Core::Configuration&, Core::Ref<AcousticModel>);
-	virtual ~MixtureSetAdaptor();
+  Core::Ref<const AcousticModel> acousticModel() const { return toAdapt_; }
+};
 
-	virtual const Core::Ref<Mm::MixtureSet> mixtureSet() const { return mixtureSet_; }
-	virtual bool setMixtureSet(const Core::Ref<Mm::MixtureSet>);
-	virtual Core::Ref<Mm::MixtureSet> unadaptedMixtureSet() const;
-    };
+/**
+ * MixtureSetAdaptor
+ */
+class MixtureSetAdaptor : public AcousticModelAdaptor {
+  typedef AcousticModelAdaptor Precursor;
+
+protected:
+  Core::Ref<Mm::MixtureSet> mixtureSet_;
+
+public:
+  MixtureSetAdaptor(const Core::Configuration &, Core::Ref<AcousticModel>);
+  virtual ~MixtureSetAdaptor();
+
+  virtual const Core::Ref<Mm::MixtureSet> mixtureSet() const {
+    return mixtureSet_;
+  }
+  virtual bool setMixtureSet(const Core::Ref<Mm::MixtureSet>);
+  virtual Core::Ref<Mm::MixtureSet> unadaptedMixtureSet() const;
+};
 
 } // namespace Am
 
 #endif //_AM_ACOUSTIC_MODEL_ADAPTOR_HH
-

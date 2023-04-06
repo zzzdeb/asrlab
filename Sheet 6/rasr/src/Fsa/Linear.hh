@@ -20,10 +20,10 @@
 #include <vector>
 
 namespace Fsa {
-    bool isLinear(ConstAutomatonRef);
-    void getLinearInput(ConstAutomatonRef, std::vector<LabelId> &result);
-    void getLinearOutput(ConstAutomatonRef, std::vector<LabelId> &result);
-    Weight getLinearWeight(ConstAutomatonRef);
+bool isLinear(ConstAutomatonRef);
+void getLinearInput(ConstAutomatonRef, std::vector<LabelId> &result);
+void getLinearOutput(ConstAutomatonRef, std::vector<LabelId> &result);
+Weight getLinearWeight(ConstAutomatonRef);
 } // namespace Fsa
 
 #endif // _FSA_LINEAR_HH

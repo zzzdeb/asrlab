@@ -38,7 +38,7 @@ template <class T>
 class VectorLogFunction : public SimpleFunction<Vector<T>, T> {
 public:
   void apply(Vector<T> &v, T) {
-    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun(log10));
+    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun<T, T>(log10));
   }
   static std::string name() { return Vector<T>::type()->name() + "-log"; }
 };
@@ -73,7 +73,7 @@ template <class T>
 class VectorLnFunction : public SimpleFunction<Vector<T>, T> {
 public:
   void apply(Vector<T> &v, T) {
-    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun(log));
+    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun<T, T>(log));
   }
   static std::string name() { return Vector<T>::type()->name() + "-ln"; }
 };
@@ -88,7 +88,7 @@ template <class T>
 class VectorExpFunction : public SimpleFunction<Vector<T>, T> {
 public:
   void apply(Vector<T> &v, T) {
-    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun(exp));
+    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun<T, T>(exp));
   }
   static std::string name() { return Vector<T>::type()->name() + "-exp"; }
 };
@@ -123,7 +123,7 @@ template <class T>
 class VectorSqrtFunction : public SimpleFunction<Vector<T>, T> {
 public:
   void apply(Vector<T> &v, T) {
-    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun(sqrt));
+    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun<T, T>(sqrt));
   }
   static std::string name() { return Vector<T>::type()->name() + "-sqrt"; }
 };
@@ -139,7 +139,7 @@ template <class T>
 class VectorCosFunction : public SimpleFunction<Vector<T>, T> {
 public:
   void apply(Vector<T> &v, T) {
-    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun(cos));
+    std::transform(v.begin(), v.end(), v.begin(), std::ptr_fun<T, T>(cos));
   }
   static std::string name() { return Vector<T>::type()->name() + "-cos"; }
 };

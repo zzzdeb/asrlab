@@ -234,7 +234,7 @@ int XmlParser::hasExternalSubset() {
 
 xmlParserInputPtr XmlParser::resolveEntity(const char *publicId,
                                            const char *systemId) {
-  return ::resolveEntity(ctxt_, c2x(publicId), c2x(systemId));
+  return ::xmlSAX2ResolveEntity(ctxt_, c2x(publicId), c2x(systemId));
 }
 
 void XmlParser::internalSubset(const char *name, const char *ExternalID,

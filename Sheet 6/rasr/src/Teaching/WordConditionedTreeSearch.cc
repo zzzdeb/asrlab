@@ -154,23 +154,33 @@ TreeLexicon::TreeLexicon(const Lexicon &lexicon)
   }
 
   std::queue<TreeNode *> queue;
-      MixtureSequence mixtures;
+  MixtureSequence mixtures;
   size_t last_arc = 1;
   queue.push(&root);
 
   while (!queue.empty()) {
     TreeNode &currentNode = *queue.front();
     size_t numChild = currentNode.children.size();
-      MixtureSequence mixtures;
+    MixtureSequence mixtures;
     if (currentNode.depth > 0)
       mixtures = *lexicon.mixtures(currentNode.word, currentNode.depth - 1);
-      treeLexiconArcs_.push_back(
-        TreeLexiconArc(last_arc, last_arc+numChild, currentNode.endingWord, mixtures));
+    treeLexiconArcs_.push_back(TreeLexiconArc(
+        last_arc, last_arc + numChild, currentNode.endingWord, mixtures));
     last_arc += numChild;
-    for (std::map<std::string, TreeNode>::iterator child = currentNode.children.begin(); child != currentNode.children.end(); child++) {
+    for (std::map<std::string, TreeNode>::iterator child =
+             currentNode.children.begin();
+         child != currentNode.children.end(); child++) {
       queue.push(&child->second);
     }
     queue.pop();
+  }
+  {
+    std::cout << "Num arcs: " << treeLexiconArcs_.size() - 1 << std::endl;
+    size_t num_phonemes = 0;
+    for (Word w = 0; w < nWords_; ++w) {
+      num_phonemes += lexicon.nPhonemes(w);
+    }
+    std::cout << "Num phonemes: " << num_phonemes << std::endl;
   }
 
   std::cout << "digraph tree {" << std::endl;
@@ -189,7 +199,7 @@ TreeLexicon::TreeLexicon(const Lexicon &lexicon)
              child != currentNode.children.end(); child++) {
           queue.push(&child->second);
           edges << currentNode.mark << " -> " << child->second.mark;
-            edges << " [label=\"" << child->first << "\"];" << std::endl;
+          edges << " [label=\"" << child->first << "\"];" << std::endl;
         }
         queue.pop();
       }
@@ -680,7 +690,7 @@ void WordConditionedTreeSearch::SearchSpace::ActiveArcs::
   // tree shall be activated with initial score
   if (wordHyp != 0) {
     const Score initialScore = wordHyp->score;
-
+    
     for (Arc successorArc = treeLexicon_.succArcBegin(0);
          successorArc != treeLexicon_.succArcEnd(0); ++successorArc) {
       if (amThreshold == maxScore || bestScore == maxScore ||
@@ -976,8 +986,8 @@ void WordConditionedTreeSearch::SearchSpace::computeTimeAlignment(
           stateHypotheses_.at(b).score;
       backpointers.at(stateHypotheses_.at(b).state + 1) =
           stateHypotheses_.at(b).backpointer;
-        }
-        }
+    }
+  }
 
   std::vector<Score> curScores(nStates);
   std::vector<Index> back(nStates);
@@ -987,14 +997,14 @@ void WordConditionedTreeSearch::SearchSpace::computeTimeAlignment(
       bool is_silence = mixtures.at(0) == treeLexicon_.silenceMixture();
       currentScores.at(j) =
           scores.at(i + j) + transitionScores_.at(is_silence).at(maxSkip_ - j);
-      }
+    }
 
     std::vector<Score>::iterator min_score =
         std::min_element(currentScores.begin(), currentScores.end());
     curScores.at(i) = *min_score;
     back.at(i) =
         backpointers.at(i + maxSkip_ - (min_score - currentScores.begin()));
-      }
+  }
 
   for (size_t i = 0; i < nStates; i++) {
     if (curScores.at(i) < maxScore) {
@@ -1042,7 +1052,8 @@ void WordConditionedTreeSearch::SearchSpace::writeBackTreeHypothesis(
 void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
     Score acousticPruningThreshold) {
   bestScore_ = maxScore;
-  for (StateHypotheses::iterator it = newStateHypotheses_.begin(); it < newStateHypotheses_.end(); it++)
+  for (StateHypotheses::iterator it = newStateHypotheses_.begin();
+       it < newStateHypotheses_.end(); it++)
     if (it->score < bestScore_)
       bestScore_ = it->score;
 
@@ -1051,13 +1062,13 @@ void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
   stateHypotheses_.clear();
 
   for (size_t i = 0; i < newTreeHypotheses_.size(); i++) {
-    TreeHypothesis& treeHyp = newTreeHypotheses_.at(i);
+    TreeHypothesis &treeHyp = newTreeHypotheses_.at(i);
     size_t added_arcs = 0;
     for (size_t j = treeHyp.arcHypEnd; j < treeHyp.arcHypEnd; j++) {
-      ArcHypothesis& arcHyp = newArcHypotheses_.at(j);
+      ArcHypothesis &arcHyp = newArcHypotheses_.at(j);
       size_t added_states = 0;
       for (size_t k = arcHyp.stateHypBegin; k < arcHyp.stateHypEnd; k++) {
-        StateHypothesis& stateHyp = newStateHypotheses_.at(k);
+        StateHypothesis &stateHyp = newStateHypotheses_.at(k);
         Score threshold = bestScore_ + acousticPruningThreshold;
         if (stateHyp.score <= threshold) {
           stateHypotheses_.push_back(stateHyp);
@@ -1065,19 +1076,23 @@ void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
         }
       }
       if (added_states > 0) {
-        arcHypotheses_.push_back(ArcHypothesis(arcHyp.arc, stateHypotheses_.size() - added_states, stateHypotheses_.size()));
+        arcHypotheses_.push_back(
+            ArcHypothesis(arcHyp.arc, stateHypotheses_.size() - added_states,
+                          stateHypotheses_.size()));
         added_arcs++;
       }
     }
     if (added_arcs > 0) {
-      treeHypotheses_.push_back(TreeHypothesis(treeHyp.predecessorWord, arcHypotheses_.size() - added_arcs, arcHypotheses_.size()));
+      treeHypotheses_.push_back(TreeHypothesis(
+          treeHyp.predecessorWord, arcHypotheses_.size() - added_arcs,
+          arcHypotheses_.size()));
     }
   }
 
   wordHypotheses_.clear();
 
   for (size_t i = 0; i < arcHypotheses_.size(); i++) {
-    ArcHypothesis& ah = arcHypotheses_.at(i);
+    ArcHypothesis &ah = arcHypotheses_.at(i);
     Word endingWord = treeLexicon_.endingWord(ah.arc);
     if (endingWord == invalidWord)
       continue;
@@ -1086,12 +1101,18 @@ void WordConditionedTreeSearch::SearchSpace::pruneStatesAndFindWordEnds(
     if (sh.state < treeLexicon_.nStates(ah.arc))
       continue;
     Score exitPenalty = treeLexicon_.silence() == endingWord
-        ? transitionScores_.at(1).at(TransitionModelScorer::exitPenaltyIndex)
-        : transitionScores_.at(0).at(TransitionModelScorer::exitPenaltyIndex);
-    std::cerr << "Word ending " << endingWord << " " << treeLexicon_.silence() << " "  << sh.backpointer << " " << sh.score << " " << exitPenalty << std::endl;
+                            ? transitionScores_.at(1).at(
+                                  TransitionModelScorer::exitPenaltyIndex)
+                            : transitionScores_.at(0).at(
+                                  TransitionModelScorer::exitPenaltyIndex);
+    //    std::cerr << "Word ending " << endingWord << " " <<
+    //    treeLexicon_.silence() << " "  << sh.backpointer << " " << sh.score <<
+    //    " " << exitPenalty << std::endl;
     WordHypothesis wh(endingWord, sh.score + exitPenalty, sh.backpointer);
     wordHypotheses_.push_back(wh);
   }
+  //  std::cerr << newTreeHypotheses_.size() << " " << newArcHypotheses_.size()
+  //  << " " << newStateHypotheses_.size() << std::endl;
 }
 
 // BigramRecombination

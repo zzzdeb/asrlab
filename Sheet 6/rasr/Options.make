@@ -27,9 +27,9 @@
 # Note that you can change the compile mode on the command line using, e.g.
 # make COMPILE=debug
 
-COMPILE			= standard
+#COMPILE			= standard
 #COMPILE		= release
-#COMPILE		= debug
+COMPILE		= debug
 #COMPILE		= debug_light
 
 # -----------------------------------------------------------------------------

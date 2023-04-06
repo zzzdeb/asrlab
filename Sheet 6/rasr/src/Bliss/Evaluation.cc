@@ -320,6 +320,7 @@ u32 Evaluator::evaluateWords(Fsa::ConstAutomatonRef lemmaOrPronOrSyntOrEval,
 
 u32 Evaluator::evaluatePhonemes(Fsa::ConstAutomatonRef phon,
                                 const std::string &name) {
+  std::cout << "In evalPhonem" << std::endl;
   require(phon->getOutputAlphabet() ==
           lexicon_->phonemeInventory()->phonemeAlphabet());
   require(!Fsa::isEmpty(phon));

@@ -393,7 +393,7 @@ private:
       for (ExamplePtrList::const_iterator itExamplePtr = examplePtrs->begin(),
                                           endExamplePtr = examplePtrs->end();
            itExamplePtr != endExamplePtr; ++itExamplePtr) {
-        if (question(*((*itExamplePtr)->properties)) == TRUE) {
+        if (question(*((*itExamplePtr)->properties)) == RASR_TRUE) {
           *(endLeftExamplePtr++) = *itExamplePtr;
           splitHyp.nLeftObs += (*itExamplePtr)->nObs;
         } else {
@@ -441,7 +441,7 @@ private:
                itExamplePtr = node->examplePtrs->begin(),
                endExamplePtr = node->examplePtrs->end();
            itExamplePtr != endExamplePtr; ++itExamplePtr) {
-        if (question(*((*itExamplePtr)->properties)) == TRUE)
+        if (question(*((*itExamplePtr)->properties)) == RASR_TRUE)
           *(itLeftExamplePtr++) = *itExamplePtr;
         else
           *(itRightExamplePtr++) = *itExamplePtr;

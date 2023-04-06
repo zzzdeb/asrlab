@@ -20,7 +20,7 @@ include	Config.make
 world:
 	./scripts/build all
 
-all:	build test
+all:	build install
 
 build:	config
 	$(MAKE) -C src build
